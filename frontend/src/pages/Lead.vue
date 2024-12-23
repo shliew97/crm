@@ -51,7 +51,7 @@
         v-model="lead"
       />
     </Tabs>
-    <Resizer class="flex flex-col justify-start border-l" side="right">
+    <Resizer class="flex flex-col justify-start border-l overflow-y-auto" side="right">
       <a :href="`/crm/leads/${lead.name}#whatsapp`" class="flex h-30 cursor-pointer border p-4 shadow-sm hover:bg-gray-50 flex-col" v-for="(lead, i) in newLeads" :key="lead.name">
         <div class="flex justify-between">
           <div class="truncate text-base">{{ lead.lead_name }}</div>

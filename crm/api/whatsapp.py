@@ -8,6 +8,13 @@ from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
 def validate(doc, method):
     if doc.type == "Incoming" and doc.get("from"):
         name, doctype = get_lead_or_deal_from_number(doc.get("from"))
+        if not name:
+            crm_lead_doc = frappe.new_doc("CRM Lead")
+            crm_lead_doc.first_name = doc.from_name or ""
+            crm_lead_doc.last_name = ""
+            crm_lead_doc.mobile_no = doc.get("from")
+            crm_lead_doc.insert(ignore_permissions=True)
+            name = crm_lead_doc.name
         doc.reference_doctype = doctype
         doc.reference_name = name
 
