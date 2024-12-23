@@ -269,23 +269,10 @@ class CRMLead(Document):
 				'width': '12rem',
 			},
 			{
-				'label': 'Organization',
-				'type': 'Link',
-				'key': 'organization',
-				'options': 'CRM Organization',
-				'width': '10rem',
-			},
-			{
 				'label': 'Status',
 				'type': 'Select',
-				'key': 'status',
+				'key': 'conversation_status',
 				'width': '8rem',
-			},
-			{
-				'label': 'Email',
-				'type': 'Data',
-				'key': 'email',
-				'width': '12rem',
 			},
 			{
 				'label': 'Mobile No',
@@ -294,16 +281,10 @@ class CRMLead(Document):
 				'width': '11rem',
 			},
 			{
-				'label': 'Assigned To',
+				'label': 'Last Reply By',
 				'type': 'Text',
-				'key': '_assign',
+				'key': 'last_reply_by',
 				'width': '10rem',
-			},
-			{
-				'label': 'Last Modified',
-				'type': 'Datetime',
-				'key': 'modified',
-				'width': '8rem',
 			},
 		]
 		rows = [

@@ -18,6 +18,8 @@
   "job_title",
   "source",
   "lead_owner",
+  "last_reply_by_user",
+  "last_reply_by",
   "person_tab",
   "salutation",
   "first_name",
@@ -33,6 +35,7 @@
   "phone",
   "column_break_dbsv",
   "status",
+  "conversation_status",
   "no_of_employees",
   "annual_revenue",
   "image",
@@ -285,12 +288,34 @@
    "fieldtype": "Table",
    "label": "Status Change Log",
    "options": "CRM Status Change Log"
+  },
+  {
+   "default": "New",
+   "fieldname": "conversation_status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "New\nAccepted\nCompleted",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "last_reply_by_user",
+   "fieldtype": "Link",
+   "label": "Last Reply By User",
+   "options": "User"
+  },
+  {
+   "fetch_from": "last_reply_by_user.first_name",
+   "fieldname": "last_reply_by",
+   "fieldtype": "Data",
+   "label": "Last Reply By",
+   "read_only": 1
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-17 18:36:57.289897",
+ "modified": "2024-12-23 07:36:00.510384",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

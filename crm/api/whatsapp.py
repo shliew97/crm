@@ -20,6 +20,7 @@ def on_update(doc, method):
             "reference_name": doc.reference_name,
         },
     )
+    frappe.publish_realtime("new_leads", {})
 
     notify_agent(doc)
 

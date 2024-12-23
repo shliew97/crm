@@ -20,3 +20,16 @@ def get_lead(name):
 	lead["_form_script"] = get_form_script('CRM Lead')
 	lead["_assign"] = get_assigned_users("CRM Lead", lead.name, lead.owner)
 	return lead
+
+@frappe.whitelist()
+def get_new_leads():
+	Lead = frappe.qb.DocType("CRM Lead")
+
+	query = frappe.qb.from_(Lead).select("*").where(Lead.conversation_status == "New").orderby(Lead.modified, order=frappe.qb.desc)
+
+	leads = query.run(as_dict=True)
+
+	if not leads:
+		leads = []
+
+	return leads

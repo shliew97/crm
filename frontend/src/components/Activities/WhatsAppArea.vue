@@ -95,6 +95,12 @@
               v-html="formatWhatsAppMessage(whatsapp.message)"
             />
           </div>
+          <div v-else-if="whatsapp.content_type == 'sticker'">
+            <img
+              :src="whatsapp.attach"
+              class="h-40 cursor-pointer rounded-md"
+            />
+          </div>
           <div
             v-else-if="whatsapp.content_type == 'document'"
             class="flex items-center gap-2"

@@ -46,6 +46,12 @@ const routes = [
     component: () => import('@/pages/Notes.vue'),
   },
   {
+    alias: '/clock-in-or-out',
+    path: '/clock-in-or-out/view/:viewType?',
+    name: 'Clock In / Out',
+    component: () => import('@/pages/ClockInOut.vue'),
+  },
+  {
     alias: '/tasks',
     path: '/tasks/view/:viewType?',
     name: 'Tasks',

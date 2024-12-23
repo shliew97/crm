@@ -9,6 +9,7 @@
     :emailBox="emailBox"
     :whatsappBox="whatsappBox"
     :modalRef="modalRef"
+    @reload="doc.reload()"
   />
   <FadedScrollableDiv
     :maskHeight="30"

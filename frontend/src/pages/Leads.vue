@@ -8,13 +8,13 @@
         v-if="leadsListView?.customListActions"
         :actions="leadsListView.customListActions"
       />
-      <Button
+      <!-- <Button
         variant="solid"
         :label="__('Create')"
         @click="showLeadModal = true"
       >
         <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
-      </Button>
+      </Button> -->
     </template>
   </LayoutHeader>
   <ViewControls

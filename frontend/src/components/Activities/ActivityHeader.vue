@@ -70,11 +70,17 @@
         :label="__('Send Template')"
         @click="showWhatsappTemplates = true"
       />
-      <Button variant="solid" @click="whatsappBox.show()">
+      <!-- <Button variant="solid" @click="whatsappBox.show()">
         <template #prefix>
           <FeatherIcon name="plus" class="h-4 w-4" />
         </template>
         <span>{{ __('New Message') }}</span>
+      </Button> -->
+      <Button v-if="props.doc.data.conversation_status == 'New'" variant="solid" @click="acceptConversation()">
+        <span>{{ __('Accept') }}</span>
+      </Button>
+      <Button v-if="props.doc.data.conversation_status == 'Accepted'" variant="solid" @click="completeConversation()">
+        <span>{{ __('Complete') }}</span>
       </Button>
     </div>
     <Dropdown v-else :options="defaultActions" @click.stop>
@@ -105,9 +111,10 @@ import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import { globalStore } from '@/stores/global'
 import { whatsappEnabled, callEnabled } from '@/composables/settings'
-import { Dropdown } from 'frappe-ui'
+import { Dropdown, call } from 'frappe-ui'
 import { computed, h } from 'vue'
 
+const emit = defineEmits(['reload'])
 const props = defineProps({
   tabs: Array,
   title: String,
@@ -170,5 +177,31 @@ const defaultActions = computed(() => {
 
 function getTabIndex(name) {
   return props.tabs.findIndex((tab) => tab.name === name)
+}
+
+async function acceptConversation() {
+  let d = await call('frappe.client.set_value', {
+    doctype: 'CRM Lead',
+    name: props.doc.data.name,
+    fieldname: {
+      conversation_status: "Accepted"
+    },
+  })
+  if (d.name) {
+    emit('reload', d)
+  }
+}
+
+async function completeConversation() {
+  let d = await call('frappe.client.set_value', {
+    doctype: 'CRM Lead',
+    name: props.doc.data.name,
+    fieldname: {
+      conversation_status: "Completed"
+    },
+  })
+  if (d.name) {
+    emit('reload', d)
+  }
 }
 </script>

@@ -55,7 +55,7 @@
       </div>
       <ListRowItem v-else :item="item">
         <template #prefix>
-          <div v-if="column.key === 'status'">
+          <div v-if="column.key === 'conversation_status'">
             <IndicatorIcon :class="item.color" />
           </div>
           <div v-else-if="column.key === 'lead_name'">

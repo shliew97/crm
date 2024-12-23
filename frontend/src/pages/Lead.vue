@@ -9,13 +9,13 @@
     </template>
     <template #right-header>
       <CustomActions v-if="customActions" :actions="customActions" />
-      <component :is="lead.data._assignedTo?.length == 1 ? 'Button' : 'div'">
+      <!-- <component :is="lead.data._assignedTo?.length == 1 ? 'Button' : 'div'">
         <MultipleAvatar
           :avatars="lead.data._assignedTo"
           @click="showAssignmentModal = true"
         />
-      </component>
-      <Dropdown :options="statusOptions('lead', updateField, customStatuses)">
+      </component> -->
+      <!-- <Dropdown :options="statusOptions('lead', updateField, customStatuses)">
         <template #default="{ open }">
           <Button
             :label="lead.data.status"
@@ -32,12 +32,12 @@
             </template>
           </Button>
         </template>
-      </Dropdown>
-      <Button
+      </Dropdown> -->
+      <!-- <Button
         :label="__('Convert to Deal')"
         variant="solid"
         @click="showConvertToDealModal = true"
-      />
+      /> -->
     </template>
   </LayoutHeader>
   <div v-if="lead?.data" class="flex h-full overflow-hidden">
@@ -51,7 +51,23 @@
         v-model="lead"
       />
     </Tabs>
-    <Resizer class="flex flex-col justify-between border-l" side="right">
+    <Resizer class="flex flex-col justify-start border-l" side="right">
+      <a :href="`/crm/leads/${lead.name}#whatsapp`" class="flex h-30 cursor-pointer border p-4 shadow-sm hover:bg-gray-50 flex-col" v-for="(lead, i) in newLeads" :key="lead.name">
+        <div class="flex justify-between">
+          <div class="truncate text-base">{{ lead.lead_name }}</div>
+          <div class="flex">
+            <IndicatorIcon></IndicatorIcon>
+            <div class="truncate text-base">{{ lead.conversation_status }}</div>
+          </div>
+        </div>
+        <div class="flex mt-2">
+          <PhoneIcon></PhoneIcon>
+          <div class="ml-2 truncate text-base text-ink-gray-5">{{ lead.mobile_no }}</div>
+        </div>
+        <div class="mt-2 truncate text-base text-ink-gray-5">Last Reply By : {{ lead.last_reply_by }}</div>
+      </a>
+    </Resizer>
+    <!-- <Resizer class="flex flex-col justify-between border-l" side="right">
       <div
         class="flex h-10.5 cursor-copy items-center border-b px-5 py-2.5 text-lg font-medium"
         @click="copyToClipboard(lead.data.name)"
@@ -197,7 +213,7 @@
           </div>
         </div>
       </div>
-    </Resizer>
+    </Resizer> -->
   </div>
   <AssignmentModal
     v-if="showAssignmentModal"
@@ -366,6 +382,7 @@ const props = defineProps({
 
 const customActions = ref([])
 const customStatuses = ref([])
+const newLeads = ref([])
 
 const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
@@ -393,7 +410,19 @@ const lead = createResource({
   },
 })
 
+const fetchNewLeads = createResource({
+  url: 'crm.fcrm.doctype.crm_lead.api.get_new_leads',
+  params: { },
+  onSuccess: async (data) => {
+    newLeads.value = data;
+  },
+})
+
 onMounted(() => {
+  $socket.on("new_leads", () => {
+    fetchNewLeads.fetch();
+  })
+  fetchNewLeads.fetch()
   if (lead.data) return
   lead.fetch()
 })
@@ -486,31 +515,37 @@ usePageMeta(() => {
 const tabs = computed(() => {
   let tabOptions = [
     {
+      name: 'WhatsApp',
+      label: __('WhatsApp'),
+      icon: WhatsAppIcon,
+      condition: () => whatsappEnabled.value,
+    },
+    {
       name: 'Activity',
       label: __('Activity'),
       icon: ActivityIcon,
     },
-    {
-      name: 'Emails',
-      label: __('Emails'),
-      icon: EmailIcon,
-    },
+    // {
+    //   name: 'Emails',
+    //   label: __('Emails'),
+    //   icon: EmailIcon,
+    // },
     {
       name: 'Comments',
       label: __('Comments'),
       icon: CommentIcon,
     },
-    {
-      name: 'Calls',
-      label: __('Calls'),
-      icon: PhoneIcon,
-      condition: () => callEnabled.value,
-    },
-    {
-      name: 'Tasks',
-      label: __('Tasks'),
-      icon: TaskIcon,
-    },
+    // {
+    //   name: 'Calls',
+    //   label: __('Calls'),
+    //   icon: PhoneIcon,
+    //   condition: () => callEnabled.value,
+    // },
+    // {
+    //   name: 'Tasks',
+    //   label: __('Tasks'),
+    //   icon: TaskIcon,
+    // },
     {
       name: 'Notes',
       label: __('Notes'),
@@ -520,12 +555,6 @@ const tabs = computed(() => {
       name: 'Attachments',
       label: __('Attachments'),
       icon: AttachmentIcon,
-    },
-    {
-      name: 'WhatsApp',
-      label: __('WhatsApp'),
-      icon: WhatsAppIcon,
-      condition: () => whatsappEnabled.value,
     },
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
