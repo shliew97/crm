@@ -133,9 +133,9 @@
             />
           </div>
           <div class="-mb-1 flex shrink-0 items-end gap-1 text-gray-600">
-            <Tooltip :text="dateFormat(whatsapp.creation, 'ddd, MMM D, YYYY')">
+            <Tooltip :text="dateFormat(whatsapp.timestamp, 'ddd, MMM D, YYYY')">
               <div class="text-2xs">
-                {{ dateFormat(whatsapp.creation, 'hh:mm a') }}
+                {{ dateFormat(whatsapp.timestamp, 'hh:mm a') }}
               </div>
             </Tooltip>
             <div v-if="whatsapp.type == 'Outgoing'">

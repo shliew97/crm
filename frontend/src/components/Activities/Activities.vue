@@ -596,7 +596,7 @@ const whatsappMessages = createResource({
     reference_name: doc.value.data.name,
   },
   auto: true,
-  transform: (data) => sortByCreation(data),
+  transform: (data) => sortByTimestamp(data),
   onSuccess: () => nextTick(() => scroll()),
 })
 
@@ -702,6 +702,10 @@ const activities = computed(() => {
 
 function sortByCreation(list) {
   return list.sort((a, b) => new Date(a.creation) - new Date(b.creation))
+}
+
+function sortByTimestamp(list) {
+  return list.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
 }
 
 function update_activities_details(activity) {
