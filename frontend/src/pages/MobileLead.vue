@@ -341,38 +341,44 @@ const breadcrumbs = computed(() => {
 
 const tabs = computed(() => {
   let tabOptions = [
+    // {
+    //   name: 'Details',
+    //   label: __('Details'),
+    //   icon: DetailsIcon,
+    //   condition: () => isMobileView.value,
+    // },
     {
-      name: 'Details',
-      label: __('Details'),
-      icon: DetailsIcon,
-      condition: () => isMobileView.value,
+      name: 'WhatsApp',
+      label: __('WhatsApp'),
+      icon: WhatsAppIcon,
+      condition: () => whatsappEnabled.value,
     },
     {
       name: 'Activity',
       label: __('Activity'),
       icon: ActivityIcon,
     },
-    {
-      name: 'Emails',
-      label: __('Emails'),
-      icon: EmailIcon,
-    },
+    // {
+    //   name: 'Emails',
+    //   label: __('Emails'),
+    //   icon: EmailIcon,
+    // },
     {
       name: 'Comments',
       label: __('Comments'),
       icon: CommentIcon,
     },
-    {
-      name: 'Calls',
-      label: __('Calls'),
-      icon: PhoneIcon,
-      condition: () => callEnabled.value,
-    },
-    {
-      name: 'Tasks',
-      label: __('Tasks'),
-      icon: TaskIcon,
-    },
+    // {
+    //   name: 'Calls',
+    //   label: __('Calls'),
+    //   icon: PhoneIcon,
+    //   condition: () => callEnabled.value,
+    // },
+    // {
+    //   name: 'Tasks',
+    //   label: __('Tasks'),
+    //   icon: TaskIcon,
+    // },
     {
       name: 'Notes',
       label: __('Notes'),
@@ -382,12 +388,6 @@ const tabs = computed(() => {
       name: 'Attachments',
       label: __('Attachments'),
       icon: AttachmentIcon,
-    },
-    {
-      name: 'WhatsApp',
-      label: __('WhatsApp'),
-      icon: WhatsAppIcon,
-      condition: () => whatsappEnabled.value,
     },
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))

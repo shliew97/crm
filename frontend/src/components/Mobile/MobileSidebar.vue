@@ -109,44 +109,49 @@ const { getPinnedViews, getPublicViews } = viewsStore()
 
 const links = [
   {
-    label: 'Leads',
+    label: 'Conversation',
     icon: LeadsIcon,
     to: 'Leads',
   },
-  {
-    label: 'Deals',
-    icon: DealsIcon,
-    to: 'Deals',
-  },
-  {
-    label: 'Contacts',
-    icon: ContactsIcon,
-    to: 'Contacts',
-  },
-  {
-    label: 'Organizations',
-    icon: OrganizationsIcon,
-    to: 'Organizations',
-  },
+  // {
+  //   label: 'Deals',
+  //   icon: DealsIcon,
+  //   to: 'Deals',
+  // },
+  // {
+  //   label: 'Contacts',
+  //   icon: ContactsIcon,
+  //   to: 'Contacts',
+  // },
+  // {
+  //   label: 'Organizations',
+  //   icon: OrganizationsIcon,
+  //   to: 'Organizations',
+  // },
   {
     label: 'Notes',
     icon: NoteIcon,
     to: 'Notes',
   },
+  // {
+  //   label: 'Tasks',
+  //   icon: TaskIcon,
+  //   to: 'Tasks',
+  // },
+  // {
+  //   label: 'Call Logs',
+  //   icon: PhoneIcon,
+  //   to: 'Call Logs',
+  // },
+  // {
+  //   label: 'Email Templates',
+  //   icon: Email2Icon,
+  //   to: 'Email Templates',
+  // },
   {
-    label: 'Tasks',
-    icon: TaskIcon,
-    to: 'Tasks',
-  },
-  {
-    label: 'Call Logs',
-    icon: PhoneIcon,
-    to: 'Call Logs',
-  },
-  {
-    label: 'Email Templates',
-    icon: Email2Icon,
-    to: 'Email Templates',
+    label: 'Clock In / Out',
+    icon: ClockIcon,
+    to: 'Clock In / Out',
   },
 ]
 

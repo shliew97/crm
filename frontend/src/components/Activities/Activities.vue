@@ -605,6 +605,9 @@ onBeforeUnmount(() => {
 })
 
 onMounted(() => {
+  $socket.on("new_leads", () => {
+    doc.reload();
+  })
   $socket.on('whatsapp_message', (data) => {
     if (
       data.reference_doctype === props.doctype &&

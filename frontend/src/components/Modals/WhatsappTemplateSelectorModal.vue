@@ -71,8 +71,8 @@ const templates = createListResource({
   type: 'list',
   doctype: 'WhatsApp Templates',
   cache: ['whatsappTemplates'],
-  fields: ['name', 'template', 'footer'],
-  filters: { status: 'APPROVED', for_doctype: ['in', [props.doctype, '']] },
+  fields: ['name', 'template'],
+  filters: { },
   orderBy: 'modified desc',
   pageLength: 99999,
 })

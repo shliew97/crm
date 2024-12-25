@@ -298,16 +298,15 @@ def create_whatsapp_message(
 
 @frappe.whitelist()
 def send_whatsapp_template(reference_doctype, reference_name, template, to):
+    whatsapp_template_doc = frappe.get_doc("WhatsApp Templates", template)
     doc = frappe.new_doc("WhatsApp Message")
     doc.update(
         {
             "reference_doctype": reference_doctype,
             "reference_name": reference_name,
-            "message_type": "Template",
-            "message": "Template message",
+            "message_type": "Manual",
+            "message": whatsapp_template_doc.template,
             "content_type": "text",
-            "use_template": True,
-            "template": template,
             "to": to,
         }
     )
