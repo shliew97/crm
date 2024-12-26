@@ -68,6 +68,7 @@
     <div class="flex gap-2 shrink-0" v-else-if="title == 'WhatsApp'">
       <Button
         :label="__('Send Template')"
+        :disabled="!(props.doc.data.conversation_status == 'Accepted')"
         @click="showWhatsappTemplates = true"
       />
       <!-- <Button variant="solid" @click="whatsappBox.show()">
