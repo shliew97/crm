@@ -421,6 +421,7 @@
       v-model:reply="replyMessage"
       v-model:whatsapp="whatsappMessages"
       :doctype="doctype"
+      :doc="doc"
       @scroll="scroll"
     />
   </div>
