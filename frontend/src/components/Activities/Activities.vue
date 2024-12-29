@@ -607,7 +607,7 @@ onBeforeUnmount(() => {
 
 onMounted(() => {
   $socket.on("new_leads", () => {
-    doc.reload();
+    doc.value.reload();
   })
   $socket.on('whatsapp_message', (data) => {
     if (
