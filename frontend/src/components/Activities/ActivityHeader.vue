@@ -181,28 +181,16 @@ function getTabIndex(name) {
 }
 
 async function acceptConversation() {
-  let d = await call('frappe.client.set_value', {
-    doctype: 'CRM Lead',
-    name: props.doc.data.name,
-    fieldname: {
-      conversation_status: "Accepted"
-    },
+  let d = await call('crm.fcrm.doctype.crm_lead.api.acceptConversation', {
+    crm_lead_name: props.doc.data.name,
   })
-  if (d.name) {
-    emit('reload', d)
-  }
+  emit('reload', d)
 }
 
 async function completeConversation() {
-  let d = await call('frappe.client.set_value', {
-    doctype: 'CRM Lead',
-    name: props.doc.data.name,
-    fieldname: {
-      conversation_status: "Completed"
-    },
+  let d = await call('crm.fcrm.doctype.crm_lead.api.completeConversation', {
+    crm_lead_name: props.doc.data.name,
   })
-  if (d.name) {
-    emit('reload', d)
-  }
+  emit('reload', d)
 }
 </script>

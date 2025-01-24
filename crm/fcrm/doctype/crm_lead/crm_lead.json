@@ -36,6 +36,7 @@
   "column_break_dbsv",
   "status",
   "conversation_status",
+  "accepted_by_user",
   "no_of_employees",
   "annual_revenue",
   "image",
@@ -310,12 +311,18 @@
    "fieldtype": "Data",
    "label": "Last Reply By",
    "read_only": 1
+  },
+  {
+   "fieldname": "accepted_by_user",
+   "fieldtype": "Link",
+   "label": "Accepted By User",
+   "options": "User"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-12-23 07:36:00.510384",
+ "modified": "2025-01-24 08:42:51.855526",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
