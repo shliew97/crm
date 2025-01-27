@@ -11,11 +11,7 @@ module.exports = {
     { pattern: /^grid-cols-/ },
   ],
   theme: {
-    extend: {
-      wordBreak: {
-        'break-word': 'break-word',
-      },
-    },
+    extend: {},
   },
   plugins: [],
 }
