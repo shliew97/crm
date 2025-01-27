@@ -20,6 +20,7 @@
   "lead_owner",
   "last_reply_by_user",
   "last_reply_by",
+  "action",
   "person_tab",
   "salutation",
   "first_name",
@@ -317,12 +318,17 @@
    "fieldtype": "Link",
    "label": "Accepted By User",
    "options": "User"
+  },
+  {
+   "fieldname": "action",
+   "fieldtype": "Data",
+   "label": "Action"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-24 08:42:51.855526",
+ "modified": "2025-01-28 00:04:25.876801",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
