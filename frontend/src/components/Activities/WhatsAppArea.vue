@@ -80,6 +80,10 @@
             v-html="formatWhatsAppMessage(whatsapp.message)"
           />
           <div
+            v-else-if="whatsapp.content_type == 'flow'"
+            v-html="formatWhatsAppMessage(whatsapp.message)"
+          />
+          <div
             v-else-if="whatsapp.content_type == 'button'"
             v-html="formatWhatsAppMessage(whatsapp.message)"
           />
