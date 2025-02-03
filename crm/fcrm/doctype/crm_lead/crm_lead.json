@@ -292,7 +292,7 @@
    "options": "CRM Status Change Log"
   },
   {
-   "default": "New",
+   "default": "Completed",
    "fieldname": "conversation_status",
    "fieldtype": "Select",
    "label": "Status",
@@ -328,7 +328,7 @@
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-28 00:04:25.876801",
+ "modified": "2025-02-03 11:26:05.130482",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
