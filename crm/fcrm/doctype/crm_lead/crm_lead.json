@@ -37,6 +37,7 @@
   "column_break_dbsv",
   "status",
   "conversation_status",
+  "conversation_start_at",
   "accepted_by_user",
   "no_of_employees",
   "annual_revenue",
@@ -323,12 +324,17 @@
    "fieldname": "action",
    "fieldtype": "Data",
    "label": "Action"
+  },
+  {
+   "fieldname": "conversation_start_at",
+   "fieldtype": "Datetime",
+   "label": "Conversation Start At"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-03 11:26:05.130482",
+ "modified": "2025-02-11 14:46:45.898668",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

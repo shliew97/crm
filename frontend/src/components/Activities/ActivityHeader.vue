@@ -77,7 +77,7 @@
         </template>
         <span>{{ __('New Message') }}</span>
       </Button> -->
-      <Button v-if="props.doc.data.conversation_status == 'New'" variant="solid" @click="acceptConversation()">
+      <Button v-if="props.doc.data.conversation_status == 'New' || isWithin24Hours(props.doc.data.conversation_start_at)" variant="solid" @click="acceptConversation()">
         <span>{{ __('Accept') }}</span>
       </Button>
       <Button v-if="props.doc.data.conversation_status == 'Accepted'" variant="solid" @click="completeConversation()">
@@ -192,5 +192,13 @@ async function completeConversation() {
     crm_lead_name: props.doc.data.name,
   })
   emit('reload', d)
+}
+
+function isWithin24Hours(datetime) {
+    const now = new Date();
+    const targetTime = new Date(datetime).getTime();
+    
+    const diff = Math.abs(now.getTime() - targetTime); // Absolute difference in milliseconds
+    return diff <= 24 * 60 * 60 * 1000; // Check if the difference is within 24 hours
 }
 </script>
