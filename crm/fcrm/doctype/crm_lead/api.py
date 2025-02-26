@@ -23,12 +23,36 @@ def get_lead(name):
 
 @frappe.whitelist()
 def get_new_leads():
-	Lead = frappe.qb.DocType("CRM Lead")
+	user_roles = frappe.get_roles()
 
-	conditions = ((Lead.conversation_status == "New") | ((Lead.conversation_status == "Accepted") & (Lead.accepted_by_user == frappe.session.user)))
-	query = frappe.qb.from_(Lead).select("*").where(conditions).orderby(Lead.modified, order=frappe.qb.desc)
+	if "CRM Agent" in user_roles and "System Manager" not in user_roles:
+		whatsapp_message_templates = frappe.db.get_list("WhatsApp Message Templates", pluck="name")
 
-	leads = query.run(as_dict=True)
+		values = {
+			"user": frappe.session.user,
+			"whatsapp_message_templates": tuple(whatsapp_message_templates),
+		}
+
+		leads = frappe.db.sql("""
+			SELECT
+				*
+			FROM `tabCRM Lead` cl
+			WHERE (cl.conversation_status = "New" OR (cl.conversation_status = "Accepted" AND cl.accepted_by_user = %(user)s))
+			AND cl.whatsapp_message_templates IN %(whatsapp_message_templates)s
+			ORDER BY cl.modified DESC
+		""", values=values, as_dict=1)
+	else:
+		values = {
+			"user": frappe.session.user,
+		}
+
+		leads = frappe.db.sql("""
+			SELECT
+				*
+			FROM `tabCRM Lead` cl
+			WHERE (cl.conversation_status = "New" OR (cl.conversation_status = "Accepted" AND cl.accepted_by_user = %(user)s))
+			ORDER BY cl.modified DESC
+		""", values=values, as_dict=1)
 
 	if not leads:
 		leads = []

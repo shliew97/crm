@@ -34,6 +34,7 @@
   "middle_name",
   "gender",
   "phone",
+  "whatsapp_message_templates",
   "column_break_dbsv",
   "status",
   "conversation_status",
@@ -118,6 +119,8 @@
   {
    "fieldname": "mobile_no",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Mobile No",
    "options": "Phone"
   },
@@ -329,12 +332,18 @@
    "fieldname": "conversation_start_at",
    "fieldtype": "Datetime",
    "label": "Conversation Start At"
+  },
+  {
+   "fieldname": "whatsapp_message_templates",
+   "fieldtype": "Link",
+   "label": "WhatsApp Message Templates",
+   "options": "WhatsApp Message Templates"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-11 14:46:45.898668",
+ "modified": "2025-02-26 08:05:38.054578",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
