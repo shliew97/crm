@@ -20,6 +20,7 @@
   "lead_owner",
   "last_reply_by_user",
   "last_reply_by",
+  "last_reply_at",
   "action",
   "person_tab",
   "salutation",
@@ -338,12 +339,17 @@
    "fieldtype": "Link",
    "label": "WhatsApp Message Templates",
    "options": "WhatsApp Message Templates"
+  },
+  {
+   "fieldname": "last_reply_at",
+   "fieldtype": "Datetime",
+   "label": "Last Reply At"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-26 08:05:38.054578",
+ "modified": "2025-03-08 12:33:30.397040",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

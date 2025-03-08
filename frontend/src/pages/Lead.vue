@@ -65,6 +65,7 @@
           <div class="ml-2 truncate text-base text-ink-gray-5">{{ lead.mobile_no }}</div>
         </div>
         <div class="mt-2 truncate text-base text-ink-gray-5">Last Reply By : {{ lead.last_reply_by }}</div>
+        <div class="mt-2 truncate text-base text-ink-gray-5">{{ lead.last_reply_at ? dateFormat(lead.last_reply_at, dateTooltipFormat) : "-" }}</div>
       </a>
     </Resizer>
     <!-- <Resizer class="flex flex-col justify-between border-l" side="right">
@@ -342,6 +343,8 @@ import {
   setupCustomizations,
   errorMessage,
   copyToClipboard,
+  dateFormat,
+  dateTooltipFormat,
 } from '@/utils'
 import { getView } from '@/utils/view'
 import { globalStore } from '@/stores/global'
