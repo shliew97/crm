@@ -22,6 +22,8 @@
   "last_reply_by",
   "last_reply_at",
   "action",
+  "last_message_from_me",
+  "sent_chat_closing_reminder",
   "person_tab",
   "salutation",
   "first_name",
@@ -344,12 +346,24 @@
    "fieldname": "last_reply_at",
    "fieldtype": "Datetime",
    "label": "Last Reply At"
+  },
+  {
+   "default": "0",
+   "fieldname": "last_message_from_me",
+   "fieldtype": "Check",
+   "label": "Last Message From Me"
+  },
+  {
+   "default": "1",
+   "fieldname": "sent_chat_closing_reminder",
+   "fieldtype": "Check",
+   "label": "Sent Chat Closing Reminder"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-08 12:33:30.397040",
+ "modified": "2025-04-10 07:39:53.561171",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

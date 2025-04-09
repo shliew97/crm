@@ -62,6 +62,9 @@
       @blur="rows = 1"
       @keydown.enter.stop="(e) => sendTextMessage(e)"
     />
+    <Button v-if="props.doc.data.conversation_status == 'Accepted'" variant="solid" @click="sendWhatsAppMessage()">
+      <span>{{ __('Send') }}</span>
+    </Button>
   </div>
 </template>
 
