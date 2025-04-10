@@ -22,6 +22,7 @@
   "last_reply_by",
   "last_reply_at",
   "action",
+  "tagging",
   "last_message_from_me",
   "sent_chat_closing_reminder",
   "person_tab",
@@ -358,12 +359,18 @@
    "fieldname": "sent_chat_closing_reminder",
    "fieldtype": "Check",
    "label": "Sent Chat Closing Reminder"
+  },
+  {
+   "fieldname": "tagging",
+   "fieldtype": "Select",
+   "label": "Tagging",
+   "options": "\nBooking - Action Required\nPromotion"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-10 07:39:53.561171",
+ "modified": "2025-04-10 08:06:17.262299",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

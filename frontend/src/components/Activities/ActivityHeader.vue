@@ -66,6 +66,19 @@
       <span>{{ __('Upload Attachment') }}</span>
     </Button>
     <div class="flex gap-2 shrink-0" v-else-if="title == 'WhatsApp'">
+      <Dropdown v-if="isMasterAgent" :options="tagActions" @click.stop>
+        <template v-slot="{ open }">
+          <Button variant="solid" class="flex items-center gap-1">
+            <span>{{ __('Tag') }}</span>
+            <template #suffix>
+              <FeatherIcon
+                :name="open ? 'chevron-up' : 'chevron-down'"
+                class="h-4 w-4"
+              />
+            </template>
+          </Button>
+        </template>
+      </Dropdown>
       <Button
         :label="__('Send Template')"
         :disabled="!(props.doc.data.conversation_status == 'Accepted')"
@@ -111,7 +124,7 @@ import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import { globalStore } from '@/stores/global'
-import { whatsappEnabled, callEnabled } from '@/composables/settings'
+import { whatsappEnabled, callEnabled, isMasterAgent } from '@/composables/settings'
 import { Dropdown, call } from 'frappe-ui'
 import { computed, h } from 'vue'
 
@@ -176,6 +189,19 @@ const defaultActions = computed(() => {
   )
 })
 
+const tagActions = computed(() => {
+  return [
+    {
+      label: __("Booking - Action Required"),
+      onClick: () => tagConversation("Booking - Action Required"),
+    },
+    {
+      label: __("Promotion"),
+      onClick: () => tagConversation("Promotion"),
+    },
+  ]
+})
+
 function getTabIndex(name) {
   return props.tabs.findIndex((tab) => tab.name === name)
 }
@@ -190,6 +216,14 @@ async function acceptConversation() {
 async function completeConversation() {
   let d = await call('crm.fcrm.doctype.crm_lead.api.completeConversation', {
     crm_lead_name: props.doc.data.name,
+  })
+  emit('reload', d)
+}
+
+async function tagConversation(tagging) {
+  let d = await call('crm.fcrm.doctype.crm_lead.api.tagConversation', {
+    crm_lead_name: props.doc.data.name,
+    tagging: tagging
   })
   emit('reload', d)
 }

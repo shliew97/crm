@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 
 export const whatsappEnabled = ref(false)
 export const isWhatsappInstalled = ref(false)
+export const isMasterAgent = ref(false)
 createResource({
   url: 'crm.api.whatsapp.is_whatsapp_enabled',
   cache: 'Is Whatsapp Enabled',
@@ -17,6 +18,14 @@ createResource({
   auto: true,
   onSuccess: (data) => {
     isWhatsappInstalled.value = Boolean(data)
+  },
+})
+createResource({
+  url: 'crm.api.whatsapp.is_master_agent',
+  cache: 'Is Master Agent',
+  auto: true,
+  onSuccess: (data) => {
+    isMasterAgent.value = Boolean(data)
   },
 })
 

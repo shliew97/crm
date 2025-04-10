@@ -76,3 +76,11 @@ def completeConversation(crm_lead_name):
 	})
 	frappe.db.commit()
 	frappe.publish_realtime("new_leads", {})
+
+@frappe.whitelist()
+def tagConversation(crm_lead_name, tagging):
+	frappe.db.set_value("CRM Lead", crm_lead_name, {
+		"tagging": tagging
+	})
+	frappe.db.commit()
+	frappe.publish_realtime("new_leads", {})

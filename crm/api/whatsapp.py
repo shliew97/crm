@@ -107,6 +107,12 @@ def is_whatsapp_installed():
         return False
     return True
 
+@frappe.whitelist()
+def is_master_agent():
+    user_roles = frappe.get_roles()
+    if "Master Agent" in user_roles:
+        return True
+    return False
 
 @frappe.whitelist()
 def get_whatsapp_messages(reference_doctype, reference_name):

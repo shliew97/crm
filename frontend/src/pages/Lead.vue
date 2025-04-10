@@ -66,6 +66,9 @@
         </div>
         <div class="mt-2 truncate text-base text-ink-gray-5">Last Reply By : {{ lead.last_reply_by }}</div>
         <div class="mt-2 truncate text-base text-ink-gray-5">{{ lead.last_reply_at ? dateFormat(lead.last_reply_at, dateTooltipFormat) : "-" }}</div>
+        <div class="flex justify-end mt-2">
+          <div v-if="lead.tagging" class="truncate text-base">{{ lead.tagging }}</div>
+        </div>
       </a>
     </Resizer>
     <!-- <Resizer class="flex flex-col justify-between border-l" side="right">
