@@ -3,6 +3,7 @@ import json
 from frappe import _
 from crm.api.doc import get_assigned_users
 from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
+from frappe.utils.user import get_users_with_role
 
 
 def validate(doc, method):
@@ -113,6 +114,16 @@ def is_master_agent():
     if "Master Agent" in user_roles:
         return True
     return False
+
+@frappe.whitelist()
+def get_crm_assignees():
+    users = get_users_with_role("CRM Assignee")
+    users = [user for user in users if user != "Administrator"]
+
+    if not users:
+        users = []
+    
+    return users
 
 @frappe.whitelist()
 def get_whatsapp_messages(reference_doctype, reference_name):

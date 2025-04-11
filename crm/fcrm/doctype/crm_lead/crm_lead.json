@@ -21,6 +21,7 @@
   "last_reply_by_user",
   "last_reply_by",
   "last_reply_at",
+  "chat_close_at",
   "action",
   "tagging",
   "last_message_from_me",
@@ -365,12 +366,17 @@
    "fieldtype": "Select",
    "label": "Tagging",
    "options": "\nBooking - Action Required\nPromotion"
+  },
+  {
+   "fieldname": "chat_close_at",
+   "fieldtype": "Datetime",
+   "label": "Chat Close At"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-10 08:06:17.262299",
+ "modified": "2025-04-11 07:35:32.951374",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

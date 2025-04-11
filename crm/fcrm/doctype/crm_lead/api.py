@@ -41,6 +41,20 @@ def get_new_leads():
 			AND cl.whatsapp_message_templates IN %(whatsapp_message_templates)s
 			ORDER BY cl.modified DESC
 		""", values=values, as_dict=1)
+
+		shared_leads = frappe.db.sql("""
+			SELECT
+				*
+			FROM `tabCRM Lead` cl
+			JOIN `tabDocShare` ds
+			ON ds.share_name = cl.name
+			WHERE (cl.conversation_status = "New" OR (cl.conversation_status = "Accepted" AND cl.accepted_by_user = %(user)s))
+			AND ds.share_doctype = "CRM Lead"
+			AND ds.user = %(user)s
+			ORDER BY cl.modified DESC
+		""", values=values, as_dict=1)
+
+		leads += shared_leads
 	else:
 		values = {
 			"user": frappe.session.user,
@@ -83,4 +97,11 @@ def tagConversation(crm_lead_name, tagging):
 		"tagging": tagging
 	})
 	frappe.db.commit()
+	frappe.publish_realtime("new_leads", {})
+
+@frappe.whitelist()
+def assignConversation(crm_lead_name, user):
+	frappe.share.add_docshare(
+		"CRM Lead", crm_lead_name, user, read=1, write=1, flags={"ignore_share_permission": True}
+	)
 	frappe.publish_realtime("new_leads", {})
