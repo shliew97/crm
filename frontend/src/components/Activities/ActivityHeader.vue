@@ -66,19 +66,13 @@
       <span>{{ __('Upload Attachment') }}</span>
     </Button>
     <div class="flex gap-2 shrink-0" v-else-if="title == 'WhatsApp'">
-      <Dropdown v-if="isMasterAgent" :options="assignActions" @click.stop>
-        <template v-slot="{ open }">
-          <Button variant="solid" class="flex items-center gap-1">
-            <span>{{ __('Assign') }}</span>
-            <template #suffix>
-              <FeatherIcon
-                :name="open ? 'chevron-up' : 'chevron-down'"
-                class="h-4 w-4"
-              />
-            </template>
-          </Button>
-        </template>
-      </Dropdown>
+      <div v-if="isMasterAgent">
+        <Button variant="solid" class="flex items-center gap-1" v-if="crmAssignees.length == 0" @click="showAssignmentModal = true">Assign</Button>
+        <MultipleAvatar
+          :avatars="crmAssignees"
+          @click="showAssignmentModal = true"
+        />
+      </div>
       <Dropdown v-if="isMasterAgent" :options="tagActions" @click.stop>
         <template v-slot="{ open }">
           <Button variant="solid" class="flex items-center gap-1">
@@ -126,6 +120,13 @@
         </Button>
       </template>
     </Dropdown>
+    <AssignmentModal
+      v-if="showAssignmentModal"
+      v-model="showAssignmentModal"
+      v-model:assignees="crmAssignees"
+      :doc="props.doc.data"
+      doctype="CRM Lead"
+    />
   </div>
 </template>
 <script setup>
@@ -136,10 +137,13 @@ import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
+import AssignmentModal from '@/components/Modals/AssignmentModal.vue'
+import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import { globalStore } from '@/stores/global'
-import { whatsappEnabled, callEnabled, isMasterAgent, crmAssignees } from '@/composables/settings'
+import { whatsappEnabled, callEnabled, isMasterAgent } from '@/composables/settings'
 import { Dropdown, call } from 'frappe-ui'
-import { computed, h } from 'vue'
+import { computed, h, ref } from 'vue'
+import { createResource } from 'frappe-ui'
 
 const emit = defineEmits(['reload'])
 const props = defineProps({
@@ -149,6 +153,20 @@ const props = defineProps({
   modalRef: Object,
   emailBox: Object,
   whatsappBox: Object,
+})
+
+const crmAssignees = ref([])
+const showAssignmentModal = ref(false)
+
+createResource({
+  url: 'crm.api.whatsapp.get_crm_assignees',
+  params: {
+    crm_lead: props.doc.data.name,
+  },
+  auto: true,
+  onSuccess: (data) => {
+    crmAssignees.value = data
+  },
 })
 
 const { makeCall } = globalStore()
@@ -213,19 +231,6 @@ const tagActions = computed(() => {
       onClick: () => tagConversation("Promotion"),
     },
   ]
-})
-
-const assignActions = computed(() => {
-  let assignees = [];
-
-  crmAssignees.value.forEach(crm_assignee => {
-    assignees.push({
-      label: crm_assignee,
-      onClick: () => assignConversation(crm_assignee),
-    })
-  });
-
-  return assignees
 })
 
 function getTabIndex(name) {

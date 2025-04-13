@@ -27,7 +27,7 @@
     "
   >
     <template #body-content>
-      <Link
+      <CRMAssignees
         class="form-control"
         value=""
         doctype="User"
@@ -45,7 +45,7 @@
             </div>
           </Tooltip>
         </template>
-      </Link>
+      </CRMAssignees>
       <div class="mt-3 flex flex-wrap items-center gap-2">
         <Tooltip
           :text="assignee.name"
@@ -62,7 +62,6 @@
             </template>
             <template #suffix>
               <FeatherIcon
-                v-if="assignee.name !== owner"
                 class="h-3.5"
                 name="x"
                 @click.stop="removeValue(assignee.name)"
@@ -78,7 +77,7 @@
 
 <script setup>
 import UserAvatar from '@/components/UserAvatar.vue'
-import Link from '@/components/Controls/Link.vue'
+import CRMAssignees from '@/components/Controls/CRMAssignees.vue'
 import { usersStore } from '@/stores/users'
 import { capture } from '@/telemetry'
 import { Tooltip, call } from 'frappe-ui'
@@ -133,11 +132,7 @@ const addValue = (value) => {
   }
 }
 
-function updateAssignees() {
-  if (assignees.value.length === 0) {
-    error.value = 'Please select at least one assignee'
-    return
-  }
+async function updateAssignees() {
   const removedAssignees = oldAssignees.value
     .filter(
       (assignee) => !assignees.value.find((a) => a.name === assignee.name),
@@ -152,7 +147,7 @@ function updateAssignees() {
 
   if (removedAssignees.length) {
     for (let a of removedAssignees) {
-      call('frappe.desk.form.assign_to.remove', {
+      await call('crm.fcrm.doctype.crm_lead.api.unassignConversation', {
         doctype: props.doctype,
         name: props.doc.name,
         assign_to: a,
@@ -163,7 +158,7 @@ function updateAssignees() {
   if (addedAssignees.length) {
     if (props.docs.size) {
       capture('bulk_assign_to', { doctype: props.doctype })
-      call('frappe.desk.form.assign_to.add_multiple', {
+      call('crm.fcrm.doctype.crm_lead.api.assignConversation', {
         doctype: props.doctype,
         name: JSON.stringify(Array.from(props.docs)),
         assign_to: addedAssignees,
@@ -174,7 +169,7 @@ function updateAssignees() {
       })
     } else {
       capture('assign_to', { doctype: props.doctype })
-      call('frappe.desk.form.assign_to.add', {
+      call('crm.fcrm.doctype.crm_lead.api.assignConversation', {
         doctype: props.doctype,
         name: props.doc.name,
         assign_to: addedAssignees,

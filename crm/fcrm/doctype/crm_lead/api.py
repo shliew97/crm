@@ -3,6 +3,7 @@ from frappe import _
 
 from crm.api.doc import get_fields_meta, get_assigned_users
 from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
+from frappe.share import add_docshare, remove
 
 @frappe.whitelist()
 def get_lead(name):
@@ -100,8 +101,30 @@ def tagConversation(crm_lead_name, tagging):
 	frappe.publish_realtime("new_leads", {})
 
 @frappe.whitelist()
-def assignConversation(crm_lead_name, user):
-	frappe.share.add_docshare(
-		"CRM Lead", crm_lead_name, user, read=1, write=1, flags={"ignore_share_permission": True}
-	)
+def assignConversation(args=None, *, ignore_permissions=False):
+	"""add in someone's to do list
+	args = {
+	        "assign_to": [],
+	        "doctype": ,
+	        "name": ,
+	        "description": ,
+	        "assignment_rule":
+	}
+
+	"""
+	if not args:
+		args = frappe.local.form_dict
+
+	for assign_to in frappe.parse_json(args.get("assign_to")):
+		doc = frappe.get_doc(args["doctype"], args["name"])
+
+		add_docshare(
+			"CRM Lead", doc.name, assign_to, read=1, write=1, flags={"ignore_share_permission": True}
+		)
+
+	frappe.publish_realtime("new_leads", {})
+
+@frappe.whitelist()
+def unassignConversation(doctype, name, assign_to, ignore_permissions=False):
+	remove("CRM Lead", name, assign_to, {"ignore_share_permission": True})
 	frappe.publish_realtime("new_leads", {})

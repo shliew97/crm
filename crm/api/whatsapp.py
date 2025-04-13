@@ -4,6 +4,7 @@ from frappe import _
 from crm.api.doc import get_assigned_users
 from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
 from frappe.utils.user import get_users_with_role
+from frappe.share import get_users
 
 
 def validate(doc, method):
@@ -116,14 +117,30 @@ def is_master_agent():
     return False
 
 @frappe.whitelist()
-def get_crm_assignees():
+def get_users_with_crm_assignee_role():
     users = get_users_with_role("CRM Assignee")
-    users = [user for user in users if user != "Administrator"]
+
+    users = frappe.db.get_all("User", filters={"name": ["in", users]}, fields=["name", "first_name"])
+
+    users = [{"value": user.name, "description": user.first_name} for user in users if user.name != "Administrator"]
 
     if not users:
         users = []
     
     return users
+
+@frappe.whitelist()
+def get_crm_assignees(crm_lead):
+    existing_users_with_access = get_users("CRM Lead", crm_lead)
+
+    users = frappe.db.get_all("User", filters={"name": ["in", [user.user for user in existing_users_with_access]]}, fields=["name", "first_name"])
+
+    crm_assignees = [{"name": user.name, "label": user.first_name[0]} for user in users]
+
+    if not crm_assignees:
+        crm_assignees = []
+    
+    return crm_assignees
 
 @frappe.whitelist()
 def get_whatsapp_messages(reference_doctype, reference_name):
