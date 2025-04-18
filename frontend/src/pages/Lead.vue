@@ -52,6 +52,7 @@
       />
     </Tabs>
     <Resizer class="flex flex-col justify-start border-l overflow-y-auto" side="right">
+      <TextInput v-model="searchText" class="w-full m-1" :placeholder="'Mobile No. e.g. 0112223333'"></TextInput>
       <a :href="`/crm/leads/${lead.name}#whatsapp`" class="flex h-30 cursor-pointer border p-4 shadow-sm hover:bg-gray-50 flex-col" v-for="(lead, i) in newLeads" :key="lead.name">
         <div class="flex justify-between">
           <div class="truncate text-base">{{ lead.lead_name }}</div>
@@ -362,6 +363,7 @@ import {
   Dropdown,
   Tooltip,
   Avatar,
+  TextInput,
   Tabs,
   Switch,
   Breadcrumbs,
@@ -389,6 +391,8 @@ const props = defineProps({
 const customActions = ref([])
 const customStatuses = ref([])
 const newLeads = ref([])
+const searchText = ref("")
+const timeout = ref(undefined)
 
 const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
@@ -416,19 +420,23 @@ const lead = createResource({
   },
 })
 
-const fetchNewLeads = createResource({
-  url: 'crm.fcrm.doctype.crm_lead.api.get_new_leads',
-  params: { },
-  onSuccess: async (data) => {
-    newLeads.value = data;
-  },
-})
+function triggerFetchNewLeads(searchText) {
+  createResource({
+    url: 'crm.fcrm.doctype.crm_lead.api.get_new_leads',
+    params: {
+      search_text: searchText.value
+    },
+    onSuccess: async (data) => {
+      newLeads.value = data;
+    },
+  }).fetch()
+}
 
 onMounted(() => {
   $socket.on("new_leads", () => {
-    fetchNewLeads.fetch();
+    triggerFetchNewLeads(searchText);
   })
-  fetchNewLeads.fetch()
+  triggerFetchNewLeads(searchText);
   if (lead.data) return
   lead.fetch()
 })
@@ -577,6 +585,13 @@ watch(tabs, (value) => {
       tabIndex.value = index
     }
   }
+})
+
+watch(searchText, (value) => {
+  clearTimeout(timeout.value);
+  timeout.value = setTimeout(() => {
+    triggerFetchNewLeads(searchText);
+  }, 600);
 })
 
 function validateFile(file) {

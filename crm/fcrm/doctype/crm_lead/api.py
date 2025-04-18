@@ -23,10 +23,25 @@ def get_lead(name):
 	return lead
 
 @frappe.whitelist()
-def get_new_leads():
+def get_new_leads(search_text=None):
 	user_roles = frappe.get_roles()
 
-	if "CRM Agent" in user_roles and "System Manager" not in user_roles:
+	if search_text:
+		search_text_condition = """AND cl.mobile_no LIKE "%%{0}%%" """.format(search_text)
+
+		leads = frappe.db.sql("""
+			SELECT
+				*
+			FROM `tabCRM Lead` cl
+			WHERE 1=1
+		"""
+		+
+		search_text_condition
+		+
+		"""
+			ORDER BY cl.modified DESC
+		""", as_dict=1)
+	elif "CRM Agent" in user_roles and "System Manager" not in user_roles:
 		whatsapp_message_templates = frappe.db.get_list("WhatsApp Message Templates", pluck="name")
 
 		values = {
@@ -45,7 +60,7 @@ def get_new_leads():
 
 		shared_leads = frappe.db.sql("""
 			SELECT
-				*
+				cl.*
 			FROM `tabCRM Lead` cl
 			JOIN `tabDocShare` ds
 			ON ds.share_name = cl.name
