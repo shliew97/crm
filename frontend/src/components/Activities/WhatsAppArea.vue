@@ -78,14 +78,17 @@
           <div
             v-else-if="whatsapp.content_type == 'text'"
             v-html="formatWhatsAppMessage(whatsapp.message)"
+            class="no-break-word"
           />
           <div
             v-else-if="whatsapp.content_type == 'flow'"
             v-html="formatWhatsAppMessage(whatsapp.message)"
+            class="no-break-word"
           />
           <div
             v-else-if="whatsapp.content_type == 'button'"
             v-html="formatWhatsAppMessage(whatsapp.message)"
+            class="no-break-word"
           />
           <div v-else-if="whatsapp.content_type == 'image'">
             <img
@@ -95,7 +98,7 @@
             />
             <div
               v-if="!whatsapp.message.startsWith('/files/')"
-              class="mt-1.5"
+              class="mt-1.5 no-break-word"
               v-html="formatWhatsAppMessage(whatsapp.message)"
             />
           </div>
@@ -132,7 +135,7 @@
             />
             <div
               v-if="!whatsapp.message.startsWith('/files/')"
-              class="mt-1.5"
+              class="mt-1.5 no-break-word"
               v-html="formatWhatsAppMessage(whatsapp.message)"
             />
           </div>
@@ -276,3 +279,9 @@ function scrollToMessage(name) {
   }, 1000)
 }
 </script>
+
+<style scoped>
+.no-break-word {
+  word-break: keep-all;
+}
+</style>
