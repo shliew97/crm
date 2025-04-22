@@ -281,7 +281,7 @@ function scrollToMessage(name) {
 </script>
 
 <style scoped>
-.no-break-word {
+/* .no-break-word {
   word-break: keep-all;
-}
+} */
 </style>

@@ -57,12 +57,12 @@
       :rows="rows"
       v-model="content"
       :placeholder="placeholder"
-      :disabled="!(props.doc.data.conversation_status == 'Accepted')"
+      :disabled="!(hasAcceptedStatus())"
       @focus="rows = 6"
       @blur="rows = 1"
       @keydown.enter.stop="(e) => sendTextMessage(e)"
     />
-    <Button v-if="props.doc.data.conversation_status == 'Accepted'" variant="solid" @click="sendWhatsAppMessage()">
+    <Button v-if="hasAcceptedStatus()" variant="solid" @click="sendWhatsAppMessage()">
       <span>{{ __('Send') }}</span>
     </Button>
   </div>
@@ -130,6 +130,14 @@ async function sendWhatsAppMessage() {
     params: args,
     auto: true,
   })
+}
+
+function hasAcceptedStatus() {
+  return props.doc.data._assignments.includes('Accepted');
+}
+
+function hasNewStatus() {
+  return props.doc.data._assignments.includes('New');
 }
 
 function uploadOptions(openFileSelector) {
