@@ -97,7 +97,7 @@
         </template>
         <span>{{ __('New Message') }}</span>
       </Button> -->
-      <Button v-if="hasNewStatus()" variant="solid" @click="acceptConversation()">
+      <Button v-if="hasNewStatus() || isWithin24Hours(props.doc.data.conversation_start_at)" variant="solid" @click="acceptConversation()">
         <span>{{ __('Accept') }}</span>
       </Button>
       <Button v-if="hasAcceptedStatus() && !hasNewStatus()" variant="solid" @click="completeConversation()">
