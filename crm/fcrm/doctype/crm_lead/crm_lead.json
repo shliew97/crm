@@ -362,10 +362,11 @@
    "label": "Sent Chat Closing Reminder"
   },
   {
+   "default": "Unknown",
    "fieldname": "tagging",
    "fieldtype": "Select",
    "label": "Tagging",
-   "options": "\nBooking - Action Required\nPromotion"
+   "options": "Unknown\nBooking - Action Required\nPromotion"
   },
   {
    "fieldname": "chat_close_at",
@@ -376,7 +377,7 @@
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-11 07:35:32.951374",
+ "modified": "2025-04-20 22:03:25.300674",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

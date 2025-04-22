@@ -53,22 +53,24 @@
     </Tabs>
     <Resizer class="flex flex-col justify-start border-l overflow-y-auto" side="right">
       <TextInput v-model="searchText" class="w-full m-1" :placeholder="'Mobile No. e.g. 0112223333'"></TextInput>
-      <a :href="`/crm/leads/${lead.name}#whatsapp`" class="flex h-30 cursor-pointer border p-4 shadow-sm hover:bg-gray-50 flex-col" v-for="(lead, i) in newLeads" :key="lead.name">
+      <a :href="`/crm/leads/${lead.name}#whatsapp`" class="flex h-30 cursor-pointer border p-4 shadow-sm flex-col" v-for="(lead, i) in newLeads" :key="lead.name" :style="{ background: getBackground(lead) }">
         <div class="flex justify-between">
           <div class="truncate text-base">{{ lead.lead_name }}</div>
           <div class="flex">
             <IndicatorIcon></IndicatorIcon>
-            <div class="truncate text-base">{{ lead.conversation_status }}</div>
+            <div class="truncate text-base">{{ getStatus(lead) }}</div>
           </div>
         </div>
         <div class="flex mt-2">
           <PhoneIcon></PhoneIcon>
-          <div class="ml-2 truncate text-base text-ink-gray-5">{{ lead.mobile_no }}</div>
+          <div class="ml-2 truncate text-base">{{ lead.mobile_no }}</div>
         </div>
-        <div class="mt-2 truncate text-base text-ink-gray-5">Last Reply By : {{ lead.last_reply_by }}</div>
-        <div class="mt-2 truncate text-base text-ink-gray-5">{{ lead.last_reply_at ? dateFormat(lead.last_reply_at, dateTooltipFormat) : "-" }}</div>
-        <div class="flex justify-end mt-2">
-          <div v-if="lead.tagging" class="truncate text-base">{{ lead.tagging }}</div>
+        <div class="mt-2 truncate text-base">Last Reply By : {{ lead.last_reply_by }}</div>
+        <div class="mt-2 truncate text-base">{{ lead.last_reply_at ? dateFormat(lead.last_reply_at, dateTooltipFormat) : "-" }}</div>
+        <div class="flex items-end mt-1 flex-col">
+          <div v-for="(tagging, i) in lead.taggings" class="truncate text-base mt-1">
+            {{ tagging }}
+          </div>
         </div>
       </a>
     </Resizer>
@@ -705,5 +707,32 @@ const activities = ref(null)
 
 function openEmailBox() {
   activities.value.emailBox.show = true
+}
+
+function getStatus(lead) {
+  if (lead.status.length > 0 && lead.status.includes("New")) {
+    return "New"
+  }
+  else if (lead.status.length > 0 && lead.status.every(item => item === "Accepted")) {
+    return "Accepted"
+  }
+  else if (lead.status.length > 0 && lead.status.every(item => item === "Completed")) {
+    return "Completed"
+  }
+}
+
+function getBackground(lead) {
+  if (lead.status.length > 0 && lead.status.includes("New")) {
+    return "#c9daf8ff"
+  }
+  else if (lead.status.length > 0 && lead.status.every(item => item === "Accepted")) {
+    return "#ffe599ff"
+  }
+  else if (lead.status.length > 0 && lead.status.every(item => item === "Completed")) {
+    return "#ccccccff"
+  }
+  else if (lead.status.length > 0 && lead.status.every(item => item === "Case Closed")) {
+    return "#ffffffff"
+  }
 }
 </script>

@@ -88,7 +88,7 @@
       </Dropdown>
       <Button
         :label="__('Send Template')"
-        :disabled="!(props.doc.data.conversation_status == 'Accepted')"
+        :disabled="!(hasAcceptedStatus())"
         @click="showWhatsappTemplates = true"
       />
       <!-- <Button variant="solid" @click="whatsappBox.show()">
@@ -97,10 +97,10 @@
         </template>
         <span>{{ __('New Message') }}</span>
       </Button> -->
-      <Button v-if="props.doc.data.conversation_status == 'New' || isWithin24Hours(props.doc.data.conversation_start_at)" variant="solid" @click="acceptConversation()">
+      <Button v-if="hasNewStatus() || isWithin24Hours(props.doc.data.conversation_start_at)" variant="solid" @click="acceptConversation()">
         <span>{{ __('Accept') }}</span>
       </Button>
-      <Button v-if="props.doc.data.conversation_status == 'Accepted'" variant="solid" @click="completeConversation()">
+      <Button v-if="hasAcceptedStatus() && !hasNewStatus()" variant="solid" @click="completeConversation()">
         <span>{{ __('Complete') }}</span>
       </Button>
     </div>
@@ -274,5 +274,13 @@ function isWithin24Hours(datetime) {
     
     const diff = Math.abs(now.getTime() - targetTime); // Absolute difference in milliseconds
     return diff <= 24 * 60 * 60 * 1000; // Check if the difference is within 24 hours
+}
+
+function hasAcceptedStatus() {
+  return props.doc.data._assignments.includes('Accepted');
+}
+
+function hasNewStatus() {
+  return props.doc.data._assignments.includes('New');
 }
 </script>

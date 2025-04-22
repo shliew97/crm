@@ -3,7 +3,8 @@ from frappe import _
 
 from crm.api.doc import get_fields_meta, get_assigned_users
 from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
-from frappe.share import add_docshare, remove
+from collections import defaultdict
+from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message import create_crm_tagging_assignment, create_crm_lead_assignment
 
 @frappe.whitelist()
 def get_lead(name):
@@ -20,6 +21,7 @@ def get_lead(name):
 	lead["fields_meta"] = get_fields_meta("CRM Lead")
 	lead["_form_script"] = get_form_script('CRM Lead')
 	lead["_assign"] = get_assigned_users("CRM Lead", lead.name, lead.owner)
+	lead["_assignments"] = frappe.db.get_list("CRM Lead Assignment", pluck="status")
 	return lead
 
 @frappe.whitelist()
@@ -31,46 +33,40 @@ def get_new_leads(search_text=None):
 
 		leads = frappe.db.sql("""
 			SELECT
-				*
+				cl.*, cla.status AS cla_status, clt.tagging
 			FROM `tabCRM Lead` cl
+			LEFT JOIN `tabCRM Lead Assignment` cla
+			ON cl.name = cla.crm_lead
+			LEFT JOIN `tabCRM Lead Tagging` clt
+			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE 1=1
 		"""
 		+
 		search_text_condition
 		+
 		"""
-			ORDER BY cl.modified DESC
+			ORDER BY cl.last_reply_at DESC
 		""", as_dict=1)
 	elif "CRM Agent" in user_roles and "System Manager" not in user_roles:
-		whatsapp_message_templates = frappe.db.get_list("WhatsApp Message Templates", pluck="name")
+		crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", pluck="name")
 
 		values = {
 			"user": frappe.session.user,
-			"whatsapp_message_templates": tuple(whatsapp_message_templates),
+			"crm_lead_assignments": tuple(crm_lead_assignments),
 		}
 
 		leads = frappe.db.sql("""
 			SELECT
-				*
+				cl.*, cla.status AS cla_status, clt.tagging
 			FROM `tabCRM Lead` cl
-			WHERE (cl.conversation_status = "New" OR (cl.conversation_status = "Accepted" AND cl.accepted_by_user = %(user)s))
-			AND cl.whatsapp_message_templates IN %(whatsapp_message_templates)s
-			ORDER BY cl.modified DESC
+			JOIN `tabCRM Lead Assignment` cla
+			ON cl.name = cla.crm_lead
+			LEFT JOIN `tabCRM Lead Tagging` clt
+			ON cl.name = clt.crm_lead AND clt.status = "Open"
+			WHERE cla.status IN ("New", "Accepted", "Completed")
+			AND cla.name IN %(crm_lead_assignments)s
+			ORDER BY cl.last_reply_at DESC
 		""", values=values, as_dict=1)
-
-		shared_leads = frappe.db.sql("""
-			SELECT
-				cl.*
-			FROM `tabCRM Lead` cl
-			JOIN `tabDocShare` ds
-			ON ds.share_name = cl.name
-			WHERE (cl.conversation_status = "New" OR (cl.conversation_status = "Accepted" AND cl.accepted_by_user = %(user)s))
-			AND ds.share_doctype = "CRM Lead"
-			AND ds.user = %(user)s
-			ORDER BY cl.modified DESC
-		""", values=values, as_dict=1)
-
-		leads += shared_leads
 	else:
 		values = {
 			"user": frappe.session.user,
@@ -78,40 +74,66 @@ def get_new_leads(search_text=None):
 
 		leads = frappe.db.sql("""
 			SELECT
-				*
+				cl.*, cla.status AS cla_status, clt.tagging
 			FROM `tabCRM Lead` cl
-			WHERE (cl.conversation_status = "New" OR (cl.conversation_status = "Accepted" AND cl.accepted_by_user = %(user)s))
-			ORDER BY cl.modified DESC
+			JOIN `tabCRM Lead Assignment` cla
+			ON cl.name = cla.crm_lead
+			LEFT JOIN `tabCRM Lead Tagging` clt
+			ON cl.name = clt.crm_lead AND clt.status = "Open"
+			WHERE cla.status IN ("New", "Accepted", "Completed")
+			ORDER BY cl.last_reply_at DESC
 		""", values=values, as_dict=1)
 
 	if not leads:
 		leads = []
 
+	leads_defaultdict = defaultdict(lambda: {
+		"name": "",
+		"lead_name": "",
+		"mobile_no": "",
+		"last_reply_by": "",
+		"last_reply_at": "",
+		"whatsapp_message_templates": [],
+		"status": [],
+		"taggings": []
+	})
+
+	for lead in leads:
+		leads_defaultdict[lead.name]["name"] = lead.name
+		leads_defaultdict[lead.name]["lead_name"] = lead.lead_name
+		leads_defaultdict[lead.name]["mobile_no"] = lead.mobile_no
+		leads_defaultdict[lead.name]["last_reply_by"] = lead.last_reply_by
+		leads_defaultdict[lead.name]["last_reply_at"] = lead.last_reply_at
+		if lead.whatsapp_message_templates not in leads_defaultdict[lead.name]["whatsapp_message_templates"]:
+			leads_defaultdict[lead.name]["whatsapp_message_templates"].append(lead.whatsapp_message_templates)
+		if lead.cla_status not in leads_defaultdict[lead.name]["status"]:
+			leads_defaultdict[lead.name]["status"].append(lead.cla_status)
+		if lead.tagging not in leads_defaultdict[lead.name]["taggings"]:
+			leads_defaultdict[lead.name]["taggings"].append(lead.tagging)
+
+	leads = leads_defaultdict.values()
+
 	return leads
 
 @frappe.whitelist()
 def acceptConversation(crm_lead_name):
-	frappe.db.set_value("CRM Lead", crm_lead_name, {
-		"conversation_status": "Accepted",
-		"accepted_by_user": frappe.session.user
-	})
+	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
+	for crm_lead_assignment in crm_lead_assignments:
+		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, "status", "Accepted")
 	frappe.db.commit()
 	frappe.publish_realtime("new_leads", {})
 
 @frappe.whitelist()
 def completeConversation(crm_lead_name):
-	frappe.db.set_value("CRM Lead", crm_lead_name, {
-		"conversation_status": "Completed",
-		"accepted_by_user": None
-	})
+	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
+	for crm_lead_assignment in crm_lead_assignments:
+		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, "status", "Completed")
 	frappe.db.commit()
 	frappe.publish_realtime("new_leads", {})
 
 @frappe.whitelist()
 def tagConversation(crm_lead_name, tagging):
-	frappe.db.set_value("CRM Lead", crm_lead_name, {
-		"tagging": tagging
-	})
+	create_crm_tagging_assignment(crm_lead_name, tagging)
 	frappe.db.commit()
 	frappe.publish_realtime("new_leads", {})
 
@@ -130,16 +152,17 @@ def assignConversation(args=None, *, ignore_permissions=False):
 	if not args:
 		args = frappe.local.form_dict
 
-	for assign_to in frappe.parse_json(args.get("assign_to")):
-		doc = frappe.get_doc(args["doctype"], args["name"])
+	frappe.db.delete("CRM Lead Assignment", filters={"crm_lead": args["name"]})
 
-		add_docshare(
-			"CRM Lead", doc.name, assign_to, read=1, write=1, flags={"ignore_share_permission": True}
-		)
+	for assign_to in frappe.parse_json(args.get("assign_to")):
+		assigned_templates = frappe.db.get_all("User Permission", filters={"user": assign_to, "allow": "WhatsApp Message Templates"}, pluck="for_value", limit=1)
+		if assigned_templates:
+			create_crm_lead_assignment(args["name"], assigned_templates[0], "New")
 
 	frappe.publish_realtime("new_leads", {})
 
 @frappe.whitelist()
 def unassignConversation(doctype, name, assign_to, ignore_permissions=False):
-	remove("CRM Lead", name, assign_to, {"ignore_share_permission": True})
+	assigned_templates = frappe.db.get_all("User Permission", filters={"user": assign_to, "allow": "WhatsApp Message Templates"}, pluck="for_value")
+	frappe.db.delete("CRM Lead Assignment", filters={"crm_lead": name, "whatsapp_message_templates": ["in", assigned_templates]})
 	frappe.publish_realtime("new_leads", {})
