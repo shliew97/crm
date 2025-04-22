@@ -45,7 +45,7 @@ def get_new_leads(search_text=None):
 		search_text_condition
 		+
 		"""
-			ORDER BY cl.last_reply_at DESC
+			ORDER BY FIELD(cla.status, 'New', 'Accepted', 'Completed', 'Case Closed'), cl.last_reply_at DESC
 		""", as_dict=1)
 	elif "CRM Agent" in user_roles and "System Manager" not in user_roles:
 		crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", pluck="name")
@@ -65,7 +65,7 @@ def get_new_leads(search_text=None):
 			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE cla.status IN ("New", "Accepted", "Completed")
 			AND cla.name IN %(crm_lead_assignments)s
-			ORDER BY cl.last_reply_at DESC
+			ORDER BY FIELD(cla.status, 'New', 'Accepted', 'Completed', 'Case Closed'), cl.last_reply_at DESC
 		""", values=values, as_dict=1)
 	else:
 		values = {
@@ -81,7 +81,7 @@ def get_new_leads(search_text=None):
 			LEFT JOIN `tabCRM Lead Tagging` clt
 			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE cla.status IN ("New", "Accepted", "Completed")
-			ORDER BY cl.last_reply_at DESC
+			ORDER BY FIELD(cla.status, 'New', 'Accepted', 'Completed', 'Case Closed'), cl.last_reply_at DESC
 		""", values=values, as_dict=1)
 
 	if not leads:
