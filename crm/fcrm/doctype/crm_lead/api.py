@@ -94,6 +94,8 @@ def get_new_leads(search_text=None):
 		"last_reply_by": "",
 		"last_reply_at": "",
 		"whatsapp_message_templates": [],
+		"alert": 0,
+		"alert_by": "",
 		"status": [],
 		"taggings": []
 	})
@@ -104,6 +106,8 @@ def get_new_leads(search_text=None):
 		leads_defaultdict[lead.name]["mobile_no"] = lead.mobile_no
 		leads_defaultdict[lead.name]["last_reply_by"] = lead.last_reply_by
 		leads_defaultdict[lead.name]["last_reply_at"] = lead.last_reply_at
+		leads_defaultdict[lead.name]["alert"] = lead.alert
+		leads_defaultdict[lead.name]["alert_by"] = lead.alert_by
 		if lead.whatsapp_message_templates not in leads_defaultdict[lead.name]["whatsapp_message_templates"]:
 			leads_defaultdict[lead.name]["whatsapp_message_templates"].append(lead.whatsapp_message_templates)
 		if lead.cla_status not in leads_defaultdict[lead.name]["status"]:
@@ -165,4 +169,13 @@ def assignConversation(args=None, *, ignore_permissions=False):
 def unassignConversation(doctype, name, assign_to, ignore_permissions=False):
 	assigned_templates = frappe.db.get_all("User Permission", filters={"user": assign_to, "allow": "WhatsApp Message Templates"}, pluck="for_value")
 	frappe.db.delete("CRM Lead Assignment", filters={"crm_lead": name, "whatsapp_message_templates": ["in", assigned_templates]})
+	frappe.publish_realtime("new_leads", {})
+
+@frappe.whitelist()
+def alertConversation(crm_lead_name):
+	username = frappe.db.get_value("User", frappe.session.user, "username")
+	frappe.db.set_value("CRM Lead", crm_lead_name, {
+		"alert": 1,
+		"alert_by": username
+	})
 	frappe.publish_realtime("new_leads", {})

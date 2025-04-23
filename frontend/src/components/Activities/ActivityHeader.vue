@@ -86,6 +86,9 @@
           </Button>
         </template>
       </Dropdown>
+      <Button variant="solid" theme="red" @click="alertConversation()">
+        <span>{{ __('Alert') }}</span>
+      </Button>
       <Button
         :label="__('Send Template')"
         :disabled="!(hasAcceptedStatus())"
@@ -239,6 +242,13 @@ function getTabIndex(name) {
 
 async function acceptConversation() {
   let d = await call('crm.fcrm.doctype.crm_lead.api.acceptConversation', {
+    crm_lead_name: props.doc.data.name,
+  })
+  emit('reload', d)
+}
+
+async function alertConversation() {
+  let d = await call('crm.fcrm.doctype.crm_lead.api.alertConversation', {
     crm_lead_name: props.doc.data.name,
   })
   emit('reload', d)

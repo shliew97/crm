@@ -23,7 +23,8 @@
   "last_reply_at",
   "chat_close_at",
   "action",
-  "tagging",
+  "alert",
+  "alert_by",
   "last_message_from_me",
   "sent_chat_closing_reminder",
   "person_tab",
@@ -39,7 +40,6 @@
   "middle_name",
   "gender",
   "phone",
-  "whatsapp_message_templates",
   "column_break_dbsv",
   "status",
   "conversation_status",
@@ -339,12 +339,6 @@
    "label": "Conversation Start At"
   },
   {
-   "fieldname": "whatsapp_message_templates",
-   "fieldtype": "Link",
-   "label": "WhatsApp Message Templates",
-   "options": "WhatsApp Message Templates"
-  },
-  {
    "fieldname": "last_reply_at",
    "fieldtype": "Datetime",
    "label": "Last Reply At"
@@ -362,22 +356,26 @@
    "label": "Sent Chat Closing Reminder"
   },
   {
-   "default": "Unknown",
-   "fieldname": "tagging",
-   "fieldtype": "Select",
-   "label": "Tagging",
-   "options": "Unknown\nBooking - Action Required\nPromotion"
-  },
-  {
    "fieldname": "chat_close_at",
    "fieldtype": "Datetime",
    "label": "Chat Close At"
+  },
+  {
+   "default": "0",
+   "fieldname": "alert",
+   "fieldtype": "Check",
+   "label": "Alert"
+  },
+  {
+   "fieldname": "alert_by",
+   "fieldtype": "Data",
+   "label": "Alert By"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-20 22:03:25.300674",
+ "modified": "2025-04-23 08:05:15.985276",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
