@@ -5,6 +5,7 @@ from crm.api.doc import get_fields_meta, get_assigned_users
 from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
 from collections import defaultdict
 from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message import create_crm_tagging_assignment, create_crm_lead_assignment
+from frappe.utils.user import get_users_with_role
 
 @frappe.whitelist()
 def get_lead(name):
@@ -178,4 +179,29 @@ def alertConversation(crm_lead_name):
 		"alert": 1,
 		"alert_by": username
 	})
+
+	send_push_notification_to_crm_admin("Alert! : by {0}".format(username), "Alert! A conversation requires your attention!", get_users_with_crm_admin_role(), "https://crm.techmind.com.my/crm/leads/{0}?viewType=#whatsapp".format(crm_lead_name))
+
 	frappe.publish_realtime("new_leads", {})
+
+def get_users_with_crm_admin_role():
+	users = get_users_with_role("CRM Admin")
+
+	users = [user for user in users if user != "Administrator"]
+
+	if not users:
+		users = []
+	
+	return users
+
+def send_push_notification_to_crm_admin(title, message, users, url=None):
+	if not users:
+		return
+	push_notification_subscriptions = frappe.db.get_all("Push Notification Subscription", filters={"user": ["in", users]}, pluck="name")
+	for push_notification_subscription in push_notification_subscriptions:
+		push_notification = frappe.new_doc("Push Notification Log")
+		push_notification.push_notification_subscription = push_notification_subscription
+		push_notification.title = title
+		push_notification.message = message
+		push_notification.url = url
+		push_notification.insert(ignore_permissions=True)
