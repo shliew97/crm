@@ -48,6 +48,27 @@ def get_new_leads(search_text=None):
 		"""
 			ORDER BY FIELD(cla.status, 'Accepted', 'New', 'Completed', 'Case Closed'), cl.last_reply_at DESC
 		""", as_dict=1)
+	elif "Booking Centre" in user_roles and "System Manager" not in user_roles:
+		crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", pluck="name")
+
+		values = {
+			"user": frappe.session.user,
+			"crm_lead_assignments": tuple(crm_lead_assignments),
+		}
+
+		leads = frappe.db.sql("""
+			SELECT
+				cl.*, cla.status AS cla_status, clt.tagging
+			FROM `tabCRM Lead` cl
+			JOIN `tabCRM Lead Assignment` cla
+			ON cl.name = cla.crm_lead
+			LEFT JOIN `tabCRM Lead Tagging` clt
+			ON cl.name = clt.crm_lead AND clt.status = "Open"
+			WHERE cla.status IN ("New", "Accepted")
+			AND cla.name IN %(crm_lead_assignments)s
+			AND (cla.accepted_by IS NULL OR cla.accepted_by = %(user)s)
+			ORDER BY FIELD(cla.status, 'Accepted', 'New', 'Completed', 'Case Closed'), cl.last_reply_at DESC
+		""", values=values, as_dict=1)
 	elif "CRM Agent" in user_roles and "System Manager" not in user_roles:
 		crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", pluck="name")
 
@@ -124,7 +145,10 @@ def get_new_leads(search_text=None):
 def acceptConversation(crm_lead_name):
 	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
 	for crm_lead_assignment in crm_lead_assignments:
-		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, "status", "Accepted")
+		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, {
+			"status": "Accepted",
+			"accepted_by": frappe.session.user
+		})
 	frappe.db.commit()
 	frappe.publish_realtime("new_leads", {})
 
@@ -186,8 +210,6 @@ def alertConversation(crm_lead_name):
 
 def get_users_with_crm_admin_role():
 	users = get_users_with_role("CRM Admin")
-
-	users = [user for user in users if user != "Administrator"]
 
 	if not users:
 		users = []

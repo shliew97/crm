@@ -279,10 +279,11 @@ def get_whatsapp_messages(reference_doctype, reference_name):
         )
 
         # If the replied message is found, add the reply details to the reply message
-        from_name = (
-            get_from_name(reply_message) if replied_message["from"] else _("You")
-        )
         if replied_message:
+            from_name = (
+                get_from_name(reply_message) if replied_message["from"] else _("You")
+            )
+
             message = replied_message["message"]
             if replied_message["message_type"] == "Template":
                 message = replied_message["template"]
