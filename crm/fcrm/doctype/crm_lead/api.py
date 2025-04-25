@@ -160,6 +160,10 @@ def completeConversation(crm_lead_name):
 			"status": "Completed",
 			"accepted_by": None
 		})
+	frappe.db.set_value("CRM Lead", crm_lead_name, {
+		"alert": 0,
+		"alert_by": None
+	})
 	frappe.db.commit()
 	frappe.publish_realtime("new_leads", {})
 
