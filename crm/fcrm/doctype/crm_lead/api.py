@@ -156,7 +156,10 @@ def acceptConversation(crm_lead_name):
 def completeConversation(crm_lead_name):
 	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
 	for crm_lead_assignment in crm_lead_assignments:
-		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, "status", "Completed")
+		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, {
+			"status": "Completed",
+			"accepted_by": None
+		})
 	frappe.db.commit()
 	frappe.publish_realtime("new_leads", {})
 
