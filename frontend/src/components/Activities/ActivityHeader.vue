@@ -123,7 +123,7 @@
         </Button>
       </template>
     </Dropdown>
-    <AssignmentModal
+    <CustomAssignmentModal
       v-if="showAssignmentModal"
       v-model="showAssignmentModal"
       v-model:assignees="crmAssignees"
@@ -140,7 +140,7 @@ import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
-import AssignmentModal from '@/components/Modals/AssignmentModal.vue'
+import CustomAssignmentModal from '@/components/Modals/CustomAssignmentModal.vue'
 import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import { globalStore } from '@/stores/global'
 import { whatsappEnabled, callEnabled, isMasterAgent } from '@/composables/settings'
