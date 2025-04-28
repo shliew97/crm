@@ -51,29 +51,31 @@
         v-model="lead"
       />
     </Tabs>
-    <Resizer class="flex flex-col justify-start border-l overflow-y-auto" side="right">
+    <Resizer class="flex flex-col justify-start border-l" side="right">
       <TextInput v-model="searchText" class="w-full m-1" :placeholder="'Mobile No. e.g. 0112223333'"></TextInput>
-      <a :href="`/crm/leads/${lead.name}#whatsapp`" class="flex h-30 cursor-pointer border p-4 shadow-sm flex-col" v-for="(lead, i) in newLeads" :key="lead.name" :style="{ background: getBackground(lead) }">
-        <div class="flex justify-between">
-          <div class="truncate text-base">{{ lead.lead_name }}</div>
-          <div class="flex">
-            <IndicatorIcon></IndicatorIcon>
-            <div class="truncate text-base">{{ getStatus(lead) }}</div>
+      <div class="overflow-y-auto">
+        <a :href="`/crm/leads/${lead.name}#whatsapp`" class="flex h-30 cursor-pointer border p-4 shadow-sm flex-col" v-for="(lead, i) in newLeads" :key="lead.name" :style="{ background: getBackground(lead) }">
+          <div class="flex justify-between">
+            <div class="truncate text-base">{{ lead.lead_name }}</div>
+            <div class="flex">
+              <IndicatorIcon></IndicatorIcon>
+              <div class="truncate text-base">{{ getStatus(lead) }}</div>
+            </div>
           </div>
-        </div>
-        <div class="flex mt-2">
-          <PhoneIcon></PhoneIcon>
-          <div class="ml-2 truncate text-base">{{ lead.mobile_no }}</div>
-        </div>
-        <div class="mt-2 truncate text-base">Last Reply By : {{ lead.last_reply_by }}</div>
-        <div class="mt-2 truncate text-ink-white rounded bg-red-500 pl-2" v-if="lead.alert">Alert! : by {{ lead.alert_by }}</div>
-        <div class="mt-2 truncate text-base">{{ lead.last_reply_at ? dateFormat(lead.last_reply_at, dateTooltipFormat) : "-" }}</div>
-        <div class="flex items-end mt-1 flex-col">
-          <div v-for="(tagging, i) in lead.taggings" class="truncate text-base mt-1">
-            {{ tagging }}
+          <div class="flex mt-2">
+            <PhoneIcon></PhoneIcon>
+            <div class="ml-2 truncate text-base">{{ lead.mobile_no }}</div>
           </div>
-        </div>
-      </a>
+          <div class="mt-2 truncate text-base">Last Reply By : {{ lead.last_reply_by }}</div>
+          <div class="mt-2 truncate text-ink-white rounded bg-red-500 pl-2" v-if="lead.alert">Alert! : by {{ lead.alert_by }}</div>
+          <div class="mt-2 truncate text-base">{{ lead.last_reply_at ? dateFormat(lead.last_reply_at, dateTooltipFormat) : "-" }}</div>
+          <div class="flex items-end mt-1 flex-col">
+            <div v-for="(tagging, i) in lead.taggings" class="truncate text-base mt-1">
+              {{ tagging }}
+            </div>
+          </div>
+        </a>
+      </div>
     </Resizer>
     <!-- <Resizer class="flex flex-col justify-between border-l" side="right">
       <div
