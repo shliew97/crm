@@ -67,7 +67,7 @@
             <div class="ml-2 truncate text-base">{{ lead.mobile_no }}</div>
           </div>
           <div class="mt-2 truncate text-base">Last Reply By : {{ lead.last_reply_by }}</div>
-          <div class="mt-2 truncate text-ink-white rounded bg-red-500 pl-2" v-if="lead.alert">Alert! : by {{ lead.alert_by }}</div>
+          <div class="mt-2 truncate text-ink-white rounded bg-red-500 pl-2" v-if="lead.alert && (username === lead.alert_by || isMasterAgent)">Alert! : by {{ lead.alert_by }}</div>
           <div class="mt-2 truncate text-base">{{ lead.last_reply_at ? dateFormat(lead.last_reply_at, dateTooltipFormat) : "-" }}</div>
           <div class="flex items-end mt-1 flex-col">
             <div v-for="(tagging, i) in lead.taggings" class="truncate text-base mt-1">
@@ -360,7 +360,7 @@ import { globalStore } from '@/stores/global'
 import { contactsStore } from '@/stores/contacts'
 import { statusesStore } from '@/stores/statuses'
 import { usersStore } from '@/stores/users'
-import { whatsappEnabled, callEnabled } from '@/composables/settings'
+import { whatsappEnabled, isMasterAgent, username } from '@/composables/settings'
 import { capture } from '@/telemetry'
 import {
   createResource,

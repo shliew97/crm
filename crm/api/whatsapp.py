@@ -392,3 +392,7 @@ def get_from_name(message):
     else:
         from_name = doc.get("first_name") + " " + doc.get("last_name")
     return from_name
+
+@frappe.whitelist()
+def get_username():
+    return frappe.db.get_value("User", frappe.session.user, "username")

@@ -46,7 +46,16 @@ def get_new_leads(search_text=None):
 		search_text_condition
 		+
 		"""
-			ORDER BY FIELD(cla.status, 'Accepted', 'New', 'Completed', 'Case Closed'), cl.last_reply_at DESC
+			ORDER BY
+			CASE
+				WHEN cla.status = 'Accepted' THEN 1
+				WHEN cla.alert = 1 THEN 2
+				WHEN cla.status = 'New' THEN 3
+				WHEN cla.status = 'Completed' THEN 4
+				WHEN cla.status = 'Case Closed' THEN 5
+				ELSE 6
+			END,
+			cl.last_reply_at DESC
 		""", as_dict=1)
 	elif "Booking Centre" in user_roles and "System Manager" not in user_roles:
 		crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", pluck="name")
@@ -67,7 +76,16 @@ def get_new_leads(search_text=None):
 			WHERE cla.status IN ("New", "Accepted")
 			AND cla.name IN %(crm_lead_assignments)s
 			AND (cla.accepted_by IS NULL OR cla.accepted_by = %(user)s)
-			ORDER BY FIELD(cla.status, 'Accepted', 'New', 'Completed', 'Case Closed'), cl.last_reply_at DESC
+			ORDER BY
+			CASE
+				WHEN cla.status = 'Accepted' THEN 1
+				WHEN cla.alert = 1 THEN 2
+				WHEN cla.status = 'New' THEN 3
+				WHEN cla.status = 'Completed' THEN 4
+				WHEN cla.status = 'Case Closed' THEN 5
+				ELSE 6
+			END,
+			cl.last_reply_at DESC
 		""", values=values, as_dict=1)
 	elif "CRM Agent" in user_roles and "System Manager" not in user_roles:
 		crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", pluck="name")
@@ -87,7 +105,16 @@ def get_new_leads(search_text=None):
 			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE cla.status IN ("New", "Accepted")
 			AND cla.name IN %(crm_lead_assignments)s
-			ORDER BY FIELD(cla.status, 'Accepted', 'New', 'Completed', 'Case Closed'), cl.last_reply_at DESC
+			ORDER BY
+			CASE
+				WHEN cla.status = 'Accepted' THEN 1
+				WHEN cla.alert = 1 THEN 2
+				WHEN cla.status = 'New' THEN 3
+				WHEN cla.status = 'Completed' THEN 4
+				WHEN cla.status = 'Case Closed' THEN 5
+				ELSE 6
+			END,
+			cl.last_reply_at DESC
 		""", values=values, as_dict=1)
 	else:
 		values = {
@@ -103,7 +130,16 @@ def get_new_leads(search_text=None):
 			LEFT JOIN `tabCRM Lead Tagging` clt
 			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE cla.status IN ("New", "Accepted")
-			ORDER BY FIELD(cla.status, 'Accepted', 'New', 'Completed', 'Case Closed'), cl.last_reply_at DESC
+			ORDER BY
+			CASE
+				WHEN cla.status = 'Accepted' THEN 1
+				WHEN cla.alert = 1 THEN 2
+				WHEN cla.status = 'New' THEN 3
+				WHEN cla.status = 'Completed' THEN 4
+				WHEN cla.status = 'Case Closed' THEN 5
+				ELSE 6
+			END,
+			cl.last_reply_at DESC
 		""", values=values, as_dict=1)
 
 	if not leads:
