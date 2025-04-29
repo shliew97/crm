@@ -86,7 +86,7 @@
           </Button>
         </template>
       </Dropdown>
-      <Button variant="solid" theme="red" @click="alertConversation()">
+      <Button variant="solid" theme="red" @click="alertOnClick()">
         <span>{{ __('Alert') }}</span>
       </Button>
       <Button
@@ -130,6 +130,24 @@
       :doc="props.doc.data"
       doctype="CRM Lead"
     />
+    <Dialog :options="{
+      title: 'Confirm',
+      message: 'Are you sure you want to alert CRM Admin?',
+      size: 'xl',
+      icon: {
+        name: 'alert-triangle',
+        appearance: 'warning',
+      },
+      actions: [
+        {
+          label: 'Confirm',
+          variant: 'solid',
+          onClick: () => alertConversation(),
+        },
+      ],
+    }"
+    v-model="showAlertConfirmation">
+    </Dialog>
   </div>
 </template>
 <script setup>
@@ -160,6 +178,7 @@ const props = defineProps({
 
 const crmAssignees = ref([])
 const showAssignmentModal = ref(false)
+const showAlertConfirmation = ref(false)
 
 createResource({
   url: 'crm.api.whatsapp.get_crm_assignees',
@@ -247,10 +266,15 @@ async function acceptConversation() {
   emit('reload', d)
 }
 
+function alertOnClick() {
+  showAlertConfirmation.value = true;
+}
+
 async function alertConversation() {
   let d = await call('crm.fcrm.doctype.crm_lead.api.alertConversation', {
     crm_lead_name: props.doc.data.name,
   })
+  showAlertConfirmation.value = false;
   emit('reload', d)
 }
 

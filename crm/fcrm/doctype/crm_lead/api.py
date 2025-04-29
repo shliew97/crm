@@ -205,6 +205,14 @@ def unassignConversation(doctype, name, assign_to, ignore_permissions=False):
 
 @frappe.whitelist()
 def alertConversation(crm_lead_name):
+	if frappe.db.get_value("CRM Lead", crm_lead_name, "alert"):
+		frappe.db.set_value("CRM Lead", crm_lead_name, {
+			"alert": 0,
+			"alert_by": None
+		})
+		frappe.publish_realtime("new_leads", {})
+		return
+
 	username = frappe.db.get_value("User", frappe.session.user, "username")
 	frappe.db.set_value("CRM Lead", crm_lead_name, {
 		"alert": 1,
