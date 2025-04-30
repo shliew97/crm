@@ -215,6 +215,7 @@ function formatWhatsAppMessage(message) {
   // if message contains > text, make it a blockquote
   message = message.replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>')
   // if contain /n, make it a new line
+  message = message.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="word-break: auto-phrase;">$1</a>');
   message = message.replace(/\n/g, '<br>')
   // if contains *<space>text, make it a bullet point
   message = message.replace(/\* (.*?)(?=\s*\*|$)/g, '<li>$1</li>')

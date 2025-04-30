@@ -23,7 +23,7 @@
             v-for="template in filteredTemplates"
             :key="template.name"
             class="flex h-56 cursor-pointer flex-col gap-2 rounded-lg border p-3 hover:bg-gray-100"
-            @click="showConfirmationDialog(template.name)"
+            @click="showConfirmationDialog(template.template)"
           >
             <div class="border-b pb-2 text-base font-semibold">
               {{ template.name }}

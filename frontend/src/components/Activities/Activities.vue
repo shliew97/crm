@@ -420,6 +420,7 @@
       v-model="doc"
       v-model:reply="replyMessage"
       v-model:whatsapp="whatsappMessages"
+      v-model:content="content"
       :doctype="doctype"
       :doc="doc"
       @scroll="scroll"
@@ -533,6 +534,7 @@ const tabIndex = defineModel('tabIndex')
 const reload_email = ref(false)
 const modalRef = ref(null)
 const showFilesUploader = ref(false)
+const content = ref("")
 
 const title = computed(() => props.tabs?.[tabIndex.value]?.name || 'Activity')
 
@@ -628,18 +630,19 @@ onMounted(() => {
 })
 
 function sendTemplate(template) {
+  content.value = template
   showWhatsappTemplates.value = false
-  capture('send_whatsapp_template', { doctype: props.doctype })
-  createResource({
-    url: 'crm.api.whatsapp.send_whatsapp_template',
-    params: {
-      reference_doctype: props.doctype,
-      reference_name: doc.value.data.name,
-      to: doc.value.data.mobile_no,
-      template,
-    },
-    auto: true,
-  })
+  // capture('send_whatsapp_template', { doctype: props.doctype })
+  // createResource({
+  //   url: 'crm.api.whatsapp.send_whatsapp_template',
+  //   params: {
+  //     reference_doctype: props.doctype,
+  //     reference_name: doc.value.data.name,
+  //     to: doc.value.data.mobile_no,
+  //     template,
+  //   },
+  //   auto: true,
+  // })
 }
 
 const replyMessage = ref({})

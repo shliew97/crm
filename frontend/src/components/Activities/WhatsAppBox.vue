@@ -87,7 +87,7 @@ const rows = ref(1)
 const textareaRef = ref(null)
 const emoji = ref('')
 
-const content = ref('')
+const content = defineModel('content')
 const placeholder = ref(__('Type your message here...'))
 const fileType = ref('')
 
