@@ -129,49 +129,49 @@ const addValue = (value) => {
 }
 
 async function updateAssignees() {
-  const removedAssignees = oldAssignees.value
-    .filter(
-      (assignee) => !assignees.value.find((a) => a.name === assignee.name),
-    )
-    .map((assignee) => assignee.name)
+  // const removedAssignees = oldAssignees.value
+  //   .filter(
+  //     (assignee) => !assignees.value.find((a) => a.name === assignee.name),
+  //   )
+  //   .map((assignee) => assignee.name)
 
-  const addedAssignees = assignees.value
-    .filter(
-      (assignee) => !oldAssignees.value.find((a) => a.name === assignee.name),
-    )
-    .map((assignee) => assignee.name)
+  // const addedAssignees = assignees.value
+  //   .filter(
+  //     (assignee) => !oldAssignees.value.find((a) => a.name === assignee.name),
+  //   )
+  //   .map((assignee) => assignee.name)
 
-  if (removedAssignees.length) {
-    for (let a of removedAssignees) {
-      await call('crm.fcrm.doctype.crm_lead.api.unassignConversation', {
-        doctype: props.doctype,
-        name: props.doc.name,
-        assign_to: a,
-      })
-    }
+  // if (removedAssignees.length) {
+  //   for (let a of removedAssignees) {
+  //     await call('crm.fcrm.doctype.crm_lead.api.unassignConversation', {
+  //       doctype: props.doctype,
+  //       name: props.doc.name,
+  //       assign_to: a,
+  //     })
+  //   }
+  // }
+
+  // if (addedAssignees.length) {
+  if (props.docs.size) {
+    capture('bulk_assign_to', { doctype: props.doctype })
+    call('crm.fcrm.doctype.crm_lead.api.assignConversation', {
+      doctype: props.doctype,
+      name: JSON.stringify(Array.from(props.docs)),
+      assign_to: assignees.value,
+      bulk_assign: true,
+      re_assign: true,
+    }).then(() => {
+      emit('reload')
+    })
+  } else {
+    capture('assign_to', { doctype: props.doctype })
+    call('crm.fcrm.doctype.crm_lead.api.assignConversation', {
+      doctype: props.doctype,
+      name: props.doc.name,
+      assign_to: assignees.value,
+    })
   }
-
-  if (addedAssignees.length) {
-    if (props.docs.size) {
-      capture('bulk_assign_to', { doctype: props.doctype })
-      call('crm.fcrm.doctype.crm_lead.api.assignConversation', {
-        doctype: props.doctype,
-        name: JSON.stringify(Array.from(props.docs)),
-        assign_to: addedAssignees,
-        bulk_assign: true,
-        re_assign: true,
-      }).then(() => {
-        emit('reload')
-      })
-    } else {
-      capture('assign_to', { doctype: props.doctype })
-      call('crm.fcrm.doctype.crm_lead.api.assignConversation', {
-        doctype: props.doctype,
-        name: props.doc.name,
-        assign_to: addedAssignees,
-      })
-    }
-  }
+  // }
   show.value = false
 }
 

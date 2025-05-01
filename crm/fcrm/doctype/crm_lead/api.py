@@ -226,8 +226,12 @@ def assignConversation(args=None, *, ignore_permissions=False):
 
 	frappe.db.delete("CRM Lead Assignment", filters={"crm_lead": args["name"]})
 
-	for assign_to in frappe.parse_json(args.get("assign_to")):
-		assigned_templates = frappe.db.get_all("User Permission", filters={"user": assign_to, "allow": "WhatsApp Message Templates"}, pluck="for_value", limit=1)
+	assignees = frappe.parse_json(args.get("assign_to"))
+
+	assignees = [assignee["name"] for assignee in assignees]
+
+	for assignee in assignees:
+		assigned_templates = frappe.db.get_all("User Permission", filters={"user": assignee, "allow": "WhatsApp Message Templates"}, pluck="for_value", limit=1)
 		if assigned_templates:
 			create_crm_lead_assignment(args["name"], assigned_templates[0], "New")
 
