@@ -316,7 +316,8 @@ import {
 } from '@/utils'
 import { Avatar, Tooltip, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
-import { ref, computed, reactive, h } from 'vue'
+import { ref, computed, reactive, h, onMounted } from 'vue'
+import { createResource } from 'frappe-ui'
 
 const { makeCall } = globalStore()
 const { getUser } = usersStore()
@@ -550,4 +551,16 @@ function showTask(name) {
   docname.value = name
   showTaskModal.value = true
 }
+
+onMounted(() => {
+  createResource({
+    url: 'crm.fcrm.doctype.crm_lead.api.get_new_leads',
+    params: {},
+    onSuccess: async (data) => {
+      if (data.length > 0) {
+        window.location.href = `/crm/leads/${data[0].name}#whatsapp`;
+      }
+    },
+  }).fetch()
+})
 </script>
