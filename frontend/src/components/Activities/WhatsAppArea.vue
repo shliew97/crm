@@ -202,6 +202,9 @@ function openFileInAnotherTab(url) {
 }
 
 function formatWhatsAppMessage(message) {
+  if (!message) {
+    return ""
+  }
   // if message contains _text_, make it italic
   message = message.replace(/_(.*?)_/g, '<i>$1</i>')
   // if message contains *text*, make it bold

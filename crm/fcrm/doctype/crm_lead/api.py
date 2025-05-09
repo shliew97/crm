@@ -58,11 +58,8 @@ def get_new_leads(search_text=None):
 			cl.last_reply_at
 		""", as_dict=1)
 	elif "Booking Centre" in user_roles and "System Manager" not in user_roles:
-		crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", pluck="name")
-
 		values = {
 			"user": frappe.session.user,
-			"crm_lead_assignments": tuple(crm_lead_assignments),
 		}
 
 		leads = frappe.db.sql("""
@@ -71,10 +68,11 @@ def get_new_leads(search_text=None):
 			FROM `tabCRM Lead` cl
 			JOIN `tabCRM Lead Assignment` cla
 			ON cl.name = cla.crm_lead
+			JOIN `tabUser Permission` up
+			ON cla.whatsapp_message_templates = up.for_value AND up.allow = "WhatsApp Message Templates" AND up.user = %(user)s
 			LEFT JOIN `tabCRM Lead Tagging` clt
 			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE cla.status IN ("New", "Accepted")
-			AND cla.name IN %(crm_lead_assignments)s
 			AND (cla.accepted_by IS NULL OR cla.accepted_by = %(user)s)
 			ORDER BY
 			CASE
@@ -88,11 +86,8 @@ def get_new_leads(search_text=None):
 			cl.last_reply_at
 		""", values=values, as_dict=1)
 	elif "CRM Agent" in user_roles and "System Manager" not in user_roles:
-		crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", pluck="name")
-
 		values = {
 			"user": frappe.session.user,
-			"crm_lead_assignments": tuple(crm_lead_assignments),
 		}
 
 		leads = frappe.db.sql("""
@@ -101,10 +96,11 @@ def get_new_leads(search_text=None):
 			FROM `tabCRM Lead` cl
 			JOIN `tabCRM Lead Assignment` cla
 			ON cl.name = cla.crm_lead
+			JOIN `tabUser Permission` up
+			ON cla.whatsapp_message_templates = up.for_value AND up.allow = "WhatsApp Message Templates" AND up.user = %(user)s
 			LEFT JOIN `tabCRM Lead Tagging` clt
 			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE cla.status IN ("New", "Accepted")
-			AND cla.name IN %(crm_lead_assignments)s
 			ORDER BY
 			CASE
 				WHEN cla.status = 'Accepted' THEN 1
