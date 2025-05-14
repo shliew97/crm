@@ -713,13 +713,13 @@ function openEmailBox() {
 }
 
 function getStatus(lead) {
-  if (lead.status.length > 0 && lead.status.every(item => item === "Accepted")) {
+  if (lead.status.length > 0 && lead.status.includes("Accepted")) {
     return "Accepted"
   }
   else if (lead.status.length > 0 && lead.status.includes("New")) {
     return "New"
   }
-  else if (lead.status.length > 0 && lead.status.every(item => item === "Completed")) {
+  else if (lead.status.length > 0 && lead.status.includes("Completed")) {
     return "Completed"
   }
 }
@@ -728,13 +728,13 @@ function getBackground(lead) {
   if (lead.status.length > 0 && lead.status.includes("Accepted")) {
     return "#ffe599ff"
   }
-  else if (lead.status.length > 0 && lead.status.every(item => item === "New")) {
+  else if (lead.status.length > 0 && lead.status.includes("New")) {
     return "#c9daf8ff"
   }
-  else if (lead.status.length > 0 && lead.status.every(item => item === "Completed")) {
+  else if (lead.status.length > 0 && lead.status.includes("Completed")) {
     return "#ccccccff"
   }
-  else if (lead.status.length > 0 && lead.status.every(item => item === "Case Closed")) {
+  else if (lead.status.length > 0 && lead.status.includes("Case Closed")) {
     return "#ffffffff"
   }
 }
