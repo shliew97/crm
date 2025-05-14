@@ -713,11 +713,11 @@ function openEmailBox() {
 }
 
 function getStatus(lead) {
-  if (lead.status.length > 0 && lead.status.includes("New")) {
-    return "New"
-  }
-  else if (lead.status.length > 0 && lead.status.every(item => item === "Accepted")) {
+  if (lead.status.length > 0 && lead.status.every(item => item === "Accepted")) {
     return "Accepted"
+  }
+  else if (lead.status.length > 0 && lead.status.includes("New")) {
+    return "New"
   }
   else if (lead.status.length > 0 && lead.status.every(item => item === "Completed")) {
     return "Completed"
@@ -725,11 +725,11 @@ function getStatus(lead) {
 }
 
 function getBackground(lead) {
-  if (lead.status.length > 0 && lead.status.includes("New")) {
-    return "#c9daf8ff"
-  }
-  else if (lead.status.length > 0 && lead.status.every(item => item === "Accepted")) {
+  if (lead.status.length > 0 && lead.status.includes("Accepted")) {
     return "#ffe599ff"
+  }
+  else if (lead.status.length > 0 && lead.status.every(item => item === "New")) {
+    return "#c9daf8ff"
   }
   else if (lead.status.length > 0 && lead.status.every(item => item === "Completed")) {
     return "#ccccccff"
