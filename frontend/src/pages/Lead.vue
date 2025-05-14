@@ -722,6 +722,9 @@ function getStatus(lead) {
   else if (lead.status.length > 0 && lead.status.includes("Completed")) {
     return "Completed"
   }
+  else if (lead.status.length > 0 && lead.status.includes("Case Closed")) {
+    return "Case Closed"
+  }
 }
 
 function getBackground(lead) {
