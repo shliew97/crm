@@ -185,11 +185,11 @@ def acceptConversation(crm_lead_name):
 	frappe.publish_realtime("new_leads", {})
 
 @frappe.whitelist()
-def completeConversation(crm_lead_name):
+def completeConversation(crm_lead_name, mark_as_close=False):
 	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
 	for crm_lead_assignment in crm_lead_assignments:
 		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, {
-			"status": "Completed",
+			"status": "Case Closed" if mark_as_close else "Completed",
 			"accepted_by": None
 		})
 	frappe.db.set_value("CRM Lead", crm_lead_name, {

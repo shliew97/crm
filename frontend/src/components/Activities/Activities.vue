@@ -3,6 +3,7 @@
     v-model="tabIndex"
     v-model:showWhatsappTemplates="showWhatsappTemplates"
     v-model:showFilesUploader="showFilesUploader"
+    v-model:markAsClose="markAsClose"
     :tabs="tabs"
     :title="title"
     :doc="doc"
@@ -534,6 +535,7 @@ const tabIndex = defineModel('tabIndex')
 const reload_email = ref(false)
 const modalRef = ref(null)
 const showFilesUploader = ref(false)
+const markAsClose = ref(false)
 const content = ref("")
 
 const title = computed(() => props.tabs?.[tabIndex.value]?.name || 'Activity')
@@ -600,7 +602,10 @@ const whatsappMessages = createResource({
   },
   auto: true,
   transform: (data) => sortByTimestamp(data),
-  onSuccess: () => nextTick(() => scroll()),
+  onSuccess: (data) => {
+    checkMessageSentToday(data);
+    nextTick(() => scroll())
+  }
 })
 
 onBeforeUnmount(() => {
@@ -710,6 +715,27 @@ function sortByCreation(list) {
 
 function sortByTimestamp(list) {
   return list.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+}
+
+function checkMessageSentToday(list) {
+  const now = new Date();
+  const today = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+  for (let i = list.length - 1; i >= 0; i--) {
+    const entryDateUtc = new Date(list[i].timestamp);
+    const entryDate = new Date(entryDateUtc.getTime() + 8 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    if (entryDate < today) {
+      break; // Stop checking if entry is older than today
+    }
+
+    if (entryDate === today && list[i].owner === getUser().name) {
+      markAsClose.value = false;
+      return
+    }
+  }
+
+  markAsClose.value = true;
 }
 
 function update_activities_details(activity) {

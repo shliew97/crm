@@ -178,6 +178,7 @@ def get_whatsapp_messages(reference_doctype, reference_name):
                     "reference_name",
                     "template_parameters",
                     "template_header_parameters",
+                    "owner",
                 ],
             )
 
@@ -207,6 +208,7 @@ def get_whatsapp_messages(reference_doctype, reference_name):
             "reference_name",
             "template_parameters",
             "template_header_parameters",
+            "owner",
         ],
     )
 

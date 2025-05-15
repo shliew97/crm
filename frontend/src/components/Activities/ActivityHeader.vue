@@ -196,6 +196,7 @@ const { makeCall } = globalStore()
 const tabIndex = defineModel()
 const showWhatsappTemplates = defineModel('showWhatsappTemplates')
 const showFilesUploader = defineModel('showFilesUploader')
+const markAsClose = defineModel('markAsClose')
 
 const defaultActions = computed(() => {
   let actions = [
@@ -281,6 +282,7 @@ async function alertConversation() {
 async function completeConversation() {
   let d = await call('crm.fcrm.doctype.crm_lead.api.completeConversation', {
     crm_lead_name: props.doc.data.name,
+    mark_as_close: markAsClose.value,
   })
   emit('reload', d)
 }
