@@ -197,6 +197,13 @@ def completeConversation(crm_lead_name, mark_as_close=False):
 		"alert_by": None
 	})
 	frappe.db.commit()
+	crm_lead_assignments = frappe.db.get_all("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, fields=["name", "status"])
+	unclosed_crm_lead_assignments = [crm_lead_assignment for crm_lead_assignment in crm_lead_assignments if crm_lead_assignment.status != "Case Closed"]
+	if not unclosed_crm_lead_assignments:
+		frappe.db.set_value("CRM Lead", crm_lead_name, {
+			"closed": 1
+		})
+		frappe.db.commit()
 	frappe.publish_realtime("new_leads", {})
 
 @frappe.whitelist()
