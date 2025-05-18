@@ -18,6 +18,7 @@
   "job_title",
   "source",
   "lead_owner",
+  "latest_whatsapp_message_templates",
   "last_reply_by_user",
   "last_reply_by",
   "last_reply_at",
@@ -377,12 +378,18 @@
    "fieldname": "closed",
    "fieldtype": "Check",
    "label": "Closed"
+  },
+  {
+   "fieldname": "latest_whatsapp_message_templates",
+   "fieldtype": "Link",
+   "label": "Latest WhatsApp Message Templates",
+   "options": "WhatsApp Message Templates"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-16 08:25:34.284718",
+ "modified": "2025-05-19 07:49:08.843891",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
