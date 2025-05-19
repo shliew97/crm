@@ -19,6 +19,7 @@
   "source",
   "lead_owner",
   "latest_whatsapp_message_templates",
+  "latest_whatsapp_interaction_message_templates",
   "last_reply_by_user",
   "last_reply_by",
   "last_reply_at",
@@ -384,12 +385,18 @@
    "fieldtype": "Link",
    "label": "Latest WhatsApp Message Templates",
    "options": "WhatsApp Message Templates"
+  },
+  {
+   "fieldname": "latest_whatsapp_interaction_message_templates",
+   "fieldtype": "Link",
+   "label": "Latest WhatsApp Interaction Message Templates",
+   "options": "WhatsApp Interaction Message Templates"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-19 07:49:08.843891",
+ "modified": "2025-05-19 08:13:31.750445",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
