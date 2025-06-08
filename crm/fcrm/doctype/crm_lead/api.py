@@ -234,15 +234,21 @@ def assignConversation(args=None, *, ignore_permissions=False):
 	assignees = [assignee["name"] for assignee in assignees]
 
 	for assignee in assignees:
-		assigned_templates = frappe.db.get_all("User Permission", filters={"user": assignee, "allow": "WhatsApp Message Templates"}, pluck="for_value", limit=1)
-		if assigned_templates:
-			create_crm_lead_assignment(args["name"], assigned_templates[0], "New")
+		if assignee == "Booking Centre":
+			create_crm_lead_assignment(args["name"], "BookingHL", "New")
+		else:
+			assigned_templates = frappe.db.get_all("User Permission", filters={"user": assignee, "allow": "WhatsApp Message Templates"}, pluck="for_value", limit=1)
+			if assigned_templates:
+				create_crm_lead_assignment(args["name"], assigned_templates[0], "New")
 
 	frappe.publish_realtime("new_leads", {})
 
 @frappe.whitelist()
 def unassignConversation(doctype, name, assign_to, ignore_permissions=False):
-	assigned_templates = frappe.db.get_all("User Permission", filters={"user": assign_to, "allow": "WhatsApp Message Templates"}, pluck="for_value")
+	if assign_to == "Booking Centre":
+		assigned_templates = frappe.db.get_all("User Permission", filters={"user": "booking_centre_1@example.com", "allow": "WhatsApp Message Templates"}, pluck="for_value")
+	else:
+		assigned_templates = frappe.db.get_all("User Permission", filters={"user": assign_to, "allow": "WhatsApp Message Templates"}, pluck="for_value")
 	frappe.db.delete("CRM Lead Assignment", filters={"crm_lead": name, "whatsapp_message_templates": ["in", assigned_templates]})
 	frappe.publish_realtime("new_leads", {})
 

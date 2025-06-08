@@ -124,6 +124,8 @@ def get_users_with_crm_assignee_role():
 
     users = [{"value": user.name, "description": user.first_name} for user in users if user.name != "Administrator"]
 
+    users.append({"value": "Booking Centre", "description": "Booking Centre"})
+
     if not users:
         users = []
     
