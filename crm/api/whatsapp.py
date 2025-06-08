@@ -133,12 +133,13 @@ def get_users_with_crm_assignee_role():
 
 @frappe.whitelist()
 def get_crm_assignees(crm_lead):
+    bc_users = get_users_with_role("Booking Centre")
     existing_templates = frappe.db.get_all("CRM Lead Assignment", filters={"crm_lead": crm_lead, "status": ["in", ["New", "Accepted"]]}, pluck="whatsapp_message_templates")
     users_with_permission = frappe.db.get_all("User Permission", filters={"allow": "WhatsApp Message Templates", "for_value": ["in", existing_templates]}, pluck="user")
 
     users = frappe.db.get_all("User", filters={"name": ["in", users_with_permission]}, fields=["name", "first_name"])
 
-    crm_assignees = [{"name": user.name, "label": user.first_name[0]} for user in users]
+    crm_assignees = [{"name": user.name, "label": user.first_name[0], "has_bc_role": user.name in bc_users} for user in users]
 
     if not crm_assignees:
         crm_assignees = []

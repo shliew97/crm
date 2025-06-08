@@ -29,7 +29,7 @@
     <template #body-content>
       <div class="mt-3 flex flex-col justify-center gap-2">
         <div v-for="option in options" :key="option.value" class="flex items-center">
-          <input class="form-check-input mr-2" type="checkbox" @change="checkboxOnChange(option)" :checked="assignees.some(assignee => assignee.name === option.value)">
+          <input class="form-check-input mr-2" type="checkbox" @change="checkboxOnChange(option)" :checked="assignees.some(assignee => assignee.name === option.value || (assignee.has_bc_role && option.value == 'Booking Centre'))">
           <UserAvatar :user="option.value" size="sm" />
           <span class="ml-2">{{ option.label }}</span>
         </div>
