@@ -182,7 +182,7 @@ def acceptConversation(crm_lead_name):
 			"accepted_by": frappe.session.user
 		})
 	frappe.db.commit()
-	frappe.publish_realtime("new_leads", {})
+	frappe.publish_realtime("new_leads", {"accepted_lead": crm_lead_name, "user": frappe.session.user})
 
 @frappe.whitelist()
 def completeConversation(crm_lead_name, mark_as_close=False):

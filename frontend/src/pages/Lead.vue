@@ -382,7 +382,7 @@ import { useActiveTabManager } from '@/composables/useActiveTabManager'
 const { $dialog, $socket, makeCall } = globalStore()
 const { getContactByName, contacts } = contactsStore()
 const { statusOptions, getLeadStatus } = statusesStore()
-const { isManager } = usersStore()
+const { getUser } = usersStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -425,21 +425,37 @@ const lead = createResource({
   },
 })
 
-function triggerFetchNewLeads(searchText) {
+function triggerFetchNewLeads(searchText, redirect=false) {
   createResource({
     url: 'crm.fcrm.doctype.crm_lead.api.get_new_leads',
     params: {
       search_text: searchText.value
     },
     onSuccess: async (data) => {
-      newLeads.value = data;
+      if (redirect) {
+        if (data.length > 0) {
+          window.location.href = `/crm/leads/${data[0].name}#whatsapp`;
+        }
+        else {
+          newLeads.value = data;
+        }
+      }
+      else {
+        newLeads.value = data;
+      }
     },
   }).fetch()
 }
 
 onMounted(() => {
-  $socket.on("new_leads", () => {
-    triggerFetchNewLeads(searchText);
+  $socket.on("new_leads", (data) => {
+    if (lead.data && lead.data.name == data.accepted_lead && data.user != getUser().name) {
+      triggerFetchNewLeads(searchText, true);
+    }
+    else {
+      triggerFetchNewLeads(searchText);
+    }
+    lead.fetch()
   })
   triggerFetchNewLeads(searchText);
   if (lead.data) return
