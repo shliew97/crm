@@ -100,7 +100,7 @@
         </template>
         <span>{{ __('New Message') }}</span>
       </Button> -->
-      <Button v-if="hasNewStatus() || (hasCompletedStatus() && isWithin24Hours(props.doc.data.conversation_start_at))" variant="solid" @click="acceptConversation()">
+      <Button v-if="hasNewStatus() || (hasCompletedOrCaseCloseStatus() && isWithin24Hours(props.doc.data.last_reply_at))" variant="solid" @click="acceptConversation()">
         <span>{{ __('Accept') }}</span>
       </Button>
       <Button v-if="hasAcceptedStatus() && !hasNewStatus()" variant="solid" @click="completeConversation()">
@@ -320,7 +320,7 @@ function hasNewStatus() {
   return props.doc.data._assignments.includes('New');
 }
 
-function hasCompletedStatus() {
-  return props.doc.data._assignments.includes('Completed');
+function hasCompletedOrCaseCloseStatus() {
+  return props.doc.data._assignments.includes('Completed') || props.doc.data._assignments.includes('Case Closed');
 }
 </script>
