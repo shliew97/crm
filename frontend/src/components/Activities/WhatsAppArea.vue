@@ -48,6 +48,13 @@
             </div>
           </div>
           <div class="flex gap-2 flex-col items-between">
+            <div v-if="whatsapp.is_forwarded" class="text-gray-600">
+              <div class="flex text-2xs">
+                <svg width="10px" height="10px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 15H12L16 11L12 7H11V10H5C3.34315 10 2 8.65685 2 7C2 5.34315 3.34315 4 5 4H12V2H5C2.23858 2 0 4.23858 0 7C0 9.76142 2.23858 12 5 12H11V15Z" fill="#7c7c7c"></path> </g></svg>
+                &nbsp;
+                <i>Forwarded</i>
+              </div>
+            </div>
             <div
               class="absolute -right-0.5 -top-0.5 flex cursor-pointer gap-1 rounded-full bg-white pb-2 pl-2 pr-1.5 pt-1.5 opacity-0 group-hover/message:opacity-100"
               :style="{
