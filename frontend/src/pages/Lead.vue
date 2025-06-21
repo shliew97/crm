@@ -52,7 +52,7 @@
       />
     </Tabs>
     <Resizer class="flex flex-col justify-start border-l" side="right">
-      <TextInput v-model="searchText" class="w-full m-1" :placeholder="'Mobile No. e.g. 0112223333'"></TextInput>
+      <TextInput v-model="searchText" @keyup.enter="triggerFetchNewLeads(searchText)" class="w-full m-1" :placeholder="'Mobile No. e.g. 0112223333'"></TextInput>
       <div class="overflow-y-auto">
         <a :href="`/crm/leads/${lead.name}#whatsapp`" class="flex h-30 cursor-pointer border p-4 shadow-sm flex-col" v-for="(lead, i) in newLeads" :key="lead.name" :style="{ background: getBackground(lead) }">
           <div class="flex justify-between">
@@ -429,7 +429,7 @@ function triggerFetchNewLeads(searchText, redirect=false) {
   createResource({
     url: 'crm.fcrm.doctype.crm_lead.api.get_new_leads',
     params: {
-      search_text: searchText.value
+      search_text: typeof searchText === 'string' ? searchText : searchText?.value
     },
     onSuccess: async (data) => {
       if (redirect) {
@@ -606,13 +606,6 @@ watch(tabs, (value) => {
       tabIndex.value = index
     }
   }
-})
-
-watch(searchText, (value) => {
-  clearTimeout(timeout.value);
-  timeout.value = setTimeout(() => {
-    triggerFetchNewLeads(searchText);
-  }, 600);
 })
 
 function validateFile(file) {

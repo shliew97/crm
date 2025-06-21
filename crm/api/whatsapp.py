@@ -22,15 +22,16 @@ def validate(doc, method):
 
 
 def on_update(doc, method):
-    frappe.publish_realtime(
-        "whatsapp_message",
-        {
-            "reference_doctype": doc.reference_doctype,
-            "reference_name": doc.reference_name,
-        },
-    )
-    if not doc.flags.is_template_queue:
-        frappe.publish_realtime("new_leads", {})
+    if not doc.get_doc_before_save():
+        frappe.publish_realtime(
+            "whatsapp_message",
+            {
+                "reference_doctype": doc.reference_doctype,
+                "reference_name": doc.reference_name,
+            },
+        )
+    # if not doc.flags.is_template_queue:
+    #     frappe.publish_realtime("new_leads", {})
 
     notify_agent(doc)
 
@@ -215,6 +216,8 @@ def get_whatsapp_messages(reference_doctype, reference_name):
             "template_header_parameters",
             "owner",
         ],
+        limit=88,
+        order_by="timestamp desc",
     )
 
     # Filter messages to get only Template messages
