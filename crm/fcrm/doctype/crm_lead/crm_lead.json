@@ -30,6 +30,7 @@
   "alert_by",
   "last_message_from_me",
   "sent_chat_closing_reminder",
+  "is_outlet_frontdesk",
   "person_tab",
   "salutation",
   "first_name",
@@ -391,12 +392,19 @@
    "fieldtype": "Link",
    "label": "Latest WhatsApp Interaction Message Templates",
    "options": "WhatsApp Interaction Message Templates"
+  },
+  {
+   "default": "0",
+   "depends_on": "frappe.user.has_role(\"System Manager\")",
+   "fieldname": "is_outlet_frontdesk",
+   "fieldtype": "Check",
+   "label": "Is Outlet Frontdesk"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-19 08:13:31.750445",
+ "modified": "2025-06-25 22:14:35.090364",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
