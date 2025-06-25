@@ -104,6 +104,9 @@ function uploadFile(file) {
 
 function sendTextMessage(event) {
   if (event.shiftKey) return
+  if (content.value === null || content.value === undefined || content.value === '') {
+    return
+  }
   sendWhatsAppMessage()
   textareaRef.value.el?.blur()
   content.value = ''
@@ -111,6 +114,9 @@ function sendTextMessage(event) {
 }
 
 async function sendWhatsAppMessage() {
+  if (content.value === null || content.value === undefined || content.value === '') {
+    return
+  }
   let args = {
     reference_doctype: props.doctype,
     reference_name: doc.value.data.name,
