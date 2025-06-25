@@ -395,7 +395,7 @@
   },
   {
    "default": "0",
-   "depends_on": "frappe.user.has_role(\"System Manager\")",
+   "depends_on": "eval:frappe.user.has_role(\"System Manager\")",
    "fieldname": "is_outlet_frontdesk",
    "fieldtype": "Check",
    "label": "Is Outlet Frontdesk"
@@ -404,7 +404,7 @@
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-25 22:14:35.090364",
+ "modified": "2025-06-25 23:18:59.716781",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
