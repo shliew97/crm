@@ -273,9 +273,9 @@ function formatWhatsAppMessage(message) {
   message = message.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="word-break: auto-phrase;">$1</a>');
   message = message.replace(/\n/g, '<br>')
   // if contains *<space>text, make it a bullet point
-  message = message.replace(/\* (.*?)(?=\s*\*|$)/g, '<li>$1</li>')
-  message = message.replace(/- (.*?)(?=\s*-|$)/g, '<li>$1</li>')
-  message = message.replace(/(\d+)\. (.*?)(?=\s*(\d+)\.|$)/g, '<li>$2</li>')
+  // message = message.replace(/\* (.*?)(?=\s*\*|$)/g, '<li>$1</li>')
+  // message = message.replace(/- (.*?)(?=\s*-|$)/g, '<li>$1</li>')
+  // message = message.replace(/(\d+)\. (.*?)(?=\s*(\d+)\.|$)/g, '<li>$2</li>')
 
   return message
 }
