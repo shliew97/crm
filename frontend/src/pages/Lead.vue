@@ -66,9 +66,10 @@
             <PhoneIcon></PhoneIcon>
             <div class="ml-2 truncate text-base">{{ lead.mobile_no }}</div>
           </div>
-          <div class="mt-2 truncate text-base">Last Reply By : {{ lead.last_reply_by }}</div>
+          <div class="mt-2 truncate text-2xs">Last Reply By : {{ lead.last_reply_by }}</div>
           <div class="mt-2 truncate text-ink-white rounded bg-red-500 pl-2" v-if="lead.alert && (username === lead.alert_by || isMasterAgent)">Alert! : by {{ lead.alert_by }}</div>
-          <div class="mt-2 truncate text-base">{{ lead.last_reply_at ? dateFormat(lead.last_reply_at, dateTooltipFormat) : "-" }}</div>
+          <div class="mt-2 truncate text-2xs">Starts at: {{ lead.conversation_start_at ? dateFormat(lead.conversation_start_at, dateTooltipFormat) : "-" }}</div>
+          <div class="mt-2 truncate text-2xs">Last Reply: {{ lead.last_reply_at ? dateFormat(lead.last_reply_at, dateTooltipFormat) : "-" }}</div>
           <div class="flex items-end mt-1 flex-col">
             <div v-for="(tagging, i) in lead.taggings" class="truncate text-base mt-1">
               {{ tagging }}
