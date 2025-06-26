@@ -55,7 +55,7 @@ def get_new_leads(search_text=None):
 				WHEN cla.status = 'Case Closed' THEN 5
 				ELSE 6
 			END,
-			cl.last_reply_at
+			cl.conversation_start_at
 		""", as_dict=1)
 	elif "Booking Centre" in user_roles and "System Manager" not in user_roles:
 		values = {
@@ -83,7 +83,7 @@ def get_new_leads(search_text=None):
 				WHEN cla.status = 'Case Closed' THEN 5
 				ELSE 6
 			END,
-			cl.last_reply_at
+			cl.conversation_start_at
 		""", values=values, as_dict=1)
 	elif "CRM Agent" in user_roles and "System Manager" not in user_roles:
 		values = {
@@ -110,7 +110,7 @@ def get_new_leads(search_text=None):
 				WHEN cla.status = 'Case Closed' THEN 5
 				ELSE 6
 			END,
-			cl.last_reply_at
+			cl.conversation_start_at
 		""", values=values, as_dict=1)
 	else:
 		values = {
@@ -135,7 +135,7 @@ def get_new_leads(search_text=None):
 				WHEN cla.status = 'Case Closed' THEN 5
 				ELSE 6
 			END,
-			cl.last_reply_at
+			cl.conversation_start_at
 		""", values=values, as_dict=1)
 
 	if not leads:
@@ -146,6 +146,7 @@ def get_new_leads(search_text=None):
 		"lead_name": "",
 		"mobile_no": "",
 		"last_reply_by": "",
+		"conversation_start_at": "",
 		"last_reply_at": "",
 		"whatsapp_message_templates": [],
 		"alert": 0,
@@ -159,6 +160,7 @@ def get_new_leads(search_text=None):
 		leads_defaultdict[lead.name]["lead_name"] = lead.lead_name
 		leads_defaultdict[lead.name]["mobile_no"] = lead.mobile_no
 		leads_defaultdict[lead.name]["last_reply_by"] = lead.last_reply_by
+		leads_defaultdict[lead.name]["conversation_start_at"] = lead.conversation_start_at
 		leads_defaultdict[lead.name]["last_reply_at"] = lead.last_reply_at
 		leads_defaultdict[lead.name]["alert"] = lead.alert
 		leads_defaultdict[lead.name]["alert_by"] = lead.alert_by
