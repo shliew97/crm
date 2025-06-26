@@ -114,7 +114,7 @@ function sendTextMessage(event) {
 }
 
 async function sendWhatsAppMessage() {
-  if (content.value === null || content.value === undefined || content.value === '') {
+  if (whatsapp.value.content_type == "text" && (content.value === null || content.value === undefined || content.value === '')) {
     return
   }
   let args = {

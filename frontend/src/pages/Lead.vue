@@ -741,6 +741,14 @@ function getBackground(lead) {
     return "#ffe599ff"
   }
   else if (lead.status.length > 0 && lead.status.includes("New")) {
+    if (isWithin8Minutes(lead.last_reply_at)) {
+      if (lead.last_reply_by == getUser().name) {
+        return "#b6d7a8"
+      }
+      else {
+        return "#ea9999"
+      }
+    }
     return "#c9daf8ff"
   }
   else if (lead.status.length > 0 && lead.status.includes("Completed")) {
@@ -749,5 +757,13 @@ function getBackground(lead) {
   else if (lead.status.length > 0 && lead.status.includes("Case Closed")) {
     return "#ffffffff"
   }
+}
+
+function isWithin8Minutes(datetime) {
+  const now = new Date();
+  const targetTime = new Date(datetime).getTime();
+  
+  const diff = Math.abs(now.getTime() - targetTime); // Absolute difference in milliseconds
+  return diff <= 8 * 60 * 1000; // 8 minutes in milliseconds
 }
 </script>
