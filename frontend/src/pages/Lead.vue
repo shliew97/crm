@@ -743,7 +743,7 @@ function getBackground(lead) {
   }
   else if (lead.status.length > 0 && lead.status.includes("New")) {
     if (isWithin8Minutes(lead.last_reply_at)) {
-      if (lead.last_reply_by == getUser().name) {
+      if (!(lead.last_reply_by === null || lead.last_reply_by === undefined || lead.last_reply_by === '') && lead.last_reply_by == getUser().name) {
         return "#b6d7a8"
       }
       else {
