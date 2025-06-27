@@ -146,6 +146,7 @@ def get_new_leads(search_text=None):
 		"lead_name": "",
 		"mobile_no": "",
 		"last_reply_by": "",
+		"last_reply_by_user": "",
 		"conversation_start_at": "",
 		"last_reply_at": "",
 		"whatsapp_message_templates": [],
@@ -160,6 +161,7 @@ def get_new_leads(search_text=None):
 		leads_defaultdict[lead.name]["lead_name"] = lead.lead_name
 		leads_defaultdict[lead.name]["mobile_no"] = lead.mobile_no
 		leads_defaultdict[lead.name]["last_reply_by"] = lead.last_reply_by
+		leads_defaultdict[lead.name]["last_reply_by_user"] = lead.last_reply_by_user
 		leads_defaultdict[lead.name]["conversation_start_at"] = lead.conversation_start_at
 		leads_defaultdict[lead.name]["last_reply_at"] = lead.last_reply_at
 		leads_defaultdict[lead.name]["alert"] = lead.alert

@@ -746,7 +746,7 @@ function getBackground(lead) {
       if (!(lead.last_reply_by_user === null || lead.last_reply_by_user === undefined || lead.last_reply_by_user === '') && lead.last_reply_by_user == getUser().name) {
         return "#b6d7a8"
       }
-      else {
+      else if (!(lead.last_reply_by_user === null || lead.last_reply_by_user === undefined || lead.last_reply_by_user === '')) {
         return "#ea9999"
       }
     }
