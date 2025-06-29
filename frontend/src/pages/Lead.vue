@@ -603,6 +603,7 @@ const tabs = computed(() => {
 
 watch(offWorkMode, (newVal) => {
   localStorage.setItem("off_work_mode", newVal.toString())
+  triggerFetchNewLeads();
 })
 
 const { tabIndex, changeTabTo } = useActiveTabManager(tabs, 'lastLeadTab')
