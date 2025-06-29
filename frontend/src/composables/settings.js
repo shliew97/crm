@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 export const whatsappEnabled = ref(true)
 export const isWhatsappInstalled = ref(true)
 export const isMasterAgent = ref(false)
+export const isBookingCentre = ref(false)
 export const username = ref("")
 
 // createResource({
@@ -23,11 +24,12 @@ export const username = ref("")
 //   },
 // })
 createResource({
-  url: 'crm.api.whatsapp.is_master_agent',
+  url: 'crm.api.whatsapp.is_master_agent_and_booking_centre',
   cache: 'Is Master Agent',
   auto: true,
   onSuccess: (data) => {
-    isMasterAgent.value = Boolean(data)
+    isMasterAgent.value = Boolean(data.is_master_agent)
+    isBookingCentre.value = Boolean(data.is_booking_centre)
   },
 })
 createResource({

@@ -118,6 +118,19 @@ def is_master_agent():
     return False
 
 @frappe.whitelist()
+def is_master_agent_and_booking_centre():
+    response = {
+        "is_master_agent": False,
+        "is_booking_centre": False,
+    }
+    user_roles = frappe.get_roles()
+    if "Master Agent" in user_roles:
+        response ["is_master_agent"] = True
+    if "Booking Centre" in user_roles:
+        response ["is_booking_centre"] = True
+    return response
+
+@frappe.whitelist()
 def get_users_with_crm_assignee_role():
     users = get_users_with_role("CRM Assignee")
 

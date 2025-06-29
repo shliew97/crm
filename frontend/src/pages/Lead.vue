@@ -52,7 +52,8 @@
       />
     </Tabs>
     <Resizer class="flex flex-col justify-start border-l" side="right">
-      <TextInput v-model="searchText" @keyup.enter="triggerFetchNewLeads(searchText)" class="w-full m-1" :placeholder="'Mobile No. e.g. 0112223333'"></TextInput>
+      <Switch v-if="isBookingCentre" size="sm" label="Off Work Mode" description="" :disabled="false" v-model="offWorkMode"/>
+      <TextInput v-model="searchText" @keyup.enter="triggerFetchNewLeads()" class="w-full m-1" :placeholder="'Mobile No. e.g. 0112223333'"></TextInput>
       <div class="overflow-y-auto">
         <a :href="`/crm/leads/${lead.name}#whatsapp`" class="flex h-30 cursor-pointer border p-4 shadow-sm flex-col" v-for="(lead, i) in newLeads" :key="lead.name" :style="{ background: getBackground(lead) }">
           <div class="flex justify-between">
@@ -361,7 +362,7 @@ import { globalStore } from '@/stores/global'
 import { contactsStore } from '@/stores/contacts'
 import { statusesStore } from '@/stores/statuses'
 import { usersStore } from '@/stores/users'
-import { whatsappEnabled, isMasterAgent, username } from '@/composables/settings'
+import { whatsappEnabled, isMasterAgent, isBookingCentre, username } from '@/composables/settings'
 import { capture } from '@/telemetry'
 import {
   createResource,
@@ -398,6 +399,7 @@ const customActions = ref([])
 const customStatuses = ref([])
 const newLeads = ref([])
 const searchText = ref("")
+const offWorkMode = ref(false)
 const timeout = ref(undefined)
 
 const lead = createResource({
@@ -426,11 +428,12 @@ const lead = createResource({
   },
 })
 
-function triggerFetchNewLeads(searchText, redirect=false) {
+function triggerFetchNewLeads(redirect=false) {
   createResource({
     url: 'crm.fcrm.doctype.crm_lead.api.get_new_leads',
     params: {
-      search_text: typeof searchText === 'string' ? searchText : searchText?.value
+      search_text: searchText.value || "",
+      off_work_mode: offWorkMode.value,
     },
     onSuccess: async (data) => {
       if (redirect) {
@@ -449,16 +452,18 @@ function triggerFetchNewLeads(searchText, redirect=false) {
 }
 
 onMounted(() => {
+  const saved = localStorage.getItem("off_work_mode")
+  offWorkMode.value = saved === "true" // convert string to boolean
   $socket.on("new_leads", (data) => {
     if (lead.data && lead.data.name == data.accepted_lead && data.user != getUser().name) {
-      triggerFetchNewLeads(searchText, true);
+      triggerFetchNewLeads(true);
     }
     else {
-      triggerFetchNewLeads(searchText);
+      triggerFetchNewLeads();
     }
     lead.fetch()
   })
-  triggerFetchNewLeads(searchText);
+  triggerFetchNewLeads();
   if (lead.data) return
   lead.fetch()
 })
@@ -594,6 +599,10 @@ const tabs = computed(() => {
     },
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
+})
+
+watch(offWorkMode, (newVal) => {
+  localStorage.setItem("off_work_mode", newVal.toString())
 })
 
 const { tabIndex, changeTabTo } = useActiveTabManager(tabs, 'lastLeadTab')

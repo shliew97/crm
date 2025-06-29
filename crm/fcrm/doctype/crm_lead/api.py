@@ -26,7 +26,7 @@ def get_lead(name):
 	return lead
 
 @frappe.whitelist()
-def get_new_leads(search_text=None):
+def get_new_leads(search_text=None, off_work_mode=False):
 	user_roles = frappe.get_roles()
 
 	if search_text:
@@ -62,6 +62,11 @@ def get_new_leads(search_text=None):
 			"user": frappe.session.user,
 		}
 
+		off_work_mode_query = ""
+
+		if off_work_mode:
+			off_work_mode_query = "AND cl.conversation_start_at < CURDATE() + INTERVAL 21 HOUR"
+
 		leads = frappe.db.sql("""
 			SELECT
 				cl.*, cla.status AS cla_status, clt.tagging
@@ -74,6 +79,9 @@ def get_new_leads(search_text=None):
 			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE cla.status IN ("New", "Accepted")
 			AND (cla.accepted_by IS NULL OR cla.accepted_by = %(user)s)
+		"""
+		+ off_work_mode_query +
+		"""
 			ORDER BY
 			CASE
 				WHEN cla.status = 'Accepted' THEN 1
@@ -190,6 +198,12 @@ def acceptConversation(crm_lead_name):
 
 @frappe.whitelist()
 def completeConversation(crm_lead_name, mark_as_close=False):
+	if mark_as_close:
+		frappe.get_doc({
+			"doctype": "WhatsApp Close Log",
+			"close_by": frappe.session.user,
+			"crm_lead": crm_lead_name,
+		}).insert(ignore_permissions=True)
 	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
 	for crm_lead_assignment in crm_lead_assignments:
 		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, {
