@@ -65,7 +65,7 @@ def get_new_leads(search_text=None, off_work_mode=False):
 		off_work_mode_query = ""
 
 		if off_work_mode:
-			off_work_mode_query = "AND cl.conversation_start_at < CURDATE() + INTERVAL 21 HOUR"
+			off_work_mode_query = "AND cl.conversation_start_at < CURDATE() + INTERVAL 21 HOUR AND cl.last_reply_at < CURDATE() + INTERVAL 21 HOUR"
 
 		leads = frappe.db.sql("""
 			SELECT
