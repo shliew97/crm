@@ -288,7 +288,7 @@ def alertConversation(crm_lead_name):
 
 	send_push_notification_to_crm_admin("Alert! : by {0}".format(username), "Alert! A conversation requires your attention!", get_users_with_crm_admin_role(), "https://crm.techmind.com.my/crm/leads/{0}?viewType=#whatsapp".format(crm_lead_name))
 
-	frappe.publish_realtime("new_leads", {})
+	acceptConversation(crm_lead_name)
 
 def get_users_with_crm_admin_role():
 	users = get_users_with_role("CRM Admin")
