@@ -846,7 +846,7 @@ function scroll(hash) {
       el = document.getElementById(hash)
     }
     if (el && !useElementVisibility(el).value) {
-      el.scrollIntoView({ behavior: 'smooth' })
+      el.scrollIntoView({ behavior: 'instant' })
       el.focus()
     }
   }, 500)

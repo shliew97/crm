@@ -326,7 +326,7 @@ function messageOptions(message) {
 
 function scrollToMessage(name) {
   const element = document.getElementById(name)
-  element.scrollIntoView({ behavior: 'smooth' })
+  element.scrollIntoView({ behavior: 'instant' })
 
   // Highlight the message
   element.classList.add('bg-yellow-100')
