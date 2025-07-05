@@ -49,14 +49,55 @@ def get_new_leads(search_text=None, off_work_mode=False):
 			ORDER BY
 			CASE
 				WHEN cla.status = 'Accepted' THEN 1
-				WHEN cl.alert = 1 THEN 2
-				WHEN cla.status = 'New' THEN 3
-				WHEN cla.status = 'Completed' THEN 4
-				WHEN cla.status = 'Case Closed' THEN 5
+				WHEN cl.is_special_attention = 1 THEN 2
+				WHEN cl.alert = 1 THEN 3
+				WHEN cla.status = 'New' THEN 4
+				WHEN cla.status = 'Completed' THEN 5
+				WHEN cla.status = 'Case Closed' THEN 6
 				ELSE 6
 			END,
 			cl.conversation_start_at
 		""", as_dict=1)
+	elif "Booking Centre Master" in user_roles and "System Manager" not in user_roles:
+		booking_centre_users = get_users_with_role("Booking Centre")
+
+		values = {
+			"user": frappe.session.user,
+			"booking_users": ", ".join([frappe.db.escape(user) for user in booking_centre_users])
+		}
+
+		off_work_mode_query = ""
+
+		if off_work_mode:
+			off_work_mode_query = "AND cl.conversation_start_at < CURDATE() + INTERVAL 21 HOUR AND cl.last_reply_at < CURDATE() + INTERVAL 21 HOUR"
+
+		leads = frappe.db.sql("""
+			SELECT
+				cl.*, cla.status AS cla_status, clt.tagging
+			FROM `tabCRM Lead` cl
+			JOIN `tabCRM Lead Assignment` cla
+			ON cl.name = cla.crm_lead
+			JOIN `tabUser Permission` up
+			ON cla.whatsapp_message_templates = up.for_value AND up.allow = "WhatsApp Message Templates" AND up.user = %(user)s
+			LEFT JOIN `tabCRM Lead Tagging` clt
+			ON cl.name = clt.crm_lead AND clt.status = "Open"
+			WHERE cla.status IN ("New", "Accepted")
+			AND (cla.accepted_by IS NULL OR cla.accepted_by IN (%(booking_users)s))
+		"""
+		+ off_work_mode_query +
+		"""
+			ORDER BY
+			CASE
+				WHEN cla.status = 'Accepted' THEN 1
+				WHEN cl.is_special_attention = 1 THEN 2
+				WHEN cl.alert = 1 THEN 3
+				WHEN cla.status = 'New' THEN 4
+				WHEN cla.status = 'Completed' THEN 5
+				WHEN cla.status = 'Case Closed' THEN 6
+				ELSE 6
+			END,
+			cl.conversation_start_at
+		""", values=values, as_dict=1)
 	elif "Booking Centre" in user_roles and "System Manager" not in user_roles:
 		values = {
 			"user": frappe.session.user,
@@ -85,10 +126,11 @@ def get_new_leads(search_text=None, off_work_mode=False):
 			ORDER BY
 			CASE
 				WHEN cla.status = 'Accepted' THEN 1
-				WHEN cl.alert = 1 THEN 2
-				WHEN cla.status = 'New' THEN 3
-				WHEN cla.status = 'Completed' THEN 4
-				WHEN cla.status = 'Case Closed' THEN 5
+				WHEN cl.is_special_attention = 1 THEN 2
+				WHEN cl.alert = 1 THEN 3
+				WHEN cla.status = 'New' THEN 4
+				WHEN cla.status = 'Completed' THEN 5
+				WHEN cla.status = 'Case Closed' THEN 6
 				ELSE 6
 			END,
 			cl.conversation_start_at
@@ -112,10 +154,11 @@ def get_new_leads(search_text=None, off_work_mode=False):
 			ORDER BY
 			CASE
 				WHEN cla.status = 'Accepted' THEN 1
-				WHEN cl.alert = 1 THEN 2
-				WHEN cla.status = 'New' THEN 3
-				WHEN cla.status = 'Completed' THEN 4
-				WHEN cla.status = 'Case Closed' THEN 5
+				WHEN cl.is_special_attention = 1 THEN 2
+				WHEN cl.alert = 1 THEN 3
+				WHEN cla.status = 'New' THEN 4
+				WHEN cla.status = 'Completed' THEN 5
+				WHEN cla.status = 'Case Closed' THEN 6
 				ELSE 6
 			END,
 			cl.conversation_start_at
@@ -137,10 +180,11 @@ def get_new_leads(search_text=None, off_work_mode=False):
 			ORDER BY
 			CASE
 				WHEN cla.status = 'Accepted' THEN 1
-				WHEN cl.alert = 1 THEN 2
-				WHEN cla.status = 'New' THEN 3
-				WHEN cla.status = 'Completed' THEN 4
-				WHEN cla.status = 'Case Closed' THEN 5
+				WHEN cl.is_special_attention = 1 THEN 2
+				WHEN cl.alert = 1 THEN 3
+				WHEN cla.status = 'New' THEN 4
+				WHEN cla.status = 'Completed' THEN 5
+				WHEN cla.status = 'Case Closed' THEN 6
 				ELSE 6
 			END,
 			cl.conversation_start_at

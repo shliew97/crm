@@ -31,6 +31,7 @@
   "last_message_from_me",
   "sent_chat_closing_reminder",
   "is_outlet_frontdesk",
+  "is_special_attention",
   "person_tab",
   "salutation",
   "first_name",
@@ -399,12 +400,18 @@
    "fieldname": "is_outlet_frontdesk",
    "fieldtype": "Check",
    "label": "Is Outlet Frontdesk"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_special_attention",
+   "fieldtype": "Check",
+   "label": "Is Special Attention"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-25 23:18:59.716781",
+ "modified": "2025-07-05 09:56:18.180880",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

@@ -63,7 +63,7 @@
               <div class="truncate text-base">{{ getStatus(lead) }}</div>
             </div>
           </div>
-          <div class="flex mt-2">
+          <div v-if="username == 'administrator'" class="flex mt-2">
             <PhoneIcon></PhoneIcon>
             <div class="ml-2 truncate text-base">{{ lead.mobile_no }}</div>
           </div>
