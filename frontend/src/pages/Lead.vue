@@ -753,12 +753,18 @@ function getBackground(lead) {
   }
   else if (lead.status.length > 0 && lead.status.includes("New")) {
     if (isWithin8Minutes(lead.last_reply_at)) {
+      if (lead.is_special_attention === 1) {
+        return "#bdb1f0"
+      }
       if (!(lead.last_reply_by_user === null || lead.last_reply_by_user === undefined || lead.last_reply_by_user === '') && lead.last_reply_by_user == getUser().name) {
         return "#b6d7a8"
       }
       else if (!(lead.last_reply_by_user === null || lead.last_reply_by_user === undefined || lead.last_reply_by_user === '')) {
         return "#ea9999"
       }
+    }
+    if (lead.is_special_attention === 1) {
+      return "#bdb1f0"
     }
     return "#c9daf8ff"
   }

@@ -59,11 +59,8 @@ def get_new_leads(search_text=None, off_work_mode=False):
 			cl.conversation_start_at
 		""", as_dict=1)
 	elif "Booking Centre Master" in user_roles and "System Manager" not in user_roles:
-		booking_centre_users = get_users_with_role("Booking Centre")
-
 		values = {
 			"user": frappe.session.user,
-			"booking_users": ", ".join([frappe.db.escape(user) for user in booking_centre_users])
 		}
 
 		off_work_mode_query = ""
@@ -82,7 +79,6 @@ def get_new_leads(search_text=None, off_work_mode=False):
 			LEFT JOIN `tabCRM Lead Tagging` clt
 			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE cla.status IN ("New", "Accepted")
-			AND (cla.accepted_by IS NULL OR cla.accepted_by IN (%(booking_users)s))
 		"""
 		+ off_work_mode_query +
 		"""
@@ -204,6 +200,7 @@ def get_new_leads(search_text=None, off_work_mode=False):
 		"whatsapp_message_templates": [],
 		"alert": 0,
 		"alert_by": "",
+		"is_special_attention": 0,
 		"status": [],
 		"taggings": []
 	})
@@ -218,6 +215,7 @@ def get_new_leads(search_text=None, off_work_mode=False):
 		leads_defaultdict[lead.name]["last_reply_at"] = lead.last_reply_at
 		leads_defaultdict[lead.name]["alert"] = lead.alert
 		leads_defaultdict[lead.name]["alert_by"] = lead.alert_by
+		leads_defaultdict[lead.name]["is_special_attention"] = lead.is_special_attention
 		if lead.whatsapp_message_templates not in leads_defaultdict[lead.name]["whatsapp_message_templates"]:
 			leads_defaultdict[lead.name]["whatsapp_message_templates"].append(lead.whatsapp_message_templates)
 		if lead.cla_status not in leads_defaultdict[lead.name]["status"]:
