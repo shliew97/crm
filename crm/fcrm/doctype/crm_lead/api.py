@@ -48,9 +48,9 @@ def get_new_leads(search_text=None, off_work_mode=False):
 		"""
 			ORDER BY
 			CASE
-				WHEN cla.status = 'Accepted' THEN 1
-				WHEN cl.is_special_attention = 1 THEN 2
-				WHEN cl.alert = 1 THEN 3
+				WHEN cl.alert = 1 THEN 1
+				WHEN cla.status = 'Accepted' THEN 2
+				WHEN cl.is_special_attention = 1 THEN 3
 				WHEN cla.status = 'New' THEN 4
 				WHEN cla.status = 'Completed' THEN 5
 				WHEN cla.status = 'Case Closed' THEN 6
@@ -84,9 +84,9 @@ def get_new_leads(search_text=None, off_work_mode=False):
 		"""
 			ORDER BY
 			CASE
-				WHEN cla.status = 'Accepted' THEN 1
-				WHEN cl.is_special_attention = 1 THEN 2
-				WHEN cl.alert = 1 THEN 3
+				WHEN cl.alert = 1 THEN 1
+				WHEN cla.status = 'Accepted' THEN 2
+				WHEN cl.is_special_attention = 1 THEN 3
 				WHEN cla.status = 'New' THEN 4
 				WHEN cla.status = 'Completed' THEN 5
 				WHEN cla.status = 'Case Closed' THEN 6
@@ -121,9 +121,9 @@ def get_new_leads(search_text=None, off_work_mode=False):
 		"""
 			ORDER BY
 			CASE
-				WHEN cla.status = 'Accepted' THEN 1
-				WHEN cl.is_special_attention = 1 THEN 2
-				WHEN cl.alert = 1 THEN 3
+				WHEN cl.alert = 1 THEN 1
+				WHEN cla.status = 'Accepted' THEN 2
+				WHEN cl.is_special_attention = 1 THEN 3
 				WHEN cla.status = 'New' THEN 4
 				WHEN cla.status = 'Completed' THEN 5
 				WHEN cla.status = 'Case Closed' THEN 6
@@ -149,9 +149,9 @@ def get_new_leads(search_text=None, off_work_mode=False):
 			WHERE cla.status IN ("New", "Accepted")
 			ORDER BY
 			CASE
-				WHEN cla.status = 'Accepted' THEN 1
-				WHEN cl.is_special_attention = 1 THEN 2
-				WHEN cl.alert = 1 THEN 3
+				WHEN cl.alert = 1 THEN 1
+				WHEN cla.status = 'Accepted' THEN 2
+				WHEN cl.is_special_attention = 1 THEN 3
 				WHEN cla.status = 'New' THEN 4
 				WHEN cla.status = 'Completed' THEN 5
 				WHEN cla.status = 'Case Closed' THEN 6
@@ -173,11 +173,12 @@ def get_new_leads(search_text=None, off_work_mode=False):
 			LEFT JOIN `tabCRM Lead Tagging` clt
 			ON cl.name = clt.crm_lead AND clt.status = "Open"
 			WHERE cla.status IN ("New", "Accepted")
+			AND cla.whatsapp_message_templates != "api_flow_slide_26_v1"
 			ORDER BY
 			CASE
-				WHEN cla.status = 'Accepted' THEN 1
-				WHEN cl.is_special_attention = 1 THEN 2
-				WHEN cl.alert = 1 THEN 3
+				WHEN cl.alert = 1 THEN 1
+				WHEN cla.status = 'Accepted' THEN 2
+				WHEN cl.is_special_attention = 1 THEN 3
 				WHEN cla.status = 'New' THEN 4
 				WHEN cla.status = 'Completed' THEN 5
 				WHEN cla.status = 'Case Closed' THEN 6
