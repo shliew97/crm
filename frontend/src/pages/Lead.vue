@@ -401,6 +401,7 @@ const newLeads = ref([])
 const searchText = ref("")
 const offWorkMode = ref(false)
 const timeout = ref(undefined)
+const lastUpdateTimestamp = ref(undefined)
 
 const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
@@ -447,6 +448,7 @@ function triggerFetchNewLeads(redirect=false) {
       else {
         newLeads.value = data;
       }
+      lastUpdateTimestamp.value = Date.now();
     },
   }).fetch()
 }
@@ -455,10 +457,14 @@ onMounted(() => {
   const saved = localStorage.getItem("off_work_mode")
   offWorkMode.value = saved === "true" // convert string to boolean
   $socket.on("new_leads", (data) => {
+    const now = Date.now();
     if (lead.data && lead.data.name == data.accepted_lead && data.user != getUser().name) {
       triggerFetchNewLeads(true);
     }
     else {
+      if (lastUpdateTimestamp.value && now - lastUpdateTimestamp.value < 15000) {
+        return;
+      }
       triggerFetchNewLeads();
     }
     lead.fetch()
