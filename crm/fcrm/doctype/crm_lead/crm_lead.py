@@ -10,7 +10,10 @@ from frappe.model.document import Document
 from frappe.utils import has_gravatar, validate_email_address
 from crm.fcrm.doctype.crm_service_level_agreement.utils import get_sla
 from crm.fcrm.doctype.crm_status_change_log.crm_status_change_log import add_status_change_log
+import requests
+from frappe.utils.background_jobs import enqueue
 
+CREATE_MEMBER_ENDPOINT = "/api/method/healthland_pos.api.create_member"
 
 class CRMLead(Document):
 	def before_validate(self):
@@ -30,6 +33,10 @@ class CRMLead(Document):
 	def after_insert(self):
 		if self.lead_owner:
 			self.assign_agent(self.lead_owner)
+
+		integration_settings = frappe.db.get_all("Integration Settings", filters={"name": "SOMA"}, pluck="name")
+		for integration_setting in integration_settings:
+			enqueue(method=_create_member, integration_setting=integration_setting, member_name=self.lead_name, mobile=self.mobile_no, outlet="SOMA KD", queue="short", is_async=True)
 
 	def before_save(self):
 		self.apply_sla()
@@ -331,3 +338,26 @@ def convert_to_deal(lead, doc=None):
 	organization = lead.create_organization()
 	deal = lead.create_deal(contact, organization)
 	return deal
+
+def _create_member(integration_setting, member_name, mobile, outlet):
+	integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
+	url = integration_settings_doc.site_url + CREATE_MEMBER_ENDPOINT
+
+	headers = {
+		"Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
+		"Content-Type": "application/json"
+	}
+
+	request_body = {
+		"member_name": member_name,
+		"mobile": mobile,
+		"outlet": outlet,
+	}
+
+	try:
+		response = requests.post(url, json=request_body, headers=headers, timeout=30)  # 30 seconds timeout
+		response.raise_for_status()
+	except requests.Timeout:
+		frappe.throw("Request timed out after 30 seconds")
+	except requests.RequestException as e:
+		frappe.throw(f"An error occurred: {e}")
