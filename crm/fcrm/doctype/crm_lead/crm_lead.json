@@ -54,6 +54,7 @@
   "annual_revenue",
   "image",
   "converted",
+  "agree_pdpa",
   "sla_tab",
   "sla",
   "sla_creation",
@@ -406,12 +407,18 @@
    "fieldname": "is_special_attention",
    "fieldtype": "Check",
    "label": "Is Special Attention"
+  },
+  {
+   "default": "0",
+   "fieldname": "agree_pdpa",
+   "fieldtype": "Check",
+   "label": "Agree PDPA"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-05 09:56:18.180880",
+ "modified": "2025-11-12 14:59:00.986423",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
