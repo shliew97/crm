@@ -36,7 +36,7 @@ class CRMLead(Document):
 
 		integration_settings = frappe.db.get_all("Integration Settings", filters={"name": "SOMA"}, pluck="name")
 		for integration_setting in integration_settings:
-			enqueue(method=_create_member, integration_setting=integration_setting, member_name=self.lead_name, mobile=self.mobile_no, outlet="SOMA KD", queue="short", is_async=True)
+			_create_member(integration_setting, self.lead_name, self.mobile_no, "SOMA KD")
 
 	def before_save(self):
 		self.apply_sla()
