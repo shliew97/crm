@@ -168,7 +168,7 @@
                 />
               </div>
             </div>
-            <div class="-mb-1 flex shrink-0 justify-end gap-1 text-gray-600">
+            <div class="-mb-1 flex shrink-0 justify-end gap-1 text-gray-600" v-if="isMasterAgent">
               <div class="text-2xs">
                 {{ `Reply by: ${getUser(whatsapp.owner).full_name}` }}
               </div>
@@ -204,6 +204,7 @@ import DoubleCheckIcon from '@/components/Icons/DoubleCheckIcon.vue'
 import DocumentIcon from '@/components/Icons/DocumentIcon.vue'
 import ReactIcon from '@/components/Icons/ReactIcon.vue'
 import { usersStore } from '@/stores/users'
+import { isMasterAgent } from '@/composables/settings'
 import { dateFormat } from '@/utils'
 import { capture } from '@/telemetry'
 import { Tooltip, Dropdown, createResource } from 'frappe-ui'
