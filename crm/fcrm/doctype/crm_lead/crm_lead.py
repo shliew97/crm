@@ -34,9 +34,9 @@ class CRMLead(Document):
 		if self.lead_owner:
 			self.assign_agent(self.lead_owner)
 
-		integration_settings = frappe.db.get_all("Integration Settings", filters={"name": "SOMA"}, pluck="name")
+		integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
 		for integration_setting in integration_settings:
-			_create_member(integration_setting, self.lead_name, self.mobile_no, "SOMA KD")
+			_create_member(integration_setting, self.lead_name, self.mobile_no)
 
 	def before_save(self):
 		self.apply_sla()
@@ -339,7 +339,7 @@ def convert_to_deal(lead, doc=None):
 	deal = lead.create_deal(contact, organization)
 	return deal
 
-def _create_member(integration_setting, member_name, mobile, outlet):
+def _create_member(integration_setting, member_name, mobile):
 	integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
 	url = integration_settings_doc.site_url + CREATE_MEMBER_ENDPOINT
 
@@ -351,7 +351,7 @@ def _create_member(integration_setting, member_name, mobile, outlet):
 	request_body = {
 		"member_name": member_name,
 		"mobile": mobile,
-		"outlet": outlet,
+		"outlet": integration_settings_doc.outlet,
 	}
 
 	try:

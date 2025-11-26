@@ -8,7 +8,9 @@
  "field_order": [
   "integration_to",
   "site_url",
-  "access_token"
+  "access_token",
+  "outlet",
+  "active"
  ],
  "fields": [
   {
@@ -32,11 +34,23 @@
    "fieldtype": "Password",
    "label": "Access Token",
    "reqd": 1
+  },
+  {
+   "fieldname": "outlet",
+   "fieldtype": "Data",
+   "label": "Outlet",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "label": "Active"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-06 10:31:39.109812",
+ "modified": "2025-11-26 15:12:54.093175",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "Integration Settings",
