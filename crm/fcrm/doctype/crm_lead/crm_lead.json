@@ -32,6 +32,8 @@
   "sent_chat_closing_reminder",
   "is_outlet_frontdesk",
   "is_special_attention",
+  "is_outlet_staff",
+  "notified_for_pending_message",
   "person_tab",
   "salutation",
   "first_name",
@@ -413,12 +415,24 @@
    "fieldname": "agree_pdpa",
    "fieldtype": "Check",
    "label": "Agree PDPA"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_outlet_staff",
+   "fieldtype": "Check",
+   "label": "Is Outlet Staff"
+  },
+  {
+   "default": "0",
+   "fieldname": "notified_for_pending_message",
+   "fieldtype": "Check",
+   "label": "Notified for Pending Message"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-12 14:59:00.986423",
+ "modified": "2026-02-11 21:03:58.488813",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
@@ -450,6 +464,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sender_field": "email",
  "sender_name_field": "first_name",
  "show_title_field_in_link": 1,

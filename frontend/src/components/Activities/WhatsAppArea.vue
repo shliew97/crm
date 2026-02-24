@@ -56,6 +56,7 @@
               </div>
             </div>
             <div
+              v-if="!whatsapp.is_failed_message"
               class="absolute -right-0.5 -top-0.5 flex cursor-pointer gap-1 rounded-full bg-white pb-2 pl-2 pr-1.5 pt-1.5 opacity-0 group-hover/message:opacity-100"
               :style="{
                 background:
@@ -156,7 +157,31 @@
                   {{ dateFormat(whatsapp.timestamp, 'hh:mm a') }}
                 </div>
               </Tooltip>
-              <div v-if="whatsapp.type == 'Outgoing'">
+              <div v-if="whatsapp.is_failed_message" class="flex items-center gap-1">
+                <ClockIcon
+                  v-if="whatsapp.is_sending"
+                  class="size-4 text-gray-400"
+                />
+                <template v-else>
+                  <FeatherIcon name="alert-circle" class="size-3.5 text-red-500" />
+                  <RefreshIcon
+                    class="size-4 text-red-400 cursor-pointer hover:text-red-600"
+                    @click="retryFailedMessage(whatsapp)"
+                  />
+                </template>
+              </div>
+              <div v-else-if="whatsapp.is_pending_whatsapp_message">
+                <ClockIcon
+                  v-if="whatsapp.pending_status == 'Pending'"
+                  class="size-4 text-orange-400"
+                />
+                <RefreshIcon
+                  v-else-if="whatsapp.pending_status == 'Expired'"
+                  class="size-4 text-red-400 cursor-pointer hover:text-red-600"
+                  @click="retryPendingMessage(whatsapp.name)"
+                />
+              </div>
+              <div v-else-if="whatsapp.type == 'Outgoing'">
                 <CheckIcon
                   v-if="['sent', 'Success'].includes(whatsapp.status)"
                   class="size-4"
@@ -170,12 +195,13 @@
             </div>
             <div class="-mb-1 flex shrink-0 justify-end gap-1 text-gray-600" v-if="isMasterAgent">
               <div class="text-2xs">
-                {{ `Reply by: ${getUser(whatsapp.owner).full_name}` }}
+                {{ `Reply by: ${getUser(whatsapp.owner)?.full_name || whatsapp.owner}` }}
               </div>
             </div>
           </div>
         </div>
         <div
+          v-if="!whatsapp.is_failed_message"
           class="flex items-center justify-center opacity-0 transition-all ease-in group-hover:opacity-100"
         >
           <IconPicker
@@ -201,6 +227,8 @@
 import IconPicker from '@/components/IconPicker.vue'
 import CheckIcon from '@/components/Icons/CheckIcon.vue'
 import DoubleCheckIcon from '@/components/Icons/DoubleCheckIcon.vue'
+import ClockIcon from '@/components/Icons/ClockIcon.vue'
+import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
 import DocumentIcon from '@/components/Icons/DocumentIcon.vue'
 import ReactIcon from '@/components/Icons/ReactIcon.vue'
 import { usersStore } from '@/stores/users'
@@ -215,6 +243,7 @@ const props = defineProps({
 })
 
 const list = defineModel()
+const failedMessages = defineModel('failedMessages')
 
 const { getUser } = usersStore()
 
@@ -283,6 +312,35 @@ function formatWhatsAppMessage(message) {
 
 const emoji = ref('')
 const reaction = ref(true)
+
+function retryPendingMessage(name) {
+  createResource({
+    url: 'crm.api.whatsapp.retry_pending_whatsapp_message',
+    params: { name },
+    auto: true,
+    onSuccess() {
+      list.value.reload()
+    },
+  })
+}
+
+function retryFailedMessage(msg) {
+  msg.is_sending = true
+  failedMessages.value = [...(failedMessages.value || [])]
+  createResource({
+    url: 'crm.api.whatsapp.create_whatsapp_message',
+    params: msg._send_args,
+    auto: true,
+    onSuccess() {
+      failedMessages.value = (failedMessages.value || []).filter(m => m.name !== msg.name)
+      list.value.reload()
+    },
+    onError() {
+      msg.is_sending = false
+      failedMessages.value = [...(failedMessages.value || [])]
+    },
+  })
+}
 
 function reactOnMessage(name, emoji) {
   createResource({

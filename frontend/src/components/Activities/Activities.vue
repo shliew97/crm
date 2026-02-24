@@ -30,12 +30,13 @@
       "
       class="activities"
     >
-      <div v-if="title == 'WhatsApp' && whatsappMessages.data?.length">
+      <div v-if="title == 'WhatsApp' && (whatsappMessages.data?.length || failedMessages.length)">
         <WhatsAppArea
           class="px-3 sm:px-10"
           v-model="whatsappMessages"
           v-model:reply="replyMessage"
-          :messages="whatsappMessages.data"
+          v-model:failedMessages="failedMessages"
+          :messages="allWhatsappMessages"
         />
       </div>
       <div
@@ -422,6 +423,7 @@
       v-model:reply="replyMessage"
       v-model:whatsapp="whatsappMessages"
       v-model:content="content"
+      v-model:failedMessages="failedMessages"
       :doctype="doctype"
       :doc="doc"
       @scroll="scroll"
@@ -592,6 +594,13 @@ const all_activities = createResource({
 })
 
 const showWhatsappTemplates = ref(false)
+const failedMessages = ref([])
+
+const allWhatsappMessages = computed(() => {
+  const serverMsgs = whatsappMessages.data || []
+  const failed = failedMessages.value || []
+  return sortByTimestamp([...serverMsgs, ...failed])
+})
 
 const whatsappMessages = createResource({
   url: 'crm.api.whatsapp.get_whatsapp_messages',

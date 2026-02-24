@@ -88,6 +88,7 @@ const textareaRef = ref(null)
 const emoji = ref('')
 
 const content = defineModel('content')
+const failedMessages = defineModel('failedMessages')
 const placeholder = ref(__('Type your message here...'))
 const fileType = ref('')
 
@@ -126,6 +127,30 @@ async function sendWhatsAppMessage() {
     reply_to: reply.value?.name || '',
     content_type: whatsapp.value.content_type,
   }
+  const tempMsg = {
+    name: 'failed_' + Date.now(),
+    type: 'Outgoing',
+    content_type: args.content_type || 'text',
+    message: args.message || args.attach,
+    attach: args.attach,
+    timestamp: new Date().toISOString(),
+    is_failed_message: true,
+    is_sending: true,
+    _send_args: args,
+    message_type: '',
+    message_id: '',
+    is_reply: 0,
+    is_forwarded: 0,
+    reply_to_message_id: '',
+    use_template: 0,
+    template: '',
+    template_parameters: '',
+    template_header_parameters: '',
+    owner: '',
+  }
+
+  failedMessages.value = [...(failedMessages.value || []), tempMsg]
+
   content.value = ''
   fileType.value = ''
   whatsapp.value.attach = ''
@@ -135,6 +160,14 @@ async function sendWhatsAppMessage() {
     url: 'crm.api.whatsapp.create_whatsapp_message',
     params: args,
     auto: true,
+    onSuccess() {
+      failedMessages.value = (failedMessages.value || []).filter(m => m.name !== tempMsg.name)
+      whatsapp.value.reload()
+    },
+    onError() {
+      tempMsg.is_sending = false
+      failedMessages.value = [...(failedMessages.value || [])]
+    },
   })
 }
 
