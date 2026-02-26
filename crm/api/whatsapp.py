@@ -240,8 +240,6 @@ def get_whatsapp_messages(reference_doctype, reference_name):
 
     # Iterate through template messages
     for template_message in template_messages:
-        if not template_message["template"]:
-            continue
         # Find the template that this message is using
         template = frappe.get_doc("WhatsApp Templates", template_message["template"])
 
