@@ -10,7 +10,10 @@
     :emailBox="emailBox"
     :whatsappBox="whatsappBox"
     :modalRef="modalRef"
+    :hasMoreWhatsapp="hasMoreWhatsapp"
+    :whatsappLoading="whatsappMessages.loading"
     @reload="doc.reload()"
+    @loadMore="loadMoreWhatsapp"
   />
   <FadedScrollableDiv
     :maskHeight="30"
@@ -595,6 +598,9 @@ const all_activities = createResource({
 
 const showWhatsappTemplates = ref(false)
 const failedMessages = ref([])
+const whatsappLimit = ref(88)
+const hasMoreWhatsapp = ref(true)
+const isLoadingMore = ref(false)
 
 const allWhatsappMessages = computed(() => {
   const serverMsgs = whatsappMessages.data || []
@@ -608,14 +614,52 @@ const whatsappMessages = createResource({
   params: {
     reference_doctype: props.doctype,
     reference_name: doc.value.data.name,
+    limit: whatsappLimit.value,
   },
   auto: true,
   transform: (data) => sortByTimestamp(data),
   onSuccess: (data) => {
+    console.log('[WhatsApp] onSuccess — messages returned:', data?.length, 'isLoadingMore:', isLoadingMore.value)
     checkMessageSentToday(data);
-    nextTick(() => scroll())
+    if (!isLoadingMore.value) {
+      nextTick(() => scroll())
+    }
   }
 })
+
+function loadMoreWhatsapp() {
+  const prevCount = whatsappMessages.data?.length || 0
+  const anchorMsgName = whatsappMessages.data?.[0]?.name
+  console.log('[LoadMore] clicked — prevCount:', prevCount, 'anchorMsgName:', anchorMsgName)
+  isLoadingMore.value = true
+  whatsappLimit.value += 88
+  console.log('[LoadMore] fetching with limit:', whatsappLimit.value)
+  whatsappMessages.fetch({
+    reference_doctype: props.doctype,
+    reference_name: doc.value.data.name,
+    limit: whatsappLimit.value,
+  }).then(() => {
+    isLoadingMore.value = false
+    const newCount = whatsappMessages.data?.length || 0
+    console.log('[LoadMore] fetch success — newCount:', newCount, 'prevCount:', prevCount)
+    if (newCount <= prevCount) {
+      hasMoreWhatsapp.value = false
+      console.log('[LoadMore] no more messages, hiding button')
+    } else if (anchorMsgName) {
+      nextTick(() => {
+        const el = document.getElementById(anchorMsgName)
+        console.log('[LoadMore] scrolling to anchor el:', el)
+        if (el) {
+          el.scrollIntoView({ behavior: 'instant', block: 'start' })
+        }
+      })
+    }
+  }).catch((err) => {
+    console.error('[LoadMore] fetch failed:', err)
+    isLoadingMore.value = false
+    whatsappLimit.value -= 88
+  })
+}
 
 onBeforeUnmount(() => {
   $socket.off('whatsapp_message')

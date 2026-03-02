@@ -161,9 +161,10 @@ def get_crm_assignees(crm_lead):
     return crm_assignees
 
 @frappe.whitelist()
-def get_whatsapp_messages(reference_doctype, reference_name):
+def get_whatsapp_messages(reference_doctype, reference_name, limit=88):
     if not frappe.db.exists("DocType", "WhatsApp Message"):
         return []
+    limit = int(limit)
     messages = []
 
     if reference_doctype == 'CRM Deal':
@@ -198,6 +199,8 @@ def get_whatsapp_messages(reference_doctype, reference_name):
                     "template_header_parameters",
                     "owner",
                 ],
+                limit=limit,
+                order_by="timestamp desc",
             )
 
     messages += frappe.get_all(
@@ -229,18 +232,20 @@ def get_whatsapp_messages(reference_doctype, reference_name):
             "template_header_parameters",
             "owner",
         ],
-        limit=88,
+        limit=limit,
         order_by="timestamp desc",
     )
 
     # Filter messages to get only Template messages
     template_messages = [
-        message for message in messages if message["message_type"] == "Template"
+        message for message in messages if message["message_type"] == "Template" and message["template"]
     ]
 
     # Iterate through template messages
     for template_message in template_messages:
         # Find the template that this message is using
+        if not frappe.db.exists("WhatsApp Templates", template_message["template"]):
+            continue
         template = frappe.get_doc("WhatsApp Templates", template_message["template"])
 
         # If the template is found, add the template details to the template message
