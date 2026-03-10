@@ -160,7 +160,7 @@
               <div v-if="whatsapp.is_failed_message" class="flex items-center gap-1">
                 <ClockIcon
                   v-if="whatsapp.is_sending"
-                  class="size-4 text-gray-400"
+                  class="size-3 text-gray-400"
                 />
                 <template v-else>
                   <FeatherIcon name="alert-circle" class="size-3.5 text-red-500" />
@@ -173,7 +173,7 @@
               <div v-else-if="whatsapp.is_pending_whatsapp_message">
                 <ClockIcon
                   v-if="whatsapp.pending_status == 'Pending'"
-                  class="size-4 text-orange-400"
+                  class="size-3 text-orange-400"
                 />
                 <RefreshIcon
                   v-else-if="whatsapp.pending_status == 'Expired'"
