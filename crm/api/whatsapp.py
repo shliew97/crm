@@ -161,9 +161,10 @@ def get_crm_assignees(crm_lead):
     return crm_assignees
 
 @frappe.whitelist()
-def get_whatsapp_messages(reference_doctype, reference_name):
+def get_whatsapp_messages(reference_doctype, reference_name, limit=88):
     if not frappe.db.exists("DocType", "WhatsApp Message"):
         return []
+    limit = int(limit)
     messages = []
 
     if reference_doctype == 'CRM Deal':
@@ -198,6 +199,8 @@ def get_whatsapp_messages(reference_doctype, reference_name):
                     "template_header_parameters",
                     "owner",
                 ],
+                limit=limit,
+                order_by="timestamp desc",
             )
 
     messages += frappe.get_all(
@@ -229,18 +232,20 @@ def get_whatsapp_messages(reference_doctype, reference_name):
             "template_header_parameters",
             "owner",
         ],
-        limit=88,
+        limit=limit,
         order_by="timestamp desc",
     )
 
     # Filter messages to get only Template messages
     template_messages = [
-        message for message in messages if message["message_type"] == "Template"
+        message for message in messages if message["message_type"] == "Template" and message["template"]
     ]
 
     # Iterate through template messages
     for template_message in template_messages:
         # Find the template that this message is using
+        if not frappe.db.exists("WhatsApp Templates", template_message["template"]):
+            continue
         template = frappe.get_doc("WhatsApp Templates", template_message["template"])
 
         # If the template is found, add the template details to the template message
@@ -318,7 +323,67 @@ def get_whatsapp_messages(reference_doctype, reference_name):
             reply_message["reply_to_type"] = replied_message["type"]
             reply_message["reply_to_from"] = from_name
 
-    return [message for message in messages if message["content_type"] != "reaction"]
+    messages = [message for message in messages if message["content_type"] != "reaction"]
+
+    # Fetch Pending WhatsApp Messages (Pending and Expired)
+    if frappe.db.exists("DocType", "Pending WhatsApp Message"):
+        pending_filters = {
+            "status": ["in", ["Pending", "Expired"]],
+            "reference_doctype": reference_doctype,
+            "reference_name": reference_name,
+        }
+
+        # Also fetch for CRM Lead if viewing a CRM Deal
+        pending_reference_pairs = [(reference_doctype, reference_name)]
+        if reference_doctype == 'CRM Deal':
+            lead = frappe.db.get_value(reference_doctype, reference_name, 'lead')
+            if lead:
+                pending_reference_pairs.append(("CRM Lead", lead))
+
+        for ref_dt, ref_name in pending_reference_pairs:
+            pending_messages = frappe.get_all(
+                "Pending WhatsApp Message",
+                filters={
+                    "status": ["in", ["Pending", "Expired"]],
+                    "reference_doctype": ref_dt,
+                    "reference_name": ref_name,
+                },
+                fields=[
+                    "name",
+                    "type",
+                    "to",
+                    "`from`",
+                    "content_type",
+                    "message_type",
+                    "attach",
+                    "message",
+                    "status",
+                    "timestamp",
+                    "reference_doctype",
+                    "reference_name",
+                    "owner",
+                ],
+                order_by="creation asc",
+            )
+
+            for pm in pending_messages:
+                pm["is_pending_whatsapp_message"] = True
+                pm["pending_status"] = pm["status"]
+                # Set fields expected by the frontend
+                pm["message_id"] = ""
+                pm["is_reply"] = 0
+                pm["is_forwarded"] = 0
+                pm["reply_to_message_id"] = ""
+                pm["use_template"] = 0
+                pm["template"] = ""
+                pm["template_parameters"] = ""
+                pm["template_header_parameters"] = ""
+                if not pm.get("type"):
+                    pm["type"] = "Outgoing"
+
+            messages.extend(pending_messages)
+
+    return messages
 
 
 @frappe.whitelist()
@@ -391,6 +456,12 @@ def react_on_whatsapp_message(emoji, reply_to_name):
     )
     doc.insert(ignore_permissions=True)
     return doc.name
+
+
+@frappe.whitelist()
+def retry_pending_whatsapp_message(name):
+    frappe.db.set_value("Pending WhatsApp Message", name, "status", "Pending")
+    return "ok"
 
 
 def parse_template_parameters(string, parameters):
