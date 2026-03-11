@@ -6,6 +6,9 @@
           <Icon v-if="item.icon" :icon="item.icon" class="mr-2 h-4" />
         </template>
       </Breadcrumbs>
+      <Button class="ml-2" variant="solid" @click="switchToViewBookings">
+        {{ __('View Booking') }}
+      </Button>
     </template>
     <template #right-header>
       <CustomActions v-if="customActions" :actions="customActions" />
@@ -41,6 +44,226 @@
     </template>
   </LayoutHeader>
   <div v-if="lead?.data" class="flex h-full overflow-hidden">
+    <!-- Bookings Panel - Left -->
+    <Resizer class="flex flex-col justify-start border-r" side="left">
+      <!-- Create Booking View -->
+      <template v-if="leftPanelMode === 'create'">
+        <div class="flex items-center justify-between border-b px-4 py-3">
+          <div class="text-lg font-semibold">{{ __('Create Booking') }}</div>
+        </div>
+        <div class="flex-1 overflow-y-auto px-4 py-3">
+          <div class="flex flex-col gap-3">
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Customer Name') }}</label>
+              <TextInput v-model="bookingForm.customer_name" :placeholder="__('Customer Name')" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Booking Phone') }}</label>
+              <TextInput v-model="bookingForm.phone" :placeholder="__('Phone Number')" />
+            </div>
+            <div>
+              <div class="mb-1 flex items-center gap-1">
+                <label class="block text-xs text-gray-600">{{ __('Member Account') }}</label>
+                <button
+                  type="button"
+                  class="flex items-center justify-center rounded p-0.5 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                  :title="__('Search Member Account')"
+                  @click="searchMemberAccount"
+                  :disabled="membershipSearch.loading"
+                >
+                  <LoadingIndicator v-if="membershipSearch.loading" class="h-3 w-3" />
+                  <FeatherIcon v-else name="search" class="h-3 w-3" />
+                </button>
+              </div>
+              <TextInput v-model="bookingForm.member_account" :placeholder="__('Enter mobile number')" />
+              <!-- Membership Info -->
+              <div v-if="membershipInfo" class="mt-2 rounded border border-gray-200 bg-gray-50 p-2 text-xs text-gray-700">
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1">
+                  <span class="text-gray-500">{{ __('Tier') }}</span>
+                  <span>{{ membershipInfo.membership_tier || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Validity') }}</span>
+                  <span>{{ membershipInfo.membership_validity || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Deposit') }}</span>
+                  <span>{{ membershipInfo.total_deposit || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Package (This Outlet)') }}</span>
+                  <span>{{ membershipInfo.total_package_current_outlet || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Package (Other)') }}</span>
+                  <span>{{ membershipInfo.total_package_other_outlet || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Topup (This Outlet)') }}</span>
+                  <span>{{ membershipInfo.total_topup_current_outlet || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Topup (Other)') }}</span>
+                  <span>{{ membershipInfo.total_topup_other_outlet || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Credit (This Outlet)') }}</span>
+                  <span>{{ membershipInfo.total_credit_current_outlet || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Credit (Other)') }}</span>
+                  <span>{{ membershipInfo.total_credit_other_outlet || '-' }}</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Outlet') }}</label>
+              <FormControl
+                type="select"
+                v-model="bookingForm.outlet"
+                :options="outletOptions"
+                :placeholder="__('Select Outlet')"
+              />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Date') }}</label>
+              <DatePicker v-model="bookingForm.booking_date" :placeholder="__('Select Date')" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Preferred Time') }}</label>
+              <FormControl type="time" v-model="bookingForm.timeslot" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Number of Pax') }}</label>
+              <FormControl type="select" v-model="bookingForm.pax" :options="paxOptions" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Treatment') }}</label>
+              <FormControl type="select" v-model="bookingForm.treatment_type" :options="treatmentOptions" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Session (mins)') }}</label>
+              <FormControl type="select" v-model="bookingForm.session" :options="sessionOptions" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Preferred Therapist') }}</label>
+              <FormControl type="select" v-model="bookingForm.preferred_masseur" :options="therapistOptions" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('3rd Party Voucher') }}</label>
+              <FormControl type="select" v-model="bookingForm.third_party_voucher" :options="yesNoOptions" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Package') }}</label>
+              <FormControl type="select" v-model="bookingForm.using_package" :options="yesNoOptions" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <Button variant="solid" class="w-full" :loading="bookingSubmitting" @click="submitBooking">
+              {{ __('Submit Booking') }}
+            </Button>
+          </div>
+        </div>
+      </template>
+      <!-- Edit Booking View -->
+      <template v-else-if="leftPanelMode === 'edit'">
+        <div class="flex items-center justify-between border-b px-4 py-3">
+          <div class="text-lg font-semibold">{{ __('Edit Booking') }}</div>
+          <Button variant="ghost" @click="leftPanelMode = 'view'">
+            <FeatherIcon name="x" class="size-4" />
+          </Button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-4 py-3">
+          <div class="flex flex-col gap-3">
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Customer Name') }}</label>
+              <TextInput :modelValue="editBookingForm.customer_name" disabled class="opacity-60" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Booking Phone') }}</label>
+              <TextInput :modelValue="editBookingForm.booking_mobile" disabled class="opacity-60" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Outlet') }}</label>
+              <TextInput :modelValue="editBookingForm.outlet" disabled class="opacity-60" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Date') }}</label>
+              <DatePicker v-model="editBookingForm.booking_date" :placeholder="__('Select Date')" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Preferred Time') }}</label>
+              <FormControl type="time" v-model="editBookingForm.timeslot" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Treatment') }}</label>
+              <FormControl type="select" v-model="editBookingForm.treatment" :options="treatmentOptions" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Session (mins)') }}</label>
+              <FormControl type="select" v-model="editBookingForm.session" :options="sessionOptions" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Preferred Therapist') }}</label>
+              <FormControl type="select" v-model="editBookingForm.preferred_therapist" :options="therapistOptions" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('3rd Party Voucher') }}</label>
+              <FormControl type="select" v-model="editBookingForm.third_party_voucher_select" :options="yesNoOptions" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Package') }}</label>
+              <FormControl type="select" v-model="editBookingForm.package_select" :options="yesNoOptions" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <Button variant="solid" class="w-full" :loading="editBookingSubmitting" @click="submitEditBooking">
+              {{ __('Save Changes') }}
+            </Button>
+          </div>
+        </div>
+      </template>
+      <!-- View Bookings View -->
+      <template v-else>
+        <div class="flex items-center justify-between border-b px-4 py-3">
+          <div class="text-lg font-semibold">{{ __('Bookings') }}</div>
+          <div class="flex gap-1">
+            <Button variant="ghost" @click="fetchBookingsForPanel">
+              <FeatherIcon name="refresh-cw" class="size-4" />
+            </Button>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto px-4 py-3">
+          <div v-if="fetchingBookings" class="flex items-center justify-center py-4">
+            <LoadingIndicator class="size-6" />
+          </div>
+          <div v-else-if="fetchedBookings.length === 0" class="py-4 text-center text-sm text-gray-500">
+            {{ __('No bookings found') }}
+          </div>
+          <div v-else class="flex flex-col gap-2">
+            <div
+              v-for="(booking, index) in fetchedBookings"
+              :key="index"
+              class="rounded border px-3 py-2"
+              :style="{ backgroundColor: booking.self_booked ? 'var(--surface-blue-2)' : 'var(--surface-orange-1)' }"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex-1 text-sm">
+                  <span class="font-semibold">{{ booking.outlet }}</span>
+                </div>
+                <div class="flex shrink-0 gap-1">
+                  <Button variant="ghost" size="sm" @click="openEditBooking(booking)">
+                    <FeatherIcon name="edit-2" class="size-3" />
+                  </Button>
+                  <Button variant="ghost" size="sm" @click="confirmDeleteBooking(booking)">
+                    <FeatherIcon name="trash-2" class="size-3 text-red-600" />
+                  </Button>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 text-sm whitespace-nowrap">
+                <span class="text-gray-600">{{ __('Date & Time') }}:</span>
+                <span>{{ booking.booking_date }} {{ booking.timeslot }}</span>
+              </div>
+              <div class="mt-2 flex flex-col gap-1 text-sm">
+                <div><span class="text-gray-600">{{ __('Customer') }}:</span> {{ booking.customer_name }}</div>
+                <div><span class="text-gray-600">{{ __('Pax') }}:</span> {{ booking.pax }}</div>
+                <div><span class="text-gray-600">{{ __('Treatment') }}:</span> {{ booking.treatment }}</div>
+                <div><span class="text-gray-600">{{ __('Session') }}:</span> {{ booking.session }} {{ __('mins') }}</div>
+                <div><span class="text-gray-600">{{ __('Therapist') }}:</span> {{ booking.preferred_therapist }}</div>
+                <div><span class="text-gray-600">{{ __('Phone') }}:</span> {{ booking.booking_mobile }}</div>
+                <div><span class="text-gray-600">{{ __('Member') }}:</span> {{ booking.member_mobile }}</div>
+                <div><span class="text-gray-600">{{ __('3rd Party') }}:</span> {{ booking.third_party_voucher ? __('Yes') : __('No') }}</div>
+                <div><span class="text-gray-600">{{ __('Package') }}:</span> {{ booking.package ? __('Yes') : __('No') }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </Resizer>
     <Tabs v-model="tabIndex" v-slot="{ tab }" :tabs="tabs">
       <Activities
         ref="activities"
@@ -49,6 +272,7 @@
         v-model:reload="reload"
         v-model:tabIndex="tabIndex"
         v-model="lead"
+        @createBooking="onCreateBooking"
       />
     </Tabs>
     <Resizer class="flex flex-col justify-start border-l" side="right">
@@ -331,6 +555,7 @@ import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
+import LoadingIndicator from '@/components/Icons/LoadingIndicator.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
@@ -374,6 +599,9 @@ import {
   Tabs,
   Switch,
   Breadcrumbs,
+  DatePicker,
+  FormControl,
+  Autocomplete,
   call,
   usePageMeta,
 } from 'frappe-ui'
@@ -470,7 +698,10 @@ onMounted(() => {
     lead.fetch()
   })
   triggerFetchNewLeads();
-  if (lead.data) return
+  if (lead.data) {
+    fetchBookingsForPanel()
+    return
+  }
   lead.fetch()
 })
 
@@ -478,6 +709,146 @@ const reload = ref(false)
 const showAssignmentModal = ref(false)
 const showSidePanelModal = ref(false)
 const showFilesUploader = ref(false)
+
+// Booking state
+const leftPanelMode = ref('create')
+const bookingSubmitting = ref(false)
+const bookingForm = ref({
+  customer_name: '',
+  phone: '',
+  member_account: '',
+  outlet: '',
+  booking_date: '',
+  timeslot: '',
+  pax: '1',
+  treatment_type: 'Foot',
+  session: '60',
+  preferred_masseur: 'Any',
+  third_party_voucher: 'No',
+  using_package: 'No',
+})
+
+// Member Account search
+const membershipInfo = ref(null)
+const membershipSearch = createResource({
+  url: 'crm.api.whatsapp.get_customer_membership_and_balance',
+  onSuccess: (data) => {
+    membershipInfo.value = data || null
+  },
+  onError: () => {
+    membershipInfo.value = null
+    createToast({
+      title: __('Error'),
+      text: __('Failed to fetch membership info'),
+      icon: 'x',
+      iconClasses: 'text-red-600',
+    })
+  },
+})
+
+function searchMemberAccount() {
+  if (!bookingForm.value.member_account) {
+    createToast({
+      title: __('Missing Info'),
+      text: __('Please enter a Member Account (mobile number)'),
+      icon: 'alert-triangle',
+      iconClasses: 'text-yellow-600',
+    })
+    return
+  }
+  if (!bookingForm.value.outlet) {
+    createToast({
+      title: __('Missing Info'),
+      text: __('Please select an Outlet first'),
+      icon: 'alert-triangle',
+      iconClasses: 'text-yellow-600',
+    })
+    return
+  }
+  membershipSearch.submit({
+    outlet: bookingForm.value.outlet,
+    member_mobile: bookingForm.value.member_account,
+  })
+}
+
+const paxOptions = ['1', '2', '3', '4', '5']
+const treatmentOptions = ['Foot', 'Thai', 'Oil', 'Deep', 'Others']
+const sessionOptions = ['60', '90', '120']
+const therapistOptions = ['Male', 'Female', 'Any']
+const yesNoOptions = ['Yes', 'No']
+
+const outletList = createResource({
+  url: 'frappe.client.get_list',
+  params: {
+    doctype: 'Outlet',
+    fields: ['name', 'branch_code', 'shop_full_name'],
+    limit_page_length: 0,
+  },
+  auto: true,
+})
+
+const outletOptions = computed(() => {
+  if (!outletList.data) return []
+  return outletList.data.map((o) => ({ label: o.shop_full_name, value: o.branch_code }))
+})
+
+watch(() => lead.data, (data) => {
+  if (data) {
+    bookingForm.value.customer_name = data.lead_name || ''
+    bookingForm.value.phone = data.mobile_no || ''
+    fetchBookingsForPanel()
+  }
+}, { immediate: true })
+
+function switchToViewBookings() {
+  leftPanelMode.value = 'view'
+  fetchBookingsForPanel()
+}
+
+function onCreateBooking(message) {
+  bookingForm.value.customer_name = lead.data?.lead_name || message?.from_name || ''
+  bookingForm.value.phone = lead.data?.mobile_no || ''
+  leftPanelMode.value = 'create'
+}
+
+async function submitBooking() {
+  bookingSubmitting.value = true
+  try {
+    const form = bookingForm.value
+    await call('crm.api.whatsapp.create_booking', {
+      crm_lead: props.leadId,
+      booking_details: {
+        customer_name: form.customer_name,
+        booking_mobile: lead.data?.mobile_no || form.phone,
+        member_mobile: lead.data?.mobile_no || form.phone,
+        outlet: form.outlet,
+        booking_date: form.booking_date,
+        timeslot: form.timeslot ? form.timeslot + ':00' : '',
+        pax: parseInt(form.pax),
+        treatment: form.treatment_type,
+        session: parseInt(form.session),
+        preferred_therapist: form.preferred_masseur,
+        third_party_voucher: form.third_party_voucher === 'Yes',
+        package: form.using_package === 'Yes',
+      },
+    })
+    createToast({
+      title: __('Booking created successfully'),
+      icon: 'check',
+      iconClasses: 'text-green-600',
+    })
+    fetchBookingsForPanel()
+  } catch (err) {
+    createToast({
+      title: __('Error creating booking'),
+      text: __(err.messages?.[0] || err.message),
+      icon: 'x',
+      iconClasses: 'text-red-600',
+    })
+  } finally {
+    bookingSubmitting.value = false
+  }
+}
 
 function updateLead(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -645,6 +1016,139 @@ function updateField(name, value, callback) {
     callback?.()
   })
 }
+
+const fetchingBookings = ref(false)
+const fetchedBookings = ref([])
+const editBookingSubmitting = ref(false)
+const editBookingForm = ref({})
+const editingBookingId = ref(null)
+
+function openEditBooking(booking) {
+  editingBookingId.value = booking.order_id || (booking.order_ids && booking.order_ids[0]) || ''
+  editBookingForm.value = {
+    customer_name: booking.customer_name || '',
+    booking_mobile: booking.booking_mobile || '',
+    outlet: booking.outlet || '',
+    booking_date: booking.booking_date || '',
+    timeslot: booking.timeslot || '',
+    treatment: booking.treatment || '',
+    session: String(booking.session || '60'),
+    preferred_therapist: booking.preferred_therapist || 'Any',
+    third_party_voucher_select: booking.third_party_voucher ? 'Yes' : 'No',
+    package_select: booking.package ? 'Yes' : 'No',
+  }
+  leftPanelMode.value = 'edit'
+}
+
+async function submitEditBooking() {
+  editBookingSubmitting.value = true
+  try {
+    await call('crm.api.whatsapp.edit_booking', {
+      order_id: editingBookingId.value,
+      booking_details: {
+        booking_date: editBookingForm.value.booking_date,
+        timeslot: editBookingForm.value.timeslot ? (editBookingForm.value.timeslot.length === 5 ? editBookingForm.value.timeslot + ':00' : editBookingForm.value.timeslot) : '',
+        treatment: editBookingForm.value.treatment,
+        session: parseInt(editBookingForm.value.session),
+        preferred_therapist: editBookingForm.value.preferred_therapist,
+        third_party_voucher: editBookingForm.value.third_party_voucher_select === 'Yes',
+        package: editBookingForm.value.package_select === 'Yes',
+      },
+    })
+    createToast({
+      title: __('Booking updated successfully'),
+      icon: 'check',
+      iconClasses: 'text-green-600',
+    })
+    leftPanelMode.value = 'view'
+    fetchBookingsForPanel()
+  } catch (err) {
+    createToast({
+      title: __('Error updating booking'),
+      text: __(err.messages?.[0] || err.message),
+      icon: 'x',
+      iconClasses: 'text-red-600',
+    })
+  } finally {
+    editBookingSubmitting.value = false
+  }
+}
+
+function confirmDeleteBooking(booking) {
+  const bookingId = booking.order_id || (booking.order_ids && booking.order_ids[0]) || ''
+  if (!bookingId) {
+    createToast({
+      title: __('Error'),
+      text: __('No booking ID found'),
+      icon: 'x',
+      iconClasses: 'text-red-600',
+    })
+    return
+  }
+  $dialog({
+    title: __('Delete Booking'),
+    message: __('Are you sure you want to delete this booking for {0}?', [booking.customer_name]),
+    actions: [
+      {
+        label: __('Delete'),
+        variant: 'solid',
+        theme: 'red',
+        onClick: async ({ close }) => {
+          try {
+            await call('crm.api.whatsapp.delete_booking', {
+              order_id: bookingId,
+            })
+            createToast({
+              title: __('Booking deleted successfully'),
+              icon: 'check',
+              iconClasses: 'text-green-600',
+            })
+            fetchBookingsForPanel()
+          } catch (err) {
+            createToast({
+              title: __('Error deleting booking'),
+              text: __(err.messages?.[0] || err.message),
+              icon: 'x',
+              iconClasses: 'text-red-600',
+            })
+          }
+          close()
+        },
+      },
+    ],
+  })
+}
+
+async function fetchBookingsForPanel() {
+  const phone = lead.data?.mobile_no || ''
+  if (!phone) {
+    createToast({
+      title: __('Error'),
+      text: __('No phone number set for this lead'),
+      icon: 'x',
+      iconClasses: 'text-red-600',
+    })
+    return
+  }
+  fetchingBookings.value = true
+  fetchedBookings.value = []
+  try {
+    const res = await call('crm.api.whatsapp.fetch_bookings', {
+      booking_mobile: phone,
+    })
+    fetchedBookings.value = res?.bookings || []
+  } catch (e) {
+    createToast({
+      title: __('Error'),
+      text: __('Failed to fetch bookings'),
+      icon: 'x',
+      iconClasses: 'text-red-600',
+    })
+  } finally {
+    fetchingBookings.value = false
+  }
+}
+
 
 async function deleteLead(name) {
   await call('frappe.client.delete', {

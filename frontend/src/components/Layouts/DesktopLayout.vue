@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-screen w-screen">
-    <div class="h-full border-r bg-gray-50">
+    <div v-if="!isLeadPage" class="h-full border-r bg-gray-50">
       <AppSidebar />
     </div>
     <div class="flex-1 flex flex-col h-full overflow-auto">
@@ -12,4 +12,9 @@
 <script setup>
 import AppSidebar from '@/components/Layouts/AppSidebar.vue'
 import AppHeader from '@/components/Layouts/AppHeader.vue'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
+
+const route = useRoute()
+const isLeadPage = computed(() => route.name === 'Lead')
 </script>
