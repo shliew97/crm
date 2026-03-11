@@ -58,6 +58,15 @@
               <TextInput v-model="bookingForm.customer_name" :placeholder="__('Customer Name')" />
             </div>
             <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('Outlet') }}</label>
+              <FormControl
+                type="select"
+                v-model="bookingForm.outlet"
+                :options="outletOptions"
+                :placeholder="__('Select Outlet')"
+              />
+            </div>
+            <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('Booking Phone') }}</label>
               <TextInput v-model="bookingForm.phone" :placeholder="__('Phone Number')" />
             </div>
@@ -73,6 +82,14 @@
                 >
                   <LoadingIndicator v-if="membershipSearch.loading" class="h-3 w-3" />
                   <FeatherIcon v-else name="search" class="h-3 w-3" />
+                </button>
+                <button
+                  type="button"
+                  class="flex items-center justify-center rounded p-0.5 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                  :title="__('Copy Member Account')"
+                  @click="copyToClipboard(bookingForm.member_account)"
+                >
+                  <FeatherIcon name="copy" class="h-3 w-3" />
                 </button>
               </div>
               <TextInput v-model="bookingForm.member_account" :placeholder="__('Enter mobile number')" />
@@ -99,15 +116,6 @@
                   <span>{{ membershipInfo.total_credit_other_outlet || '-' }}</span>
                 </div>
               </div>
-            </div>
-            <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Outlet') }}</label>
-              <FormControl
-                type="select"
-                v-model="bookingForm.outlet"
-                :options="outletOptions"
-                :placeholder="__('Select Outlet')"
-              />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('Date') }}</label>
