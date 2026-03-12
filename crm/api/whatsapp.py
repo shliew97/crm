@@ -326,55 +326,47 @@ def get_whatsapp_messages(reference_doctype, reference_name, limit=88):
     messages = [message for message in messages if message["content_type"] != "reaction"]
 
     # Fetch Pending WhatsApp Messages (Pending and Expired)
-    # Also fetch for CRM Lead if viewing a CRM Deal
-    pending_reference_pairs = [(reference_doctype, reference_name)]
-    if reference_doctype == 'CRM Deal':
-        lead = frappe.db.get_value(reference_doctype, reference_name, 'lead')
-        if lead:
-            pending_reference_pairs.append(("CRM Lead", lead))
+    pending_messages = frappe.get_all(
+        "Pending WhatsApp Message",
+        filters={
+            "status": ["in", ["Pending", "Expired"]],
+            "reference_doctype": reference_doctype,
+            "reference_name": reference_name,
+        },
+        fields=[
+            "name",
+            "type",
+            "to",
+            "`from`",
+            "content_type",
+            "message_type",
+            "attach",
+            "message",
+            "status",
+            "timestamp",
+            "reference_doctype",
+            "reference_name",
+            "owner",
+        ],
+        order_by="creation asc",
+    )
 
-    for ref_dt, ref_name in pending_reference_pairs:
-        pending_messages = frappe.get_all(
-            "Pending WhatsApp Message",
-            filters={
-                "status": ["in", ["Pending", "Expired"]],
-                "reference_doctype": ref_dt,
-                "reference_name": ref_name,
-            },
-            fields=[
-                "name",
-                "type",
-                "to",
-                "`from`",
-                "content_type",
-                "message_type",
-                "attach",
-                "message",
-                "status",
-                "timestamp",
-                "reference_doctype",
-                "reference_name",
-                "owner",
-            ],
-            order_by="creation asc",
-        )
+    for pm in pending_messages:
+        pm["is_pending_whatsapp_message"] = True
+        pm["pending_status"] = pm["status"]
+        # Set fields expected by the frontend
+        pm["message_id"] = ""
+        pm["is_reply"] = 0
+        pm["is_forwarded"] = 0
+        pm["reply_to_message_id"] = ""
+        pm["use_template"] = 0
+        pm["template"] = ""
+        pm["template_parameters"] = ""
+        pm["template_header_parameters"] = ""
+        if not pm.get("type"):
+            pm["type"] = "Outgoing"
 
-        for pm in pending_messages:
-            pm["is_pending_whatsapp_message"] = True
-            pm["pending_status"] = pm["status"]
-            # Set fields expected by the frontend
-            pm["message_id"] = ""
-            pm["is_reply"] = 0
-            pm["is_forwarded"] = 0
-            pm["reply_to_message_id"] = ""
-            pm["use_template"] = 0
-            pm["template"] = ""
-            pm["template_parameters"] = ""
-            pm["template_header_parameters"] = ""
-            if not pm.get("type"):
-                pm["type"] = "Outgoing"
-
-        messages.extend(pending_messages)
+    messages.extend(pending_messages)
 
     return messages
 
