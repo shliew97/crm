@@ -87,7 +87,7 @@
                   type="button"
                   class="flex items-center justify-center rounded p-0.5 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                   :title="__('Copy Member Account')"
-                  @click="copyToClipboard(bookingForm.member_account)"
+                  @click="bookingForm.member_account = bookingForm.phone"
                 >
                   <FeatherIcon name="copy" class="h-3 w-3" />
                 </button>
