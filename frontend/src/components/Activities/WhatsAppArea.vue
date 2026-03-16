@@ -1,5 +1,10 @@
 <template>
   <div>
+    <div v-if="hasMoreWhatsapp" class="sticky top-0 z-10 flex justify-center py-2">
+      <Button :loading="whatsappLoading" @click="emit('loadMore')">
+        <span>{{ __('Load More') }}</span>
+      </Button>
+    </div>
     <div
       v-for="(whatsapp, index) in messages"
       :key="whatsapp.name">
@@ -223,44 +228,15 @@
           class="flex items-center justify-center opacity-0 transition-all ease-in group-hover:opacity-100"
         >
           <Button
-            @click="() => openMessageDialog(whatsapp)"
+            @click="() => emit('createBooking', whatsapp)"
             class="rounded-full !size-6 mt-0.5"
+            :title="__('Create Booking')"
           >
-            <FeatherIcon name="file-text" class="size-3 text-gray-400" />
+            <FeatherIcon name="calendar" class="size-3 text-gray-400" />
           </Button>
         </div>
       </div>
     </div>
-    <Dialog
-      v-model="showMessageDialog"
-      :options="{
-        title: __('Form Response'),
-        size: 'lg',
-        actions: [
-          {
-            label: __('Submit'),
-            variant: 'solid',
-            onClick: () => handleDialogSubmit(),
-          },
-        ],
-      }"
-    >
-      <template #body-content>
-        <div class="flex flex-col gap-4 py-2">
-          <div
-            v-for="field in messageFormFields"
-            :key="field.label"
-            class="flex flex-col gap-1"
-          >
-            <div class="text-sm text-gray-600">{{ field.label }}</div>
-            <div class="text-base text-gray-900 break-words">{{ field.value }}</div>
-          </div>
-          <div v-if="messageFormFields.length === 0" class="text-sm text-gray-500">
-            {{ __('No form data available.') }}
-          </div>
-        </div>
-      </template>
-    </Dialog>
   </div>
 </template>
 
@@ -276,11 +252,15 @@ import { usersStore } from '@/stores/users'
 import { isMasterAgent } from '@/composables/settings'
 import { dateFormat } from '@/utils'
 import { capture } from '@/telemetry'
-import { Tooltip, Dropdown, Dialog, createResource } from 'frappe-ui'
+import { Tooltip, Dropdown, createResource } from 'frappe-ui'
 import { ref, computed } from 'vue'
+
+const emit = defineEmits(['createBooking', 'loadMore'])
 
 const props = defineProps({
   messages: Array,
+  hasMoreWhatsapp: Boolean,
+  whatsappLoading: Boolean,
 })
 
 const list = defineModel()
@@ -354,49 +334,6 @@ function formatWhatsAppMessage(message) {
 const emoji = ref('')
 const reaction = ref(true)
 
-const showMessageDialog = ref(false)
-const selectedMessage = ref(null)
-
-function openMessageDialog(message) {
-  selectedMessage.value = message
-  showMessageDialog.value = true
-}
-
-const messageFormFields = computed(() => {
-  if (!selectedMessage.value) return []
-  const msg = selectedMessage.value
-  const fields = []
-
-  if (msg.from_name) fields.push({ label: __('From'), value: msg.from_name })
-
-  if (msg.message) {
-    try {
-      const parsed = JSON.parse(msg.message)
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        Object.entries(parsed).forEach(([key, value]) => {
-          fields.push({ label: key, value: String(value) })
-        })
-      } else {
-        fields.push({ label: __('Message'), value: msg.message })
-      }
-    } catch {
-      fields.push({ label: __('Message'), value: msg.message })
-    }
-  }
-
-  if (msg.interactive_id) fields.push({ label: __('Form ID'), value: msg.interactive_id })
-  if (msg.header) fields.push({ label: __('Header'), value: msg.header })
-  if (msg.footer) fields.push({ label: __('Footer'), value: msg.footer })
-  if (msg.content_type) fields.push({ label: __('Type'), value: msg.content_type })
-  if (msg.timestamp) fields.push({ label: __('Sent At'), value: dateFormat(msg.timestamp, 'ddd, MMM D, YYYY hh:mm a') })
-
-  return fields
-})
-
-function handleDialogSubmit() {
-  showMessageDialog.value = false
-  list.value.reload()
-}
 
 function retryPendingMessage(name) {
   createResource({

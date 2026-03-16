@@ -66,13 +66,6 @@
       <span>{{ __('Upload Attachment') }}</span>
     </Button>
     <div class="flex gap-2 shrink-0" v-else-if="title == 'WhatsApp'">
-      <Button
-        v-if="hasMoreWhatsapp"
-        :loading="whatsappLoading"
-        @click="emit('loadMore')"
-      >
-        <span>{{ __('Load More') }}</span>
-      </Button>
       <div v-if="isMasterAgent">
         <Button variant="solid" class="flex items-center gap-1" v-if="crmAssignees.length == 0" @click="showAssignmentModal = true">Assign</Button>
         <MultipleAvatar
@@ -173,7 +166,7 @@ import { Dropdown, call } from 'frappe-ui'
 import { computed, h, ref } from 'vue'
 import { createResource } from 'frappe-ui'
 
-const emit = defineEmits(['reload', 'loadMore'])
+const emit = defineEmits(['reload'])
 const props = defineProps({
   tabs: Array,
   title: String,
@@ -181,8 +174,6 @@ const props = defineProps({
   modalRef: Object,
   emailBox: Object,
   whatsappBox: Object,
-  hasMoreWhatsapp: Boolean,
-  whatsappLoading: Boolean,
 })
 
 const crmAssignees = ref([])
