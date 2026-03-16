@@ -902,5 +902,5 @@ function scroll(hash) {
   }, 500)
 }
 
-defineExpose({ emailBox, all_activities })
+defineExpose({ emailBox, all_activities, content })
 </script>

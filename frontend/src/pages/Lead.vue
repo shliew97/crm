@@ -80,8 +80,8 @@
                   @click="searchMemberAccount"
                   :disabled="membershipSearch.loading"
                 >
-                  <LoadingIndicator v-if="membershipSearch.loading" class="h-3 w-3" />
-                  <FeatherIcon v-else name="search" class="h-3 w-3" />
+                  <LoadingIndicator v-if="membershipSearch.loading" class="h-6 w-6" />
+                  <FeatherIcon v-else name="search" class="h-6 w-6" />
                 </button>
                 <button
                   type="button"
@@ -89,7 +89,7 @@
                   :title="__('Copy Member Account')"
                   @click="bookingForm.member_account = bookingForm.phone"
                 >
-                  <FeatherIcon name="copy" class="h-3 w-3" />
+                  <FeatherIcon name="copy" class="h-6 w-6" />
                 </button>
               </div>
               <TextInput v-model="bookingForm.member_account" :placeholder="__('Enter mobile number')" />
@@ -813,17 +813,146 @@ function switchToViewBookings() {
   fetchBookingsForPanel()
 }
 
+function extractBookingFromMessage(text) {
+  if (!text) return {}
+  const msg = text
+  const msgLower = msg.toLowerCase()
+  const data = {}
+
+  // --- Phone: Malaysian format 01x-xxxxxxx or 01xxxxxxxxx ---
+  const phoneMatch = msg.match(/\b(01\d[\s\-]?\d{3,4}[\s\-]?\d{4})\b/)
+  if (phoneMatch) {
+    data.phone = phoneMatch[1].replace(/[\s\-]/g, '')
+  }
+
+  // --- Date: DD/MM/YYYY, DD-MM-YYYY, DD/MM/YY, DD-MM-YY, YYYY-MM-DD ---
+  const dateMatch = msg.match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\b/)
+  if (dateMatch) {
+    let [, p1, p2, p3] = dateMatch
+    let year, month, day
+    if (p1.length === 4) {
+      // YYYY-MM-DD
+      year = parseInt(p1); month = parseInt(p2); day = parseInt(p3)
+    } else {
+      // DD/MM/YYYY or DD/MM/YY
+      day = parseInt(p1); month = parseInt(p2)
+      year = parseInt(p3)
+      if (year < 100) year += 2000
+    }
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      data.booking_date = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+    }
+  }
+
+  // --- Relative dates ---
+  if (!data.booking_date) {
+    const today = new Date()
+    if (/\b(today|tdy)\b/i.test(msg)) {
+      data.booking_date = today.toISOString().slice(0,10)
+    } else if (/\b(tomorrow|tmr|tmrw)\b/i.test(msg)) {
+      today.setDate(today.getDate() + 1)
+      data.booking_date = today.toISOString().slice(0,10)
+    }
+  }
+
+  // --- Time: 2pm, 2:30pm, 14:00, 2.30pm ---
+  const time12Match = msg.match(/\b(\d{1,2})[\:\.](\d{2})\s*(am|pm)\b/i)
+    || msg.match(/\b(\d{1,2})\s*(am|pm)\b/i)
+  if (time12Match) {
+    let hour = parseInt(time12Match[1])
+    const min = time12Match[2] && /^\d+$/.test(time12Match[2]) ? time12Match[2] : '00'
+    const ampm = (time12Match[3] || time12Match[2]).toLowerCase()
+    if (ampm === 'pm' && hour < 12) hour += 12
+    if (ampm === 'am' && hour === 12) hour = 0
+    data.timeslot = `${String(hour).padStart(2,'0')}:${min.padStart(2,'0')}`
+  }
+  if (!data.timeslot) {
+    const time24Match = msg.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/)
+    if (time24Match) {
+      data.timeslot = `${String(parseInt(time24Match[1])).padStart(2,'0')}:${time24Match[2]}`
+    }
+  }
+
+  // --- Pax ---
+  const paxMatch = msgLower.match(/\b(\d+)\s*(?:pax|person|people|guest|guests)\b/)
+    || msgLower.match(/\bpax\s*[:\-]?\s*(\d+)\b/)
+  if (paxMatch) {
+    const p = parseInt(paxMatch[1])
+    if (p >= 1 && p <= 5) data.pax = String(p)
+  }
+
+  // --- Treatment type ---
+  const treatments = { 'foot': 'Foot', 'thai': 'Thai', 'oil': 'Oil', 'deep': 'Deep' }
+  for (const [kw, val] of Object.entries(treatments)) {
+    if (msgLower.includes(kw)) { data.treatment_type = val; break }
+  }
+
+  // --- Session duration ---
+  const sessionMatch = msgLower.match(/\b(60|90|120)\s*(?:min|mins|minutes?)?\b/)
+  if (sessionMatch) {
+    data.session = sessionMatch[1]
+  } else {
+    const hourMatch = msgLower.match(/\b(1|1\.5|2)\s*(?:hour|hours|hr|hrs)\b/)
+    if (hourMatch) {
+      const h = parseFloat(hourMatch[1])
+      data.session = String(h * 60)
+    }
+  }
+
+  // --- Preferred masseur ---
+  if (/\b(female|lady)\b/i.test(msg)) data.preferred_masseur = 'Female'
+  else if (/\b(male)\b/i.test(msg)) data.preferred_masseur = 'Male'
+
+  // --- Outlet matching: match against outletList.data ---
+  if (outletList.data) {
+    let bestMatch = null
+    let bestLen = 0
+    for (const o of outletList.data) {
+      // Try matching shop_full_name or parts of it (e.g. "Puchong", "Kota Damansara", "KLCC")
+      const name = o.shop_full_name || ''
+      // Extract the location part after "@" or last word
+      const atPart = name.includes('@') ? name.split('@')[1].trim() : name
+      // Check if the location keyword appears in the message
+      const keywords = [atPart, ...atPart.split(/\s+/)]
+      for (const kw of keywords) {
+        if (kw.length >= 3 && msgLower.includes(kw.toLowerCase()) && kw.length > bestLen) {
+          bestMatch = o.branch_code
+          bestLen = kw.length
+        }
+      }
+    }
+    if (bestMatch) data.outlet = bestMatch
+  }
+
+  return data
+}
+
 function onCreateBooking(message) {
+  // Set defaults from lead data
   bookingForm.value.customer_name = lead.data?.lead_name || message?.from_name || ''
   bookingForm.value.phone = lead.data?.mobile_no || ''
   leftPanelMode.value = 'create'
+
+  // Extract booking details from message using regex
+  const messageText = message?.message || ''
+  if (!messageText) return
+
+  const d = extractBookingFromMessage(messageText)
+  if (d.phone) bookingForm.value.phone = d.phone
+  if (d.outlet) bookingForm.value.outlet = d.outlet
+  if (d.booking_date) bookingForm.value.booking_date = d.booking_date
+  if (d.timeslot) bookingForm.value.timeslot = d.timeslot
+  if (d.pax) bookingForm.value.pax = d.pax
+  if (d.treatment_type) bookingForm.value.treatment_type = d.treatment_type
+  if (d.session) bookingForm.value.session = d.session
+  if (d.preferred_masseur) bookingForm.value.preferred_masseur = d.preferred_masseur
 }
 
 async function submitBooking() {
   bookingSubmitting.value = true
   try {
     const form = bookingForm.value
-    await call('crm.api.whatsapp.create_booking', {
+    const response = await call('crm.api.whatsapp.create_booking', {
       crm_lead: props.leadId,
       booking_details: {
         customer_name: form.customer_name,
@@ -845,6 +974,9 @@ async function submitBooking() {
       icon: 'check',
       iconClasses: 'text-green-600',
     })
+    if (response?.confirmation_message) {
+      activities.value.content = response.confirmation_message
+    }
     fetchBookingsForPanel()
   } catch (err) {
     createToast({
