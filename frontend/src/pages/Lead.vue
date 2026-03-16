@@ -54,11 +54,11 @@
         <div class="flex-1 overflow-y-auto px-4 py-3">
           <div class="flex flex-col gap-3">
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Customer Name') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('👤Customer Name') }}</label>
               <TextInput v-model="bookingForm.customer_name" :placeholder="__('Customer Name')" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Outlet') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📍Outlet') }}</label>
               <FormControl
                 type="select"
                 v-model="bookingForm.outlet"
@@ -67,12 +67,12 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Booking Phone') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📱Booking Phone') }}</label>
               <TextInput v-model="bookingForm.phone" :placeholder="__('Phone Number')" />
             </div>
             <div>
               <div class="mb-1 flex items-center gap-1">
-                <label class="block text-xs text-gray-600">{{ __('Member Account') }}</label>
+                <label class="block text-xs text-gray-600">{{ __('📱Member Account') }}</label>
                 <button
                   type="button"
                   class="flex items-center justify-center rounded p-0.5 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
@@ -118,35 +118,35 @@
               </div>
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Date') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📅Date') }}</label>
               <DatePicker v-model="bookingForm.booking_date" :placeholder="__('Select Date')" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Preferred Time') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('⏰Preferred Time') }}</label>
               <FormControl type="time" v-model="bookingForm.timeslot" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Number of Pax') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('👥Number of Pax') }}</label>
               <FormControl type="select" v-model="bookingForm.pax" :options="paxOptions" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Treatment') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('💆Treatment') }}</label>
               <FormControl type="select" v-model="bookingForm.treatment_type" :options="treatmentOptions" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Session (mins)') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('⏳Session (mins)') }}</label>
               <FormControl type="select" v-model="bookingForm.session" :options="sessionOptions" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Preferred Therapist') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('🧑‍⚕️Preferred Therapist') }}</label>
               <FormControl type="select" v-model="bookingForm.preferred_masseur" :options="therapistOptions" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('3rd Party Voucher') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('🎫3rd Party Voucher') }}</label>
               <FormControl type="select" v-model="bookingForm.third_party_voucher" :options="yesNoOptions" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Package') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('🎟️Package') }}</label>
               <FormControl type="select" v-model="bookingForm.using_package" :options="yesNoOptions" />
             </div>
           </div>
@@ -168,43 +168,43 @@
         <div class="flex-1 overflow-y-auto px-4 py-3">
           <div class="flex flex-col gap-3">
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Customer Name') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('👤Customer Name') }}</label>
               <TextInput :modelValue="editBookingForm.customer_name" disabled class="opacity-60" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Booking Phone') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📱Booking Phone') }}</label>
               <TextInput :modelValue="editBookingForm.booking_mobile" disabled class="opacity-60" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Outlet') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📍Outlet') }}</label>
               <TextInput :modelValue="editBookingForm.outlet" disabled class="opacity-60" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Date') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📅Date') }}</label>
               <DatePicker v-model="editBookingForm.booking_date" :placeholder="__('Select Date')" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Preferred Time') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('⏰Preferred Time') }}</label>
               <FormControl type="time" v-model="editBookingForm.timeslot" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Treatment') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('💆Treatment') }}</label>
               <FormControl type="select" v-model="editBookingForm.treatment" :options="treatmentOptions" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Session (mins)') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('⏳Session (mins)') }}</label>
               <FormControl type="select" v-model="editBookingForm.session" :options="sessionOptions" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Preferred Therapist') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('🧑‍⚕️Preferred Therapist') }}</label>
               <FormControl type="select" v-model="editBookingForm.preferred_therapist" :options="therapistOptions" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('3rd Party Voucher') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('🎫3rd Party Voucher') }}</label>
               <FormControl type="select" v-model="editBookingForm.third_party_voucher_select" :options="yesNoOptions" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('Package') }}</label>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('🎟️Package') }}</label>
               <FormControl type="select" v-model="editBookingForm.package_select" :options="yesNoOptions" />
             </div>
           </div>
@@ -241,7 +241,7 @@
             >
               <div class="flex items-center justify-between">
                 <div class="flex-1 text-sm">
-                  <span class="font-semibold">{{ booking.outlet }}</span>
+                  <span class="font-semibold">📍{{ booking.outlet }}</span>
                 </div>
                 <div class="flex shrink-0 gap-1">
                   <Button variant="ghost" size="sm" @click="openEditBooking(booking)">
@@ -252,20 +252,17 @@
                   </Button>
                 </div>
               </div>
-              <div class="flex items-center gap-1 text-sm whitespace-nowrap">
-                <span class="text-gray-600">{{ __('Date & Time') }}:</span>
-                <span>{{ booking.booking_date }} {{ booking.timeslot }}</span>
-              </div>
-              <div class="mt-2 flex flex-col gap-1 text-sm">
-                <div><span class="text-gray-600">{{ __('Customer') }}:</span> {{ booking.customer_name }}</div>
-                <div><span class="text-gray-600">{{ __('Pax') }}:</span> {{ booking.pax }}</div>
-                <div><span class="text-gray-600">{{ __('Treatment') }}:</span> {{ booking.treatment }}</div>
-                <div><span class="text-gray-600">{{ __('Session') }}:</span> {{ booking.session }} {{ __('mins') }}</div>
-                <div><span class="text-gray-600">{{ __('Therapist') }}:</span> {{ booking.preferred_therapist }}</div>
-                <div><span class="text-gray-600">{{ __('Phone') }}:</span> {{ booking.booking_mobile }}</div>
-                <div><span class="text-gray-600">{{ __('Member') }}:</span> {{ booking.member_mobile }}</div>
-                <div><span class="text-gray-600">{{ __('3rd Party') }}:</span> {{ booking.third_party_voucher ? __('Yes') : __('No') }}</div>
-                <div><span class="text-gray-600">{{ __('Package') }}:</span> {{ booking.package ? __('Yes') : __('No') }}</div>
+              <div class="flex flex-col gap-1 text-sm">
+                <div class="mt-1"><span class="text-gray-600">{{ __('📅Date & Time') }}:</span> {{ booking.booking_date }} {{ booking.timeslot }}</div>
+                <div class="mt-1"><span class="text-gray-600">{{ __('👤Customer') }}:</span> {{ booking.customer_name }}</div>
+                <div class="mt-1"><span class="text-gray-600">{{ __('👥Pax') }}:</span> {{ booking.pax }}</div>
+                <div class="mt-1"><span class="text-gray-600">{{ __('💆Treatment') }}:</span> {{ booking.treatment }}</div>
+                <div class="mt-1"><span class="text-gray-600">{{ __('⏳Session') }}:</span> {{ booking.session }} {{ __('mins') }}</div>
+                <div class="mt-1"><span class="text-gray-600">{{ __('🧑‍⚕️Therapist') }}:</span> {{ booking.preferred_therapist }}</div>
+                <div class="mt-1"><span class="text-gray-600">{{ __('📱Phone') }}:</span> {{ booking.booking_mobile }}</div>
+                <div class="mt-1"><span class="text-gray-600">{{ __('📱Member') }}:</span> {{ booking.member_mobile }}</div>
+                <div class="mt-1"><span class="text-gray-600">{{ __('🎫3rd Party') }}:</span> {{ booking.third_party_voucher ? __('Yes') : __('No') }}</div>
+                <div class="mt-1"><span class="text-gray-600">{{ __('🎟️Package') }}:</span> {{ booking.package ? __('Yes') : __('No') }}</div>
               </div>
             </div>
           </div>
