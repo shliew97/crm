@@ -508,13 +508,7 @@ def create_booking(crm_lead, booking_details):
 
         response = requests.post(url, data=json.dumps(booking_details, default=str), headers=headers, timeout=30)
         response.raise_for_status()
-        result = response.json()
-        data = result.get("message", result) if isinstance(result, dict) else result
-        if isinstance(data, dict) and data.get("success"):
-            return data
-        if isinstance(result, dict) and result.get("success"):
-            return result
-        frappe.throw("Booking failed")
+        return response.json()
 
 
 @frappe.whitelist()
@@ -547,13 +541,7 @@ def edit_booking(order_id, booking_details):
 
         response = requests.post(url, data=json.dumps(booking_details, default=str), headers=headers, timeout=30)
         response.raise_for_status()
-        result = response.json()
-        data = result.get("message", result) if isinstance(result, dict) else result
-        if isinstance(data, dict) and data.get("success"):
-            return data
-        if isinstance(result, dict) and result.get("success"):
-            return result
-        frappe.throw("Edit booking failed")
+        return response.json()
 
 
 @frappe.whitelist()
@@ -574,13 +562,7 @@ def delete_booking(order_id):
 
         response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
         response.raise_for_status()
-        result = response.json()
-        data = result.get("message", result) if isinstance(result, dict) else result
-        if isinstance(data, dict) and data.get("success"):
-            return data
-        if isinstance(result, dict) and result.get("success"):
-            return result
-        frappe.throw("Delete booking failed")
+        return response.json()
 
 
 @frappe.whitelist()

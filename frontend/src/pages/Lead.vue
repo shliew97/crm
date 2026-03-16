@@ -969,18 +969,28 @@ async function submitBooking() {
         package: form.using_package === 'Yes',
       },
     })
-    createToast({
-      title: __('Booking created successfully'),
-      icon: 'check',
-      iconClasses: 'text-green-600',
-    })
-    if (response?.confirmation_message) {
-      activities.value.content = response.confirmation_message
+    if (response?.success) {
+      createToast({
+        title: __('Success'),
+        text: __(response.message || 'Booking created successfully'),
+        icon: 'check',
+        iconClasses: 'text-green-600',
+      })
+      if (response?.confirmation_message) {
+        activities.value.content = response.confirmation_message
+      }
+      fetchBookingsForPanel()
+    } else {
+      createToast({
+        title: __('Failed'),
+        text: __(response?.message || 'Booking creation failed'),
+        icon: 'x',
+        iconClasses: 'text-red-600',
+      })
     }
-    fetchBookingsForPanel()
   } catch (err) {
     createToast({
-      title: __('Error creating booking'),
+      title: __('Failed'),
       text: __(err.messages?.[0] || err.message),
       icon: 'x',
       iconClasses: 'text-red-600',
@@ -1183,7 +1193,7 @@ function openEditBooking(booking) {
 async function submitEditBooking() {
   editBookingSubmitting.value = true
   try {
-    await call('crm.api.whatsapp.edit_booking', {
+    const response = await call('crm.api.whatsapp.edit_booking', {
       order_id: editingBookingId.value,
       booking_details: {
         booking_date: editBookingForm.value.booking_date,
@@ -1195,16 +1205,26 @@ async function submitEditBooking() {
         package: editBookingForm.value.package_select === 'Yes',
       },
     })
-    createToast({
-      title: __('Booking updated successfully'),
-      icon: 'check',
-      iconClasses: 'text-green-600',
-    })
-    leftPanelMode.value = 'view'
-    fetchBookingsForPanel()
+    if (response?.success) {
+      createToast({
+        title: __('Success'),
+        text: __(response.message || 'Booking updated successfully'),
+        icon: 'check',
+        iconClasses: 'text-green-600',
+      })
+      leftPanelMode.value = 'view'
+      fetchBookingsForPanel()
+    } else {
+      createToast({
+        title: __('Failed'),
+        text: __(response?.message || 'Booking update failed'),
+        icon: 'x',
+        iconClasses: 'text-red-600',
+      })
+    }
   } catch (err) {
     createToast({
-      title: __('Error updating booking'),
+      title: __('Failed'),
       text: __(err.messages?.[0] || err.message),
       icon: 'x',
       iconClasses: 'text-red-600',
@@ -1235,18 +1255,28 @@ function confirmDeleteBooking(booking) {
         theme: 'red',
         onClick: async ({ close }) => {
           try {
-            await call('crm.api.whatsapp.delete_booking', {
+            const response = await call('crm.api.whatsapp.delete_booking', {
               order_id: bookingId,
             })
-            createToast({
-              title: __('Booking deleted successfully'),
-              icon: 'check',
-              iconClasses: 'text-green-600',
-            })
-            fetchBookingsForPanel()
+            if (response?.success) {
+              createToast({
+                title: __('Success'),
+                text: __(response.message || 'Booking deleted successfully'),
+                icon: 'check',
+                iconClasses: 'text-green-600',
+              })
+              fetchBookingsForPanel()
+            } else {
+              createToast({
+                title: __('Failed'),
+                text: __(response?.message || 'Booking deletion failed'),
+                icon: 'x',
+                iconClasses: 'text-red-600',
+              })
+            }
           } catch (err) {
             createToast({
-              title: __('Error deleting booking'),
+              title: __('Failed'),
               text: __(err.messages?.[0] || err.message),
               icon: 'x',
               iconClasses: 'text-red-600',
