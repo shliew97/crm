@@ -325,62 +325,47 @@ def get_whatsapp_messages(reference_doctype, reference_name, limit=88):
     messages = [message for message in messages if message["content_type"] != "reaction"]
 
     # Fetch Pending WhatsApp Messages (Pending and Expired)
-    if frappe.db.exists("DocType", "Pending WhatsApp Message"):
-        pending_filters = {
+    pending_messages = frappe.get_all(
+        "Pending WhatsApp Message",
+        filters={
             "status": ["in", ["Pending", "Expired"]],
             "reference_doctype": reference_doctype,
             "reference_name": reference_name,
-        }
+        },
+        fields=[
+            "name",
+            "type",
+            "to",
+            "`from`",
+            "content_type",
+            "message_type",
+            "attach",
+            "message",
+            "status",
+            "timestamp",
+            "reference_doctype",
+            "reference_name",
+            "owner",
+        ],
+        order_by="creation asc",
+    )
 
-        # Also fetch for CRM Lead if viewing a CRM Deal
-        pending_reference_pairs = [(reference_doctype, reference_name)]
-        if reference_doctype == 'CRM Deal':
-            lead = frappe.db.get_value(reference_doctype, reference_name, 'lead')
-            if lead:
-                pending_reference_pairs.append(("CRM Lead", lead))
+    for pm in pending_messages:
+        pm["is_pending_whatsapp_message"] = True
+        pm["pending_status"] = pm["status"]
+        # Set fields expected by the frontend
+        pm["message_id"] = ""
+        pm["is_reply"] = 0
+        pm["is_forwarded"] = 0
+        pm["reply_to_message_id"] = ""
+        pm["use_template"] = 0
+        pm["template"] = ""
+        pm["template_parameters"] = ""
+        pm["template_header_parameters"] = ""
+        if not pm.get("type"):
+            pm["type"] = "Outgoing"
 
-        for ref_dt, ref_name in pending_reference_pairs:
-            pending_messages = frappe.get_all(
-                "Pending WhatsApp Message",
-                filters={
-                    "status": ["in", ["Pending", "Expired"]],
-                    "reference_doctype": ref_dt,
-                    "reference_name": ref_name,
-                },
-                fields=[
-                    "name",
-                    "type",
-                    "to",
-                    "`from`",
-                    "content_type",
-                    "message_type",
-                    "attach",
-                    "message",
-                    "status",
-                    "timestamp",
-                    "reference_doctype",
-                    "reference_name",
-                    "owner",
-                ],
-                order_by="creation asc",
-            )
-
-            for pm in pending_messages:
-                pm["is_pending_whatsapp_message"] = True
-                pm["pending_status"] = pm["status"]
-                # Set fields expected by the frontend
-                pm["message_id"] = ""
-                pm["is_reply"] = 0
-                pm["is_forwarded"] = 0
-                pm["reply_to_message_id"] = ""
-                pm["use_template"] = 0
-                pm["template"] = ""
-                pm["template_parameters"] = ""
-                pm["template_header_parameters"] = ""
-                if not pm.get("type"):
-                    pm["type"] = "Outgoing"
-
-            messages.extend(pending_messages)
+    messages.extend(pending_messages)
 
     return messages
 
@@ -560,7 +545,7 @@ def edit_booking(order_id, booking_details):
 
 
 @frappe.whitelist()
-def delete_booking(order_id):
+def delete_booking(order_ids):
     integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
@@ -572,7 +557,7 @@ def delete_booking(order_id):
         }
 
         payload = {
-            "order_ids": [order_id] if isinstance(order_id, str) else order_id
+            "order_ids": json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
         }
 
         response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
