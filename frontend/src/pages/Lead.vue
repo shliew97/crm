@@ -1232,8 +1232,8 @@ async function submitEditBooking() {
 }
 
 function confirmDeleteBooking(booking) {
-  const bookingId = booking.order_id || (booking.order_ids && booking.order_ids[0]) || ''
-  if (!bookingId) {
+  const bookingIds = booking.order_ids || []
+  if (!bookingIds) {
     createToast({
       title: __('Error'),
       text: __('No booking ID found'),
@@ -1253,7 +1253,7 @@ function confirmDeleteBooking(booking) {
         onClick: async ({ close }) => {
           try {
             const response = await call('crm.api.whatsapp.delete_booking', {
-              order_id: bookingId,
+              order_ids: bookingIds,
             })
             if (response?.success) {
               createToast({

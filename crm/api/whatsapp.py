@@ -545,7 +545,7 @@ def edit_booking(order_id, booking_details):
 
 
 @frappe.whitelist()
-def delete_booking(order_id):
+def delete_booking(order_ids):
     integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
@@ -557,7 +557,7 @@ def delete_booking(order_id):
         }
 
         payload = {
-            "order_ids": [order_id] if isinstance(order_id, str) else order_id
+            "order_ids": json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
         }
 
         response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
