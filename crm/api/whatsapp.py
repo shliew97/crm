@@ -520,7 +520,7 @@ def create_booking(crm_lead, booking_details):
 
 
 @frappe.whitelist()
-def edit_booking(order_id, booking_details):
+def edit_booking(order_ids, booking_details):
     if isinstance(booking_details, str):
         booking_details = json.loads(booking_details)
 
@@ -545,7 +545,7 @@ def edit_booking(order_id, booking_details):
         if len(timeslot) == 4:
             booking_details["timeslot"] = timeslot[:2] + ":" + timeslot[2:] + ":00"
 
-    booking_details["order_ids"] = [order_id] if isinstance(order_id, str) else order_id
+    booking_details["order_ids"] = json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
 
     integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
     for integration_setting in integration_settings:

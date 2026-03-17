@@ -66,8 +66,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('📱Booking Phone') }}</label>
-              <TextInput v-model="bookingForm.phone" :placeholder="__('Phone Number')" />
+              <TextInput v-model="bookingForm.phone" :placeholder="__('Phone Number')" hidden />
             </div>
             <div>
               <div class="mb-1 flex items-center gap-1">
@@ -178,8 +177,7 @@
               <TextInput :modelValue="editBookingForm.outlet" disabled class="opacity-60" />
             </div>
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('📱Booking Phone') }}</label>
-              <TextInput :modelValue="editBookingForm.booking_mobile" disabled class="opacity-60" />
+              <TextInput :modelValue="editBookingForm.booking_mobile" hidden class="opacity-60" />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('📅Date') }}</label>
@@ -199,7 +197,7 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🧑‍⚕️Preferred Therapist') }}</label>
-              <FormControl type="select" v-model="editBookingForm.preferred_therapist" :options="therapistOptions" />
+              <FormControl type="select" v-model="editBookingForm.preferred_therapist" disabled :options="therapistOptions" />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🎫3rd Party Voucher') }}</label>
@@ -788,6 +786,7 @@ const outletList = createResource({
   url: 'frappe.client.get_list',
   params: {
     doctype: 'Outlet',
+    order_by: "shop_full_name",
     fields: ['name', 'branch_code', 'shop_full_name'],
     limit_page_length: 0,
   },
@@ -937,7 +936,7 @@ function onCreateBooking(message) {
   if (!messageText) return
 
   const d = extractBookingFromMessage(messageText)
-  if (d.phone) bookingForm.value.phone = d.phone
+  if (d.phone) bookingForm.value.member_account = d.phone
   if (d.outlet) bookingForm.value.outlet = d.outlet
   if (d.booking_date) bookingForm.value.booking_date = d.booking_date
   if (d.timeslot) bookingForm.value.timeslot = d.timeslot
@@ -956,7 +955,7 @@ async function submitBooking() {
       booking_details: {
         customer_name: form.customer_name,
         booking_mobile: lead.data?.mobile_no || form.phone,
-        member_mobile: lead.data?.mobile_no || form.phone,
+        member_mobile: form.member_account,
         outlet: form.outlet,
         booking_date: form.booking_date,
         timeslot: form.timeslot ? form.timeslot + ':00' : '',
@@ -1171,10 +1170,10 @@ const fetchingBookings = ref(false)
 const fetchedBookings = ref([])
 const editBookingSubmitting = ref(false)
 const editBookingForm = ref({})
-const editingBookingId = ref(null)
+const editingBookingIds = ref([])
 
 function openEditBooking(booking) {
-  editingBookingId.value = booking.order_id || (booking.order_ids && booking.order_ids[0]) || ''
+  editingBookingIds.value = booking.order_ids || []
   editBookingForm.value = {
     customer_name: booking.customer_name || '',
     booking_mobile: booking.booking_mobile || '',
@@ -1194,7 +1193,7 @@ async function submitEditBooking() {
   editBookingSubmitting.value = true
   try {
     const response = await call('crm.api.whatsapp.edit_booking', {
-      order_id: editingBookingId.value,
+      order_ids: editingBookingIds.value,
       booking_details: {
         booking_date: editBookingForm.value.booking_date,
         timeslot: editBookingForm.value.timeslot ? (editBookingForm.value.timeslot.length === 5 ? editBookingForm.value.timeslot + ':00' : editBookingForm.value.timeslot) : '',
