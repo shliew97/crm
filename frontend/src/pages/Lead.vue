@@ -69,7 +69,7 @@
               <TextInput v-model="bookingForm.phone" :placeholder="__('Phone Number')" hidden />
             </div>
             <div>
-              <div class="mb-1 flex items-center gap-1">
+              <div class="mb-1 flex items-center justify-between gap-1">
                 <label class="block text-xs text-gray-600">{{ __('📱Member Account') }}</label>
                 <button
                   type="button"
