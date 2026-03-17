@@ -102,17 +102,21 @@
                   <span>{{ membershipInfo.membership_validity || '-' }}</span>
                   <span class="text-gray-500">{{ __('Deposit') }}</span>
                   <span>{{ membershipInfo.total_deposit || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Package (This Outlet)') }}</span>
+                  <span class="mt-1">{{ __('This Outlet') }}</span>
+                  <span></span>
+                  <span class="text-gray-500">{{ __('Package') }}</span>
                   <span>{{ membershipInfo.total_package_current_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Package (Other)') }}</span>
-                  <span>{{ membershipInfo.total_package_other_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Topup (This Outlet)') }}</span>
+                  <span class="text-gray-500">{{ __('Topup') }}</span>
                   <span>{{ membershipInfo.total_topup_current_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Topup (Other)') }}</span>
-                  <span>{{ membershipInfo.total_topup_other_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Credit (This Outlet)') }}</span>
+                  <span class="text-gray-500">{{ __('Credit') }}</span>
                   <span>{{ membershipInfo.total_credit_current_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Credit (Other)') }}</span>
+                  <span class="mt-1">{{ __('Other Outlet') }}</span>
+                  <span></span>
+                  <span class="text-gray-500">{{ __('Package') }}</span>
+                  <span>{{ membershipInfo.total_package_other_outlet || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Topup') }}</span>
+                  <span>{{ membershipInfo.total_topup_other_outlet || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Credit') }}</span>
                   <span>{{ membershipInfo.total_credit_other_outlet || '-' }}</span>
                 </div>
               </div>
