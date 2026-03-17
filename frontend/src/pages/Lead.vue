@@ -738,7 +738,16 @@ const membershipInfo = ref(null)
 const membershipSearch = createResource({
   url: 'crm.api.whatsapp.get_customer_membership_and_balance',
   onSuccess: (data) => {
-    membershipInfo.value = data || null
+    if (data.success) {
+      membershipInfo.value = data || null
+    } else {
+      createToast({
+        title: __('Failed'),
+        text: __(data.message || 'Failed to fetch membership info'),
+        icon: 'x',
+        iconClasses: 'text-red-600',
+      })
+    }
   },
   onError: () => {
     membershipInfo.value = null
