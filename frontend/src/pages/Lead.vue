@@ -54,8 +54,7 @@
         <div class="flex-1 overflow-y-auto px-4 py-3">
           <div class="flex flex-col gap-3">
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('👤Customer Name') }}</label>
-              <TextInput v-model="bookingForm.customer_name" :placeholder="__('Customer Name')" />
+              <TextInput v-model="bookingForm.customer_name" :placeholder="__('Customer Name')" hidden />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('📍Outlet') }}</label>
@@ -172,16 +171,15 @@
         <div class="flex-1 overflow-y-auto px-4 py-3">
           <div class="flex flex-col gap-3">
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('👤Customer Name') }}</label>
-              <TextInput :modelValue="editBookingForm.customer_name" disabled class="opacity-60" />
-            </div>
-            <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('📱Booking Phone') }}</label>
-              <TextInput :modelValue="editBookingForm.booking_mobile" disabled class="opacity-60" />
+              <TextInput :modelValue="editBookingForm.customer_name" disabled class="opacity-60" hidden />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('📍Outlet') }}</label>
               <TextInput :modelValue="editBookingForm.outlet" disabled class="opacity-60" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📱Booking Phone') }}</label>
+              <TextInput :modelValue="editBookingForm.booking_mobile" disabled class="opacity-60" />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('📅Date') }}</label>
