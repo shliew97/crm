@@ -718,7 +718,7 @@ const showSidePanelModal = ref(false)
 const showFilesUploader = ref(false)
 
 // Booking state
-const leftPanelMode = ref('create')
+const leftPanelMode = ref('view')
 const bookingSubmitting = ref(false)
 const bookingForm = ref({
   customer_name: '',
@@ -978,6 +978,7 @@ async function submitBooking() {
       if (response?.confirmation_message) {
         activities.value.content = response.confirmation_message
       }
+      leftPanelMode.value = 'view'
       fetchBookingsForPanel()
     } else {
       createToast({
