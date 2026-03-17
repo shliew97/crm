@@ -69,7 +69,7 @@
               <TextInput v-model="bookingForm.phone" :placeholder="__('Phone Number')" hidden />
             </div>
             <div>
-              <div class="mb-1 flex items-center gap-1">
+              <div class="mb-1 flex items-center justify-between gap-1">
                 <label class="block text-xs text-gray-600">{{ __('📱Member Account') }}</label>
                 <button
                   type="button"
@@ -738,7 +738,16 @@ const membershipInfo = ref(null)
 const membershipSearch = createResource({
   url: 'crm.api.whatsapp.get_customer_membership_and_balance',
   onSuccess: (data) => {
-    membershipInfo.value = data || null
+    if (data.success) {
+      membershipInfo.value = data || null
+    } else {
+      createToast({
+        title: __('Failed'),
+        text: __(data.message || 'Failed to fetch membership info'),
+        icon: 'x',
+        iconClasses: 'text-red-600',
+      })
+    }
   },
   onError: () => {
     membershipInfo.value = null

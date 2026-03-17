@@ -602,9 +602,7 @@ def get_customer_membership_and_balance(outlet, member_mobile):
 
         response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
         response.raise_for_status()
-        result = response.json()
-        message_data = result.get("message", result)
-        return message_data
+        return response.json()
     return {}
 
 
