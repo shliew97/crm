@@ -54,8 +54,7 @@
         <div class="flex-1 overflow-y-auto px-4 py-3">
           <div class="flex flex-col gap-3">
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('👤Customer Name') }}</label>
-              <TextInput v-model="bookingForm.customer_name" :placeholder="__('Customer Name')" />
+              <TextInput v-model="bookingForm.customer_name" :placeholder="__('Customer Name')" hidden />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('📍Outlet') }}</label>
@@ -102,17 +101,21 @@
                   <span>{{ membershipInfo.membership_validity || '-' }}</span>
                   <span class="text-gray-500">{{ __('Deposit') }}</span>
                   <span>{{ membershipInfo.total_deposit || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Package (This Outlet)') }}</span>
+                  <span class="mt-1">{{ __('This Outlet') }}</span>
+                  <span></span>
+                  <span class="text-gray-500">{{ __('Package') }}</span>
                   <span>{{ membershipInfo.total_package_current_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Package (Other)') }}</span>
-                  <span>{{ membershipInfo.total_package_other_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Topup (This Outlet)') }}</span>
+                  <span class="text-gray-500">{{ __('Topup') }}</span>
                   <span>{{ membershipInfo.total_topup_current_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Topup (Other)') }}</span>
-                  <span>{{ membershipInfo.total_topup_other_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Credit (This Outlet)') }}</span>
+                  <span class="text-gray-500">{{ __('Credit') }}</span>
                   <span>{{ membershipInfo.total_credit_current_outlet || '-' }}</span>
-                  <span class="text-gray-500">{{ __('Credit (Other)') }}</span>
+                  <span class="mt-1">{{ __('Other Outlet') }}</span>
+                  <span></span>
+                  <span class="text-gray-500">{{ __('Package') }}</span>
+                  <span>{{ membershipInfo.total_package_other_outlet || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Topup') }}</span>
+                  <span>{{ membershipInfo.total_topup_other_outlet || '-' }}</span>
+                  <span class="text-gray-500">{{ __('Credit') }}</span>
                   <span>{{ membershipInfo.total_credit_other_outlet || '-' }}</span>
                 </div>
               </div>
@@ -168,16 +171,15 @@
         <div class="flex-1 overflow-y-auto px-4 py-3">
           <div class="flex flex-col gap-3">
             <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('👤Customer Name') }}</label>
-              <TextInput :modelValue="editBookingForm.customer_name" disabled class="opacity-60" />
-            </div>
-            <div>
-              <label class="mb-1 block text-xs text-gray-600">{{ __('📱Booking Phone') }}</label>
-              <TextInput :modelValue="editBookingForm.booking_mobile" disabled class="opacity-60" />
+              <TextInput :modelValue="editBookingForm.customer_name" disabled class="opacity-60" hidden />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('📍Outlet') }}</label>
               <TextInput :modelValue="editBookingForm.outlet" disabled class="opacity-60" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📱Booking Phone') }}</label>
+              <TextInput :modelValue="editBookingForm.booking_mobile" disabled class="opacity-60" />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('📅Date') }}</label>

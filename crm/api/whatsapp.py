@@ -5,8 +5,7 @@ from frappe import _
 from crm.api.doc import get_assigned_users
 from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
 from frappe.utils.user import get_users_with_role
-from frappe.share import get_users
-
+from frappe.utils import get_datetime
 
 def validate(doc, method):
     if doc.type == "Incoming" and doc.get("from"):
@@ -480,7 +479,17 @@ def get_username():
 def create_booking(crm_lead, booking_details):
     if isinstance(booking_details, str):
         booking_details = json.loads(booking_details)
-        
+
+    # combine date and time
+    booking_datetime = get_datetime(f'{booking_details["booking_date"]} {booking_details["timeslot"]}')
+
+    # check if overed
+    if get_datetime() > booking_datetime:
+        return {
+            "success": False,
+            "message": "Booking date and time was already overed.",
+        }
+
     # Convert outlet branch_code to Outlet ID (name)
     outlet_branch_code = booking_details.get("outlet")
     if outlet_branch_code:
@@ -504,7 +513,6 @@ def create_booking(crm_lead, booking_details):
             "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
             "Content-Type": "application/json"
         }
-        print(booking_details)
 
         response = requests.post(url, data=json.dumps(booking_details, default=str), headers=headers, timeout=30)
         response.raise_for_status()
@@ -515,6 +523,16 @@ def create_booking(crm_lead, booking_details):
 def edit_booking(order_id, booking_details):
     if isinstance(booking_details, str):
         booking_details = json.loads(booking_details)
+
+    # combine date and time
+    booking_datetime = get_datetime(f'{booking_details["booking_date"]} {booking_details["timeslot"]}')
+
+    # check if overed
+    if get_datetime() > booking_datetime:
+        return {
+            "success": False,
+            "message": "Booking date and time was already overed.",
+        }
 
     # Only allow permitted fields
     allowed_fields = {"booking_date", "timeslot", "treatment", "session", "preferred_therapist", "third_party_voucher", "package"}
@@ -601,7 +619,7 @@ def fetch_bookings(booking_mobile):
             "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
             "Content-Type": "application/json"
         }
-        print(booking_mobile)
+
         payload = {
             "booking_mobile": booking_mobile
         }
@@ -609,8 +627,6 @@ def fetch_bookings(booking_mobile):
         response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
         response.raise_for_status()
         result = response.json()
-        print("Bookings list:")
-        print(result)
         message_data = result.get("message", result)
 
         return message_data
