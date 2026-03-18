@@ -10,7 +10,14 @@
   "suggested_slot_message_1",
   "suggested_slot_2",
   "expires_at",
-  "expired"
+  "expired",
+  "member_mobile",
+  "pax",
+  "treatment",
+  "session",
+  "preferred_therapist",
+  "third_party_voucher",
+  "package"
  ],
  "fields": [
   {
@@ -58,12 +65,49 @@
    "in_standard_filter": 1,
    "label": "Expired",
    "search_index": 1
+  },
+  {
+   "fieldname": "member_mobile",
+   "fieldtype": "Data",
+   "label": "Member Mobile"
+  },
+  {
+   "fieldname": "pax",
+   "fieldtype": "Int",
+   "label": "Pax"
+  },
+  {
+   "fieldname": "treatment",
+   "fieldtype": "Data",
+   "label": "Treatment"
+  },
+  {
+   "fieldname": "session",
+   "fieldtype": "Int",
+   "label": "Session"
+  },
+  {
+   "fieldname": "preferred_therapist",
+   "fieldtype": "Data",
+   "label": "Preferred Therapist"
+  },
+  {
+   "default": "0",
+   "fieldname": "third_party_voucher",
+   "fieldtype": "Check",
+   "label": "Third Party Voucher"
+  },
+  {
+   "default": "0",
+   "fieldname": "package",
+   "fieldtype": "Check",
+   "label": "Package"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-18 12:44:36.136286",
+ "modified": "2026-03-18 15:17:22.008397",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "Slot Suggestions",

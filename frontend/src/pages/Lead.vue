@@ -730,6 +730,13 @@ const lead = createResource({
       slot_1: data.suggested_slot_1 || [],
       slot_1_message: data.suggested_slot_message_1 || "",
       slot_2: data.suggested_slot_2 || [],
+      member_mobile: data.member_mobile || "",
+      pax: data.pax || "1",
+      treatment: data.treatment || "Foot",
+      session: data.session || "60",
+      preferred_therapist: data.preferred_therapist || "Any",
+      third_party_voucher: data.third_party_voucher ? "Yes" : "No",
+      package: data.package ? "Yes" : "No",
     }
   },
 })
@@ -791,7 +798,18 @@ const showFilesUploader = ref(false)
 const leftPanelMode = ref('view')
 const bookingSubmitting = ref(false)
 const showSuggestedSlots = ref(false)
-const suggestedSlots = ref({ slot_1: [], slot_1_message: "", slot_2: [] })
+const suggestedSlots = ref({
+  slot_1: [],
+  slot_1_message: "",
+  slot_2: [],
+  member_mobile: "",
+  pax: "1",
+  treatment: "Foot",
+  session: "60",
+  preferred_therapist: "Any",
+  third_party_voucher: "No",
+  package: "No",
+})
 const bookingForm = ref({
   customer_name: '',
   phone: '',
@@ -1132,6 +1150,13 @@ async function submitBooking() {
           slot_1: response.suggested_slot_1 || [],
           slot_1_message: response.suggested_slot_message_1 || "",
           slot_2: response.suggested_slot_2 || [],
+          member_mobile: response.member_mobile || "",
+          pax: response.pax || "1",
+          treatment: response.treatment || "Foot",
+          session: response.session || "60",
+          preferred_therapist: response.preferred_therapist || "Any",
+          third_party_voucher: response.third_party_voucher ? "Yes" : "No",
+          package: response.package ? "Yes" : "No",
         }
         showSuggestedSlots.value = true
       } else {
@@ -1159,6 +1184,13 @@ function selectSuggestedSlot(slot) {
   if (slot.outlet) bookingForm.value.outlet = slot.outlet
   if (slot.booking_date) bookingForm.value.booking_date = slot.booking_date
   if (slot.timeslot) bookingForm.value.timeslot = slot.timeslot
+  if (suggestedSlots.value.member_mobile) bookingForm.value.member_account = suggestedSlots.value.member_mobile
+  if (suggestedSlots.value.pax) bookingForm.value.pax = suggestedSlots.value.pax
+  if (suggestedSlots.value.treatment) bookingForm.value.treatment_type = suggestedSlots.value.treatment
+  if (suggestedSlots.value.session) bookingForm.value.session = suggestedSlots.value.session
+  if (suggestedSlots.value.preferred_therapist) bookingForm.value.preferred_masseur = suggestedSlots.value.preferred_therapist
+  if (suggestedSlots.value.third_party_voucher) bookingForm.value.third_party_voucher = suggestedSlots.value.third_party_voucher
+  if (suggestedSlots.value.package) bookingForm.value.using_package = suggestedSlots.value.package
   showSuggestedSlots.value = false
   leftPanelMode.value = 'create'
 }
