@@ -31,15 +31,29 @@ def get_lead(name):
 
 	slot_suggestions = frappe.db.get_all("Slot Suggestions", filters={"reference_name": name, "expired": 0}, pluck="name")
 	if slot_suggestions:
-		suggested_slot_1, suggested_slot_message_1, suggested_slot_2 = frappe.db.get_value("Slot Suggestions", slot_suggestions[0], [
+		suggested_slot_1, suggested_slot_message_1, suggested_slot_2, member_mobile, pax, treatment, session, preferred_therapist, third_party_voucher, package = frappe.db.get_value("Slot Suggestions", slot_suggestions[0], [
 			"suggested_slot_1",
 			"suggested_slot_message_1",
-			"suggested_slot_2"
+			"suggested_slot_2",
+			"member_mobile",
+			"pax",
+			"treatment",
+			"session",
+			"preferred_therapist",
+			"third_party_voucher",
+			"package",
 		])
 
 		lead["suggested_slot_1"] = json.loads(suggested_slot_1)
 		lead["suggested_slot_message_1"] = suggested_slot_message_1
 		lead["suggested_slot_2"] = json.loads(suggested_slot_2)
+		lead["member_mobile"] = member_mobile
+		lead["pax"] = str(pax)
+		lead["treatment"] = treatment
+		lead["session"] = str(session)
+		lead["preferred_therapist"] = preferred_therapist
+		lead["third_party_voucher"] = True if third_party_voucher else False
+		lead["package"] = True if package else False
 
 	return lead
 
