@@ -1160,6 +1160,7 @@ function selectSuggestedSlot(slot) {
   if (slot.booking_date) bookingForm.value.booking_date = slot.booking_date
   if (slot.timeslot) bookingForm.value.timeslot = slot.timeslot
   showSuggestedSlots.value = false
+  leftPanelMode.value = 'create'
 }
 
 function getOutletName(branchCode) {
