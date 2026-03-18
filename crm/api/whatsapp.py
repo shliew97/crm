@@ -516,7 +516,6 @@ def create_booking(crm_lead, booking_details):
 
         response = requests.post(url, data=json.dumps(booking_details, default=str), headers=headers, timeout=30)
         response.raise_for_status()
-        print(response.json())
         return response.json()
 
 
