@@ -1145,7 +1145,7 @@ async function submitBooking() {
       leftPanelMode.value = 'view'
       fetchBookingsForPanel()
     } else {
-      if (response?.suggested_slot_1.length > 0 || response?.suggested_slot_2.length > 0) {
+      if (response?.suggested_slot_1?.length > 0 || response?.suggested_slot_2?.length > 0) {
         suggestedSlots.value = {
           slot_1: response.suggested_slot_1 || [],
           slot_1_message: response.suggested_slot_message_1 || "",
