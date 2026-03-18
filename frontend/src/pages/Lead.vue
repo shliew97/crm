@@ -153,7 +153,7 @@
             </div>
           </div>
           <div class="mt-3">
-            <Button variant="solid" class="w-full" :loading="bookingSubmitting" @click="submitBooking">
+            <Button variant="solid" class="w-full" :loading="bookingSubmitting" :disabled="!isBookingFormValid" @click="submitBooking">
               {{ __('Submit Booking') }}
             </Button>
           </div>
@@ -546,6 +546,90 @@
       }
     "
   />
+  <!-- Suggested Slots Modal -->
+  <teleport to="body">
+    <div
+      v-if="showSuggestedSlots"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      @click.self="showSuggestedSlots = false"
+    >
+      <div class="w-full max-w-sm rounded-2xl bg-gray-50 p-5 shadow-xl">
+        <!-- Header -->
+        <div class="mb-1 flex items-start justify-between">
+          <div>
+            <h3 class="text-base font-semibold text-gray-900">{{ __('Requested slot unavailable') }}</h3>
+            <p class="mt-0.5 text-sm text-gray-500">{{ __('Here are the closest available alternatives') }}</p>
+          </div>
+          <button
+            class="ml-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+            @click="showSuggestedSlots = false"
+          >
+            <FeatherIcon name="x" class="h-4 w-4" />
+          </button>
+        </div>
+
+        <div class="mt-4 flex flex-col gap-4">
+          <!-- Same Outlet Card -->
+          <div v-if="suggestedSlots.slot_1" class="overflow-hidden rounded-xl">
+            <div class="flex items-center gap-1.5 bg-green-100 px-4 py-2.5">
+              <FeatherIcon name="star" class="h-4 w-4 fill-green-700 text-green-700" />
+              <span class="text-xs font-semibold uppercase tracking-wide text-green-700">{{ __('Same Outlet') }}</span>
+            </div>
+            <div class="bg-white p-4">
+              <div class="flex items-start gap-4">
+                <div class="text-3xl font-bold text-gray-900">{{ formatSlotTime(suggestedSlots.slot_1.timeslot) }}</div>
+                <div class="flex flex-col gap-1">
+                  <div class="flex items-center gap-1.5 text-sm font-medium text-gray-800">
+                    <FeatherIcon name="map-pin" class="h-3.5 w-3.5 text-gray-400" />
+                    {{ getOutletName(suggestedSlots.slot_1.outlet) }}
+                  </div>
+                  <div class="flex items-center gap-1.5 text-sm text-gray-400">
+                    <FeatherIcon name="calendar" class="h-3.5 w-3.5" />
+                    {{ formatSlotDate(suggestedSlots.slot_1.booking_date) }}
+                  </div>
+                </div>
+              </div>
+              <button
+                class="mt-3 w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+                @click="selectSuggestedSlot(suggestedSlots.slot_1)"
+              >
+                {{ __('Choose this slot') }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Nearby Outlet Card -->
+          <div v-if="suggestedSlots.slot_2" class="overflow-hidden rounded-xl">
+            <div class="flex items-center gap-1.5 px-4 py-2.5" style="background-color: var(--surface-violet-1)">
+              <FeatherIcon name="map-pin" class="h-4 w-4" style="color: var(--text-violet-3)" />
+              <span class="text-xs font-semibold uppercase tracking-wide" style="color: var(--text-violet-3)">{{ __('Nearby Outlet') }}</span>
+            </div>
+            <div class="bg-white p-4">
+              <div class="flex items-start gap-4">
+                <div class="text-3xl font-bold text-gray-900">{{ formatSlotTime(suggestedSlots.slot_2.timeslot) }}</div>
+                <div class="flex flex-col gap-1">
+                  <div class="flex items-center gap-1.5 text-sm font-medium text-gray-800">
+                    <FeatherIcon name="map-pin" class="h-3.5 w-3.5 text-gray-400" />
+                    {{ getOutletName(suggestedSlots.slot_2.outlet) }}
+                  </div>
+                  <div class="flex items-center gap-1.5 text-sm text-gray-400">
+                    <FeatherIcon name="calendar" class="h-3.5 w-3.5" />
+                    {{ formatSlotDate(suggestedSlots.slot_2.booking_date) }}
+                  </div>
+                </div>
+              </div>
+              <button
+                class="mt-3 w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+                @click="selectSuggestedSlot(suggestedSlots.slot_2)"
+              >
+                {{ __('Choose this slot') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </teleport>
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
@@ -718,6 +802,8 @@ const showFilesUploader = ref(false)
 // Booking state
 const leftPanelMode = ref('view')
 const bookingSubmitting = ref(false)
+const showSuggestedSlots = ref(false)
+const suggestedSlots = ref({ slot_1: null, slot_2: null })
 const bookingForm = ref({
   customer_name: '',
   phone: '',
@@ -731,6 +817,14 @@ const bookingForm = ref({
   preferred_masseur: 'Any',
   third_party_voucher: 'No',
   using_package: 'No',
+})
+
+const bookingMessage = ref('')
+const bookingInfoByRegex = ref('')
+
+const isBookingFormValid = computed(() => {
+  const f = bookingForm.value
+  return f.outlet && f.member_account && f.booking_date && f.timeslot && f.pax && f.treatment_type && f.session && f.preferred_masseur
 })
 
 // Member Account search
@@ -940,8 +1034,11 @@ function onCreateBooking(message) {
   bookingForm.value.phone = lead.data?.mobile_no || ''
   leftPanelMode.value = 'create'
 
-  // Extract booking details from message using regex
+  // Store the original message text
   const messageText = message?.message || ''
+  bookingMessage.value = messageText
+
+  // Extract booking details from message using regex
   if (!messageText) return
 
   const d = extractBookingFromMessage(messageText)
@@ -953,12 +1050,68 @@ function onCreateBooking(message) {
   if (d.treatment_type) bookingForm.value.treatment_type = d.treatment_type
   if (d.session) bookingForm.value.session = d.session
   if (d.preferred_masseur) bookingForm.value.preferred_masseur = d.preferred_masseur
+
+  // Capture regex-extracted booking info
+  bookingInfoByRegex.value = JSON.stringify({
+    crm_lead: props.leadId,
+    booking_details: {
+      customer_name: bookingForm.value.customer_name,
+      booking_mobile: lead.data?.mobile_no || bookingForm.value.phone,
+      member_mobile: lead.data?.mobile_no || bookingForm.value.phone,
+      outlet: d.outlet || '',
+      booking_date: d.booking_date || '',
+      timeslot: d.timeslot ? (d.timeslot.length === 5 ? d.timeslot + ':00' : d.timeslot) : '',
+      pax: d.pax ? parseInt(d.pax) : 1,
+      treatment: d.treatment_type || '',
+      session: d.session ? parseInt(d.session) : 60,
+      preferred_therapist: d.preferred_masseur || 'Any',
+      third_party_voucher: false,
+      package: false,
+    },
+  }, null, 4)
 }
 
 async function submitBooking() {
+  if (!isBookingFormValid.value) {
+    createToast({
+      title: __('Missing Info'),
+      text: __('Please fill in all required fields before submitting'),
+      icon: 'alert-triangle',
+      iconClasses: 'text-yellow-600',
+    })
+    return
+  }
   bookingSubmitting.value = true
   try {
     const form = bookingForm.value
+    const bookingInfoFinal = JSON.stringify({
+      crm_lead: props.leadId,
+      booking_details: {
+        customer_name: form.customer_name,
+        booking_mobile: lead.data?.mobile_no || form.phone,
+        member_mobile: lead.data?.mobile_no || form.phone,
+        outlet: form.outlet,
+        booking_date: form.booking_date,
+        timeslot: form.timeslot ? (form.timeslot.length === 5 ? form.timeslot + ':00' : form.timeslot) : '',
+        pax: parseInt(form.pax),
+        treatment: form.treatment_type,
+        session: parseInt(form.session),
+        preferred_therapist: form.preferred_masseur,
+        third_party_voucher: form.third_party_voucher === 'Yes',
+        package: form.using_package === 'Yes',
+      },
+    }, null, 4)
+
+    // Log to Booking Log before calling create booking API
+    await call('frappe.client.insert', {
+      doc: {
+        doctype: 'Booking Log',
+        message: bookingMessage.value,
+        booking_info_with_regex: bookingInfoByRegex.value,
+        booking_info: bookingInfoFinal,
+      },
+    })
+
     const response = await call('crm.api.whatsapp.create_booking', {
       crm_lead: props.leadId,
       booking_details: {
@@ -967,7 +1120,7 @@ async function submitBooking() {
         member_mobile: form.member_account,
         outlet: form.outlet,
         booking_date: form.booking_date,
-        timeslot: form.timeslot ? form.timeslot + ':00' : '',
+        timeslot: form.timeslot ? (form.timeslot.length === 5 ? form.timeslot + ':00' : form.timeslot) : '',
         pax: parseInt(form.pax),
         treatment: form.treatment_type,
         session: parseInt(form.session),
@@ -989,12 +1142,20 @@ async function submitBooking() {
       leftPanelMode.value = 'view'
       fetchBookingsForPanel()
     } else {
-      createToast({
-        title: __('Failed'),
-        text: __(response?.message || 'Booking creation failed'),
-        icon: 'x',
-        iconClasses: 'text-red-600',
-      })
+      if (response?.suggested_slot_1 || response?.suggested_slot_2) {
+        suggestedSlots.value = {
+          slot_1: response.suggested_slot_1 || null,
+          slot_2: response.suggested_slot_2 || null,
+        }
+        showSuggestedSlots.value = true
+      } else {
+        createToast({
+          title: __('Failed'),
+          text: __(response?.message || 'Booking creation failed'),
+          icon: 'x',
+          iconClasses: 'text-red-600',
+        })
+      }
     }
   } catch (err) {
     createToast({
@@ -1006,6 +1167,31 @@ async function submitBooking() {
   } finally {
     bookingSubmitting.value = false
   }
+}
+
+function selectSuggestedSlot(slot) {
+  if (slot.outlet) bookingForm.value.outlet = slot.outlet
+  if (slot.booking_date) bookingForm.value.booking_date = slot.booking_date
+  if (slot.timeslot) bookingForm.value.timeslot = slot.timeslot
+  showSuggestedSlots.value = false
+}
+
+function getOutletName(branchCode) {
+  if (!outletList.data) return branchCode
+  const outlet = outletList.data.find((o) => o.branch_code === branchCode)
+  return outlet ? outlet.shop_full_name : branchCode
+}
+
+function formatSlotTime(timeslot) {
+  if (!timeslot) return ''
+  return timeslot.substring(0, 5)
+}
+
+function formatSlotDate(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
 }
 
 function updateLead(fieldname, value, callback) {
