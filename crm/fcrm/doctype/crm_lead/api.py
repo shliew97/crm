@@ -29,7 +29,7 @@ def get_lead(name):
 	lead["suggested_slot_message_1"] = ""
 	lead["suggested_slot_2"] = []
 
-	slot_suggestions = frappe.db.get_all("Slot Suggestions", filters={"reference_name": name}, pluck="name")
+	slot_suggestions = frappe.db.get_all("Slot Suggestions", filters={"reference_name": name, "expired": 0}, pluck="name")
 	if slot_suggestions:
 		suggested_slot_1, suggested_slot_message_1, suggested_slot_2 = frappe.db.get_value("Slot Suggestions", slot_suggestions[0], [
 			"suggested_slot_1",
