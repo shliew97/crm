@@ -1137,8 +1137,8 @@ async function submitBooking() {
     } else {
       if (response?.suggested_slot_1 || response?.suggested_slot_2) {
         suggestedSlots.value = {
-          slot_1: response.suggested_slot_1 || null,
-          slot_2: response.suggested_slot_2 || null,
+          slot_1: response.suggested_slot_1 || [],
+          slot_2: response.suggested_slot_2 || [],
         }
         showSuggestedSlots.value = true
       } else {

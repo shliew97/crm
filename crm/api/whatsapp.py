@@ -5,7 +5,7 @@ from frappe import _
 from crm.api.doc import get_assigned_users
 from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
 from frappe.utils.user import get_users_with_role
-from frappe.utils import get_datetime
+from frappe.utils import get_datetime, add_to_date
 
 def validate(doc, method):
     if doc.type == "Incoming" and doc.get("from"):
@@ -525,7 +525,18 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
 
         response = requests.post(url, data=json.dumps(booking_details, default=str), headers=headers, timeout=30)
         response.raise_for_status()
-        return response.json()
+
+        response_json = response.json()
+
+        if response_json["success"] == False:
+            update_slot_suggestions(
+                crm_lead,
+                json.dumps(response_json["suggested_slot_1"]),
+                response_json["suggested_slot_message_1"],
+                json.dumps(response_json["suggested_slot_2"]),
+            )
+
+        return response_json
 
 
 @frappe.whitelist()
@@ -637,3 +648,22 @@ def fetch_bookings(booking_mobile):
         message_data = result.get("message", result)
 
         return message_data
+
+def update_slot_suggestions(crm_lead, suggested_slot_1, suggested_slot_message_1, suggested_slot_2):
+    slot_suggestions = frappe.db.get_all("Slot Suggestions", filters={"reference_name": crm_lead}, pluck="name")
+
+    if not slot_suggestions:
+        slot_suggestion_doc = frappe.get_doc({
+            "doctype": "Slot Suggestions",
+            "reference_name": crm_lead,
+            "expires_at": add_to_date(get_datetime(), hours=48)
+        })
+    else:
+        slot_suggestion_doc = frappe.get_doc("Slot Suggestions", slot_suggestions[0])
+        slot_suggestion_doc.expires_at = add_to_date(get_datetime(), hours=48)
+        slot_suggestion_doc.expired = 0
+
+    slot_suggestion_doc.suggested_slot_1 = suggested_slot_1
+    slot_suggestion_doc.suggested_slot_message_1 = suggested_slot_message_1
+    slot_suggestion_doc.suggested_slot_2 = suggested_slot_2
+    slot_suggestion_doc.save(ignore_permissions=True)

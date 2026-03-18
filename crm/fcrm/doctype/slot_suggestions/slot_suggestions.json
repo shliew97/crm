@@ -1,0 +1,90 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-18 12:41:13.879981",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "reference_name",
+  "suggested_slot_1",
+  "suggested_slot_message_1",
+  "suggested_slot_2",
+  "expires_at",
+  "expired"
+ ],
+ "fields": [
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Reference Name",
+   "options": "CRM Lead",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "default": "[]",
+   "fieldname": "suggested_slot_1",
+   "fieldtype": "JSON",
+   "label": "Suggested Slot 1"
+  },
+  {
+   "fieldname": "suggested_slot_message_1",
+   "fieldtype": "Long Text",
+   "label": "Suggested Slot Message 1"
+  },
+  {
+   "default": "[]",
+   "fieldname": "suggested_slot_2",
+   "fieldtype": "JSON",
+   "label": "Suggested Slot 2"
+  },
+  {
+   "fieldname": "expires_at",
+   "fieldtype": "Datetime",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Expires at"
+  },
+  {
+   "default": "0",
+   "fieldname": "expired",
+   "fieldtype": "Check",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Expired",
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-18 12:44:36.136286",
+ "modified_by": "Administrator",
+ "module": "FCRM",
+ "name": "Slot Suggestions",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

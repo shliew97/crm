@@ -165,23 +165,13 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-#	"all": [
-#		"crm.tasks.all"
-#	],
-#	"daily": [
-#		"crm.tasks.daily"
-#	],
-#	"hourly": [
-#		"crm.tasks.hourly"
-#	],
-#	"weekly": [
-#		"crm.tasks.weekly"
-#	],
-#	"monthly": [
-#		"crm.tasks.monthly"
-#	],
-# }
+scheduler_events = {
+	"cron": {
+		"0 3 * * *": [
+			"crm.scheduled_task.expire_slot_suggestions"
+		],
+	},
+}
 
 # Testing
 # -------
