@@ -216,7 +216,7 @@
         </div>
       </template>
       <!-- View Bookings View -->
-      <template v-else>
+      <template v-else-if="leftPanelMode === 'view'">
         <div class="flex items-center justify-between border-b px-4 py-3">
           <div class="text-lg font-semibold">{{ __('Bookings') }}</div>
           <div class="flex gap-1">
@@ -782,10 +782,6 @@ onMounted(() => {
     lead.fetch()
   })
   triggerFetchNewLeads();
-  if (lead.data) {
-    fetchBookingsForPanel()
-    return
-  }
   lead.fetch()
 })
 
@@ -795,7 +791,7 @@ const showSidePanelModal = ref(false)
 const showFilesUploader = ref(false)
 
 // Booking state
-const leftPanelMode = ref('view')
+const leftPanelMode = ref('')
 const bookingSubmitting = ref(false)
 const showSuggestedSlots = ref(false)
 const suggestedSlots = ref({
@@ -911,7 +907,6 @@ watch(() => lead.data, (data) => {
   if (data) {
     bookingForm.value.customer_name = data.lead_name || ''
     bookingForm.value.phone = data.mobile_no || ''
-    fetchBookingsForPanel()
   }
 }, { immediate: true })
 
