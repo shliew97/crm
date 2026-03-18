@@ -278,6 +278,7 @@
         v-model:tabIndex="tabIndex"
         v-model="lead"
         @createBooking="onCreateBooking"
+        @openSuggestedSlots="onOpenSuggestedSlots"
       />
     </Tabs>
     <Resizer class="flex flex-col justify-start border-l" side="right">
@@ -568,6 +569,10 @@
           </button>
         </div>
 
+        <div v-if="suggestedSlots.slot_1.length == 0 && suggestedSlots.slot_2.length == 0" class="flex justify-center py-8">
+          <span class="text-2xl font-semibold text-gray-500">{{ __('No suggestion available') }}</span>
+        </div>
+
         <div class="mt-4 flex flex-col gap-4">
           <!-- Same Outlet Card -->
           <div v-if="suggestedSlots.slot_1.length > 0" class="overflow-hidden rounded-xl">
@@ -721,6 +726,11 @@ const lead = createResource({
     let customization = await setupCustomizations(data, obj)
     customActions.value = customization.actions || []
     customStatuses.value = customization.statuses || []
+    suggestedSlots.value = {
+      slot_1: data.suggested_slot_1 || [],
+      slot_1_message: data.suggested_slot_message_1 || "",
+      slot_2: data.suggested_slot_2 || [],
+    }
   },
 })
 
@@ -1047,6 +1057,10 @@ function onCreateBooking(message) {
       package: false,
     },
   }, null, 4)
+}
+
+function onOpenSuggestedSlots(message) {
+  showSuggestedSlots.value = true;
 }
 
 async function submitBooking() {

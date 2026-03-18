@@ -6,6 +6,7 @@ from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
 from collections import defaultdict
 from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message import create_crm_tagging_assignment, create_crm_lead_assignment
 from frappe.utils.user import get_users_with_role
+import json
 
 @frappe.whitelist()
 def get_lead(name):
@@ -23,6 +24,23 @@ def get_lead(name):
 	lead["_form_script"] = get_form_script('CRM Lead')
 	lead["_assign"] = get_assigned_users("CRM Lead", lead.name, lead.owner)
 	lead["_assignments"] = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": name}, pluck="status")
+
+	lead["suggested_slot_1"] = []
+	lead["suggested_slot_message_1"] = ""
+	lead["suggested_slot_2"] = []
+
+	slot_suggestions = frappe.db.get_all("Slot Suggestions", filters={"reference_name": name}, pluck="name")
+	if slot_suggestions:
+		suggested_slot_1, suggested_slot_message_1, suggested_slot_2 = frappe.db.get_value("Slot Suggestions", slot_suggestions[0], [
+			"suggested_slot_1",
+			"suggested_slot_message_1",
+			"suggested_slot_2"
+		])
+
+		lead["suggested_slot_1"] = json.loads(suggested_slot_1)
+		lead["suggested_slot_message_1"] = suggested_slot_message_1
+		lead["suggested_slot_2"] = json.loads(suggested_slot_2)
+
 	return lead
 
 @frappe.whitelist()

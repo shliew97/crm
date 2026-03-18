@@ -235,6 +235,18 @@
             <FeatherIcon name="calendar" class="size-3 text-gray-400" />
           </Button>
         </div>
+        <div
+          v-if="whatsapp.type == 'Incoming'"
+          class="flex items-center justify-center opacity-0 transition-all ease-in group-hover:opacity-100"
+        >
+          <Button
+            @click="() => emit('openSuggestedSlots', whatsapp)"
+            class="rounded-full !size-6 mt-0.5"
+            :title="__('Show Suggested Slots')"
+          >
+            <FeatherIcon name="list" class="size-3 text-gray-400" />
+          </Button>
+        </div>
       </div>
     </div>
   </div>
@@ -255,7 +267,7 @@ import { capture } from '@/telemetry'
 import { Tooltip, Dropdown, createResource } from 'frappe-ui'
 import { ref, computed } from 'vue'
 
-const emit = defineEmits(['createBooking', 'loadMore'])
+const emit = defineEmits(['openSuggestedSlots', 'createBooking', 'loadMore'])
 
 const props = defineProps({
   messages: Array,

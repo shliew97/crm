@@ -40,6 +40,7 @@
           :hasMoreWhatsapp="hasMoreWhatsapp"
           :whatsappLoading="whatsappMessages.loading"
           @createBooking="(msg) => emit('createBooking', msg)"
+          @openSuggestedSlots="(msg) => emit('openSuggestedSlots', msg)"
           @loadMore="loadMoreWhatsapp"
         />
       </div>
@@ -521,7 +522,7 @@ const { makeCall, $socket } = globalStore()
 const { getUser } = usersStore()
 const { getContact, getLeadContact } = contactsStore()
 
-const emit = defineEmits(['createBooking'])
+const emit = defineEmits(['openSuggestedSlots', 'createBooking'])
 
 const props = defineProps({
   doctype: {
