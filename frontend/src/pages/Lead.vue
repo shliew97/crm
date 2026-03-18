@@ -1102,16 +1102,6 @@ async function submitBooking() {
       },
     }, null, 4)
 
-    // Log to Booking Log before calling create booking API
-    await call('frappe.client.insert', {
-      doc: {
-        doctype: 'Booking Log',
-        message: bookingMessage.value,
-        booking_info_with_regex: bookingInfoByRegex.value,
-        booking_info: bookingInfoFinal,
-      },
-    })
-
     const response = await call('crm.api.whatsapp.create_booking', {
       crm_lead: props.leadId,
       booking_details: {
@@ -1128,6 +1118,9 @@ async function submitBooking() {
         third_party_voucher: form.third_party_voucher === 'Yes',
         package: form.using_package === 'Yes',
       },
+      message: bookingMessage.value,
+      booking_info_with_regex: bookingInfoByRegex.value,
+      booking_info: bookingInfoFinal,
     })
     if (response?.success) {
       createToast({

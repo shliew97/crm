@@ -476,7 +476,16 @@ def get_username():
 
 
 @frappe.whitelist()
-def create_booking(crm_lead, booking_details):
+def create_booking(crm_lead, booking_details, message, booking_info_with_regex, booking_info):
+    frappe.get_doc({
+        "doctype": "Booking Log",
+        "message": message,
+        "booking_info_with_regex": booking_info_with_regex,
+        "booking_info": booking_info,
+    }).insert(ignore_permissions=True)
+
+    frappe.db.commit()
+
     if isinstance(booking_details, str):
         booking_details = json.loads(booking_details)
 
