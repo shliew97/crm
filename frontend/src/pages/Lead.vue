@@ -1140,6 +1140,12 @@ async function submitBooking() {
       leftPanelMode.value = 'view'
       fetchBookingsForPanel()
     } else {
+      createToast({
+        title: __('Failed'),
+        text: __(response?.message || 'Booking creation failed'),
+        icon: 'x',
+        iconClasses: 'text-red-600',
+      })
       if (response?.suggested_slot_1?.length > 0 || response?.suggested_slot_2?.length > 0) {
         suggestedSlots.value = {
           slot_1: response.suggested_slot_1 || [],
@@ -1154,13 +1160,6 @@ async function submitBooking() {
           package: response.package ? "Yes" : "No",
         }
         showSuggestedSlots.value = true
-      } else {
-        createToast({
-          title: __('Failed'),
-          text: __(response?.message || 'Booking creation failed'),
-          icon: 'x',
-          iconClasses: 'text-red-600',
-        })
       }
     }
   } catch (err) {
