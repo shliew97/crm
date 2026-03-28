@@ -523,7 +523,8 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
             "Content-Type": "application/json"
         }
 
-        response = requests.post(url, data=json.dumps(booking_details, default=str), headers=headers, timeout=30)
+        request_payload = json.dumps(booking_details, default=str)
+        response = requests.post(url, data=request_payload, headers=headers, timeout=30)
         response.raise_for_status()
 
         response_json = response.json()
@@ -565,12 +566,16 @@ def edit_booking(order_ids, booking_details):
     allowed_fields = {"booking_date", "timeslot", "treatment", "session", "preferred_therapist", "third_party_voucher", "package"}
     booking_details = {k: v for k, v in booking_details.items() if k in allowed_fields}
 
-    # Format timeslot if needed
+    # Format timeslot to HH:MM:SS
     timeslot = booking_details.get("timeslot", "")
-    if timeslot and ":" not in str(timeslot):
+    if timeslot:
         timeslot = str(timeslot)
-        if len(timeslot) == 4:
+        if ":" not in timeslot and len(timeslot) == 4:
+            # e.g. "1500" -> "15:00:00"
             booking_details["timeslot"] = timeslot[:2] + ":" + timeslot[2:] + ":00"
+        elif timeslot.count(":") == 1:
+            # e.g. "15:00" -> "15:00:00"
+            booking_details["timeslot"] = timeslot + ":00"
 
     booking_details["order_ids"] = json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
 
@@ -584,7 +589,10 @@ def edit_booking(order_ids, booking_details):
             "Content-Type": "application/json"
         }
 
-        response = requests.post(url, data=json.dumps(booking_details, default=str), headers=headers, timeout=30)
+        payload = json.dumps(booking_details, default=str)
+        frappe.log_error("edit_booking Request", f"URL: {url}\nPayload: {payload}")
+        response = requests.post(url, data=payload, headers=headers, timeout=30)
+        frappe.log_error("edit_booking Response", f"Status: {response.status_code}\nBody: {response.text}")
         response.raise_for_status()
         return response.json()
 
