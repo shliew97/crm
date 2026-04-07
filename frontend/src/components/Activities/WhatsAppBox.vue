@@ -57,23 +57,147 @@
       :rows="rows"
       v-model="content"
       :placeholder="placeholder"
-      :disabled="!(hasAcceptedStatus())"
+      :disabled="!(hasAcceptedStatus()) || isTextareaLocked"
       @focus="rows = 6"
       @blur="rows = 1"
       @keydown.enter.stop="(e) => sendTextMessage(e)"
     />
+    <Button v-if="hasAcceptedStatus() && requiresGenerate" variant="solid" @click="onGenerateClick" :loading="isGenerating">
+      <span>{{ hasGenerated ? __('Regenerate') : __('Generate') }}</span>
+    </Button>
     <Button v-if="hasAcceptedStatus()" variant="solid" @click="sendWhatsAppMessage()">
       <span>{{ __('Send') }}</span>
     </Button>
   </div>
+
+  <Dialog
+    v-model="showBookingConfirmation"
+    :options="{ size: 'lg' }"
+  >
+    <template #body-title>
+      <h3 class="text-xl font-semibold text-gray-900">
+        {{ __('Create Booking') }}
+      </h3>
+    </template>
+    <template #body-content>
+      <div v-if="bookingData" class="rounded border px-3 py-2" style="background-color: var(--surface-blue-2)">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 text-sm">
+            <span class="font-semibold">📍{{ bookingData.outlet }}</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1 text-sm">
+          <div class="mt-1"><span class="text-gray-600">📅Date &amp; Time:</span> {{ bookingData.booking_date }} {{ bookingData.timeslot }}</div>
+          <div class="mt-1"><span class="text-gray-600">👤Customer:</span> {{ bookingData.customer_name }}</div>
+          <div class="mt-1"><span class="text-gray-600">👥Pax:</span> {{ bookingData.pax }}</div>
+          <div class="mt-1"><span class="text-gray-600">💆Treatment:</span> {{ bookingData.treatment_type }}</div>
+          <div class="mt-1"><span class="text-gray-600">⏳Session:</span> {{ bookingData.session }} mins</div>
+          <div class="mt-1"><span class="text-gray-600">🧑‍⚕️Therapist:</span> {{ bookingData.preferred_masseur }}</div>
+          <div class="mt-1"><span class="text-gray-600">📱Phone:</span> {{ bookingData.phone }}</div>
+          <div class="mt-1"><span class="text-gray-600">🎫3rd Party:</span> {{ bookingData.third_party_voucher && !['no', 'false', '0'].includes(String(bookingData.third_party_voucher).toLowerCase()) ? 'Yes' : 'No' }}</div>
+          <div class="mt-1"><span class="text-gray-600">🎟️Package:</span> {{ bookingData.using_package && !['no', 'false', '0'].includes(String(bookingData.using_package).toLowerCase()) ? 'Yes' : 'No' }}</div>
+        </div>
+      </div>
+    </template>
+    <template #actions>
+      <div class="flex gap-2">
+        <Button variant="outline" @click="onBookingCancel">
+          {{ __('Cancel') }}
+        </Button>
+        <Button variant="solid" @click="onBookingProceed">
+          {{ __('Proceed') }}
+        </Button>
+      </div>
+    </template>
+  </Dialog>
+
+  <Dialog
+    v-model="showDeleteConfirmation"
+    :options="{ size: 'lg' }"
+  >
+    <template #body-title>
+      <h3 class="text-xl font-semibold text-gray-900">
+        {{ __('Delete Booking Review Information') }}
+      </h3>
+    </template>
+    <template #body-content>
+      <div v-if="deleteBookingData" class="rounded border px-3 py-2" style="background-color: var(--surface-red-2, #fef2f2)">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 text-sm">
+            <span class="font-semibold">📍{{ deleteBookingData.outlet }}</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1 text-sm">
+          <div class="mt-1"><span class="text-gray-600">📅Date &amp; Time:</span> {{ deleteBookingData.booking_date }} {{ deleteBookingData.timeslot }}</div>
+          <div class="mt-1"><span class="text-gray-600">👤Customer:</span> {{ deleteBookingData.customer_name }}</div>
+          <div class="mt-1"><span class="text-gray-600">👥Pax:</span> {{ deleteBookingData.pax }}</div>
+          <div class="mt-1"><span class="text-gray-600">💆Treatment:</span> {{ deleteBookingData.treatment }}</div>
+          <div class="mt-1"><span class="text-gray-600">⏳Session:</span> {{ deleteBookingData.session }} mins</div>
+          <div class="mt-1"><span class="text-gray-600">🧑‍⚕️Therapist:</span> {{ deleteBookingData.preferred_therapist }}</div>
+        </div>
+        <div class="mt-2 text-sm font-medium text-red-600">⚠️ This action cannot be undone.</div>
+      </div>
+    </template>
+    <template #actions>
+      <div class="flex gap-2">
+        <Button variant="outline" @click="onDeleteCancel">
+          {{ __('Cancel') }}
+        </Button>
+        <Button variant="solid" theme="red" @click="onDeleteProceed">
+          {{ __('Confirm Delete') }}
+        </Button>
+      </div>
+    </template>
+  </Dialog>
+
+  <Dialog
+    v-model="showEditConfirmation"
+    :options="{ size: 'lg' }"
+  >
+    <template #body-title>
+      <h3 class="text-xl font-semibold text-gray-900">
+        {{ __('Update Booking') }}
+      </h3>
+    </template>
+    <template #body-content>
+      <div v-if="editBookingData" class="rounded border px-3 py-2" style="background-color: var(--surface-orange-2, #fff7ed)">
+        <div v-if="editBookingData.pending_update_fields" class="mb-2">
+          <div class="text-sm font-semibold text-gray-700 mb-1">🔄 Changes:</div>
+          <div v-for="(newVal, field) in editBookingData.pending_update_fields" :key="field" class="text-sm ml-2">
+            • {{ formatFieldLabel(field) }}: {{ editBookingData[field] || 'N/A' }} → {{ newVal }}
+          </div>
+        </div>
+        <div class="flex flex-col gap-1 text-sm">
+          <div class="font-semibold">📋 Updated Booking Details:</div>
+          <div class="mt-1"><span class="text-gray-600">📍Outlet:</span> {{ editBookingData.outlet }}</div>
+          <div class="mt-1"><span class="text-gray-600">📅Date:</span> {{ editBookingData.booking_date }}</div>
+          <div class="mt-1"><span class="text-gray-600">⏰Time:</span> {{ editBookingData.timeslot }}</div>
+          <div class="mt-1"><span class="text-gray-600">💆Treatment:</span> {{ editBookingData.treatment_type }}</div>
+          <div class="mt-1"><span class="text-gray-600">⏳Session:</span> {{ editBookingData.session }} mins</div>
+          <div class="mt-1"><span class="text-gray-600">🧑‍⚕️Therapist:</span> {{ editBookingData.preferred_masseur }}</div>
+        </div>
+      </div>
+    </template>
+    <template #actions>
+      <div class="flex gap-2">
+        <Button variant="outline" @click="onEditCancel">
+          {{ __('Cancel') }}
+        </Button>
+        <Button variant="solid" @click="onEditProceed">
+          {{ __('Confirm Update') }}
+        </Button>
+      </div>
+    </template>
+  </Dialog>
 </template>
 
 <script setup>
 import IconPicker from '@/components/IconPicker.vue'
 import SmileIcon from '@/components/Icons/SmileIcon.vue'
 import { capture } from '@/telemetry'
-import { createResource, Textarea, FileUploader, Dropdown } from 'frappe-ui'
-import { ref, nextTick, watch } from 'vue'
+import { isBookingCentreMasterAI } from '@/composables/settings'
+import { createResource, Textarea, FileUploader, Dropdown, Dialog } from 'frappe-ui'
+import { ref, computed, nextTick, watch } from 'vue'
 
 const props = defineProps({
   doc: Object,
@@ -89,8 +213,154 @@ const emoji = ref('')
 
 const content = defineModel('content')
 const failedMessages = defineModel('failedMessages')
-const placeholder = ref(__('Type your message here...'))
+const placeholder = computed(() => {
+  if (isTextareaLocked.value) {
+    const remaining = 2 - generateClickCount.value
+    return __('Click Generate {0} more time(s) to enable', [remaining])
+  }
+  return __('Type your message here...')
+})
 const fileType = ref('')
+
+const generateClickCount = ref(0)
+const isGenerating = ref(false)
+const hasGenerated = ref(false)
+const requiresGenerate = computed(() => isBookingCentreMasterAI.value)
+const isTextareaLocked = computed(() => requiresGenerate.value && generateClickCount.value < 2)
+
+const showBookingConfirmation = ref(false)
+const bookingData = ref(null)
+const bookingSuggestion = ref('')
+
+const showDeleteConfirmation = ref(false)
+const deleteBookingData = ref(null)
+const deleteSuggestion = ref('')
+
+const showEditConfirmation = ref(false)
+const editBookingData = ref(null)
+const editSuggestion = ref('')
+
+const aiSuggestedReplies = ref([])
+const lastIncomingMessage = ref('')
+
+async function onGenerateClick() {
+  generateClickCount.value++
+  if (isGenerating.value) return
+  isGenerating.value = true
+  try {
+    const res = await createResource({
+      url: 'crm.api.whatsapp.suggest_next_action',
+      params: {
+        reference_doctype: props.doctype,
+        reference_name: doc.value.data.name,
+      },
+      auto: true,
+    }).promise
+    lastIncomingMessage.value = res?.last_incoming_message || ''
+    if (res?.suggestion) {
+      aiSuggestedReplies.value.push(res.suggestion)
+    }
+
+    if (res?.type === 'booking_confirmation' && res?.booking_data) {
+      bookingData.value = res.booking_data
+      bookingSuggestion.value = res.suggestion || ''
+      content.value = ''
+      showBookingConfirmation.value = true
+    } else if (res?.type === 'delete_confirmation' && res?.booking_data) {
+      deleteBookingData.value = res.booking_data
+      deleteSuggestion.value = res.suggestion || ''
+      content.value = ''
+      showDeleteConfirmation.value = true
+    } else if (res?.type === 'edit_confirmation' && res?.booking_data) {
+      editBookingData.value = res.booking_data
+      editSuggestion.value = res.suggestion || ''
+      content.value = ''
+      showEditConfirmation.value = true
+    } else if (res?.suggestion) {
+      content.value = res.suggestion
+      rows.value = 6
+    }
+  } catch (e) {
+    console.error('Generate failed:', e)
+  } finally {
+    isGenerating.value = false
+    hasGenerated.value = true
+  }
+}
+
+function cancelPendingAction() {
+  createResource({
+    url: 'crm.api.whatsapp.cancel_pending_action',
+    params: {
+      reference_doctype: props.doctype,
+      reference_name: doc.value.data.name,
+    },
+    auto: true,
+  })
+}
+
+function onBookingCancel() {
+  showBookingConfirmation.value = false
+  bookingData.value = null
+  bookingSuggestion.value = ''
+  cancelPendingAction()
+}
+
+function onBookingProceed() {
+  content.value = bookingSuggestion.value
+  rows.value = 6
+  showBookingConfirmation.value = false
+  bookingData.value = null
+  bookingSuggestion.value = ''
+  sendWhatsAppMessage()
+}
+
+function onDeleteCancel() {
+  showDeleteConfirmation.value = false
+  deleteBookingData.value = null
+  deleteSuggestion.value = ''
+  cancelPendingAction()
+}
+
+function onDeleteProceed() {
+  content.value = deleteSuggestion.value
+  rows.value = 6
+  showDeleteConfirmation.value = false
+  deleteBookingData.value = null
+  deleteSuggestion.value = ''
+  sendWhatsAppMessage()
+}
+
+function onEditCancel() {
+  showEditConfirmation.value = false
+  editBookingData.value = null
+  editSuggestion.value = ''
+  cancelPendingAction()
+}
+
+function onEditProceed() {
+  content.value = editSuggestion.value
+  rows.value = 6
+  showEditConfirmation.value = false
+  editBookingData.value = null
+  editSuggestion.value = ''
+  sendWhatsAppMessage()
+}
+
+function formatFieldLabel(field) {
+  const labels = {
+    booking_date: 'Date',
+    timeslot: 'Time',
+    outlet: 'Outlet',
+    pax: 'Pax',
+    treatment_type: 'Treatment',
+    session: 'Duration',
+    preferred_masseur: 'Therapist',
+    customer_name: 'Name',
+    phone: 'Phone',
+  }
+  return labels[field] || field
+}
 
 function show() {
   nextTick(() => textareaRef.value.el.focus())
@@ -151,11 +421,25 @@ async function sendWhatsAppMessage() {
 
   failedMessages.value = [...(failedMessages.value || []), tempMsg]
 
+  createResource({
+    url: 'crm.api.whatsapp.log_booking_centre_ai',
+    params: {
+      message: lastIncomingMessage.value || '',
+      ai_suggested_reply: aiSuggestedReplies.value.join('\n---\n') || '',
+      final_reply: args.message,
+    },
+    auto: true,
+  })
+  aiSuggestedReplies.value = []
+  lastIncomingMessage.value = ''
+
   content.value = ''
   fileType.value = ''
   whatsapp.value.attach = ''
   whatsapp.value.content_type = 'text'
   reply.value = {}
+  generateClickCount.value = 0
+  hasGenerated.value = false
   createResource({
     url: 'crm.api.whatsapp.create_whatsapp_message',
     params: args,
