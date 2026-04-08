@@ -569,7 +569,7 @@
           </button>
         </div>
 
-        <div v-if="suggestedSlots.slot_1.length == 0 && suggestedSlots.slot_2.length == 0" class="flex justify-center py-8">
+        <div v-if="suggestedSlots.slot_1.length == 0 && suggestedSlots.slot_2.length == 0 && suggestedSlots.slot_3.length == 0 && suggestedSlots.slot_4.length == 0 && suggestedSlots.slot_5.length == 0 && suggestedSlots.slot_6.length == 0" class="flex justify-center py-8">
           <span class="text-2xl font-semibold text-gray-500">{{ __('No suggestion available') }}</span>
         </div>
 
@@ -596,6 +596,90 @@
           <div v-for="(slot, index) in suggestedSlots.slot_2" class="overflow-hidden rounded-xl">
             <div class="flex items-center gap-1.5 bg-violet-100 px-4 py-2.5">
               <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">📅{{ formatSlotDate(slot.slots[0].booking_date) }}</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">📍{{ slot.shop_full_name }}</span>
+            </div>
+            <div class="bg-white p-4">
+              <div class="flex items-start gap-4">
+                <div class="text-3xl font-bold bg-violet-100 text-violet-700 rounded-xl p-2.5 cursor-pointer" @click="setWhatsAppMessage(slot.suggested_slot_message)">
+                  <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="rgb(79 61 161"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M7 9H17M7 13H17M21 20L17.6757 18.3378C17.4237 18.2118 17.2977 18.1488 17.1656 18.1044C17.0484 18.065 16.9277 18.0365 16.8052 18.0193C16.6672 18 16.5263 18 16.2446 18H6.2C5.07989 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V7.2C3 6.07989 3 5.51984 3.21799 5.09202C3.40973 4.71569 3.71569 4.40973 4.09202 4.21799C4.51984 4 5.0799 4 6.2 4H17.8C18.9201 4 19.4802 4 19.908 4.21799C20.2843 4.40973 20.5903 4.71569 20.782 5.09202C21 5.51984 21 6.0799 21 7.2V20Z" stroke="rgb(79 61 161" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                </div>
+                <div v-for="(timeslot, index) in slot.slots" class="text-3xl font-bold bg-violet-100 text-violet-700 rounded-xl p-2.5 cursor-pointer" @click="selectSuggestedSlot(timeslot)">
+                  {{ formatSlotTime(timeslot.timeslot) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Day Same Outlet Card -->
+          <div v-if="suggestedSlots.slot_3.length > 0" class="overflow-hidden rounded-xl">
+            <div class="flex items-center gap-1.5 bg-green-100 px-4 py-2.5">
+              <span class="text-xs font-semibold uppercase tracking-wide text-green-700">
+                <span class="text-xs font-semibold uppercase tracking-wide text-green-100 bg-green-700 px-1">ND</span>
+                {{ formatSlotDate(suggestedSlots.slot_3[0].booking_date) }}
+              </span>
+              <span class="text-xs font-bold uppercase tracking-wide text-green-700">📍{{ suggestedSlots.slot_3[0].shop_full_name }}</span>
+            </div>
+            <div class="bg-white p-4">
+              <div class="flex items-start gap-4">
+                <div class="text-3xl font-bold bg-green-100 text-green-700 rounded-xl p-2.5 cursor-pointer" @click="setWhatsAppMessage(suggestedSlots.slot_3_message)">
+                  <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M7 9H17M7 13H17M21 20L17.6757 18.3378C17.4237 18.2118 17.2977 18.1488 17.1656 18.1044C17.0484 18.065 16.9277 18.0365 16.8052 18.0193C16.6672 18 16.5263 18 16.2446 18H6.2C5.07989 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V7.2C3 6.07989 3 5.51984 3.21799 5.09202C3.40973 4.71569 3.71569 4.40973 4.09202 4.21799C4.51984 4 5.0799 4 6.2 4H17.8C18.9201 4 19.4802 4 19.908 4.21799C20.2843 4.40973 20.5903 4.71569 20.782 5.09202C21 5.51984 21 6.0799 21 7.2V20Z" stroke="rgb(19 121 73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                </div>
+                <div v-for="(slot, index) in suggestedSlots.slot_3" class="text-3xl font-bold bg-green-100 text-green-700 rounded-xl p-2.5 cursor-pointer" @click="selectSuggestedSlot(slot)">
+                  {{ formatSlotTime(slot.timeslot) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Day Nearby Outlet Card -->
+          <div v-for="(slot, index) in suggestedSlots.slot_4" class="overflow-hidden rounded-xl">
+            <div class="flex items-center gap-1.5 bg-violet-100 px-4 py-2.5">
+              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">
+                <span class="text-xs font-semibold uppercase tracking-wide text-violet-100 bg-violet-700 px-1">ND</span>
+                {{ formatSlotDate(slot.slots[0].booking_date) }}
+              </span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">📍{{ slot.shop_full_name }}</span>
+            </div>
+            <div class="bg-white p-4">
+              <div class="flex items-start gap-4">
+                <div class="text-3xl font-bold bg-violet-100 text-violet-700 rounded-xl p-2.5 cursor-pointer" @click="setWhatsAppMessage(slot.suggested_slot_message)">
+                  <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="rgb(79 61 161"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M7 9H17M7 13H17M21 20L17.6757 18.3378C17.4237 18.2118 17.2977 18.1488 17.1656 18.1044C17.0484 18.065 16.9277 18.0365 16.8052 18.0193C16.6672 18 16.5263 18 16.2446 18H6.2C5.07989 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V7.2C3 6.07989 3 5.51984 3.21799 5.09202C3.40973 4.71569 3.71569 4.40973 4.09202 4.21799C4.51984 4 5.0799 4 6.2 4H17.8C18.9201 4 19.4802 4 19.908 4.21799C20.2843 4.40973 20.5903 4.71569 20.782 5.09202C21 5.51984 21 6.0799 21 7.2V20Z" stroke="rgb(79 61 161" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                </div>
+                <div v-for="(timeslot, index) in slot.slots" class="text-3xl font-bold bg-violet-100 text-violet-700 rounded-xl p-2.5 cursor-pointer" @click="selectSuggestedSlot(timeslot)">
+                  {{ formatSlotTime(timeslot.timeslot) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Week Same Outlet Card -->
+          <div v-if="suggestedSlots.slot_5.length > 0" class="overflow-hidden rounded-xl">
+            <div class="flex items-center gap-1.5 bg-green-100 px-4 py-2.5">
+              <span class="text-xs font-semibold uppercase tracking-wide text-green-700">
+                <span class="text-xs font-semibold uppercase tracking-wide text-green-100 bg-green-700 px-1">NW</span>
+                {{ formatSlotDate(suggestedSlots.slot_5[0].booking_date) }}
+              </span>
+              <span class="text-xs font-bold uppercase tracking-wide text-green-700">📍{{ suggestedSlots.slot_5[0].shop_full_name }}</span>
+            </div>
+            <div class="bg-white p-4">
+              <div class="flex items-start gap-4">
+                <div class="text-3xl font-bold bg-green-100 text-green-700 rounded-xl p-2.5 cursor-pointer" @click="setWhatsAppMessage(suggestedSlots.slot_5_message)">
+                  <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M7 9H17M7 13H17M21 20L17.6757 18.3378C17.4237 18.2118 17.2977 18.1488 17.1656 18.1044C17.0484 18.065 16.9277 18.0365 16.8052 18.0193C16.6672 18 16.5263 18 16.2446 18H6.2C5.07989 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V7.2C3 6.07989 3 5.51984 3.21799 5.09202C3.40973 4.71569 3.71569 4.40973 4.09202 4.21799C4.51984 4 5.0799 4 6.2 4H17.8C18.9201 4 19.4802 4 19.908 4.21799C20.2843 4.40973 20.5903 4.71569 20.782 5.09202C21 5.51984 21 6.0799 21 7.2V20Z" stroke="rgb(19 121 73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                </div>
+                <div v-for="(slot, index) in suggestedSlots.slot_5" class="text-3xl font-bold bg-green-100 text-green-700 rounded-xl p-2.5 cursor-pointer" @click="selectSuggestedSlot(slot)">
+                  {{ formatSlotTime(slot.timeslot) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Week Nearby Outlet Card -->
+          <div v-for="(slot, index) in suggestedSlots.slot_6" class="overflow-hidden rounded-xl">
+            <div class="flex items-center gap-1.5 bg-violet-100 px-4 py-2.5">
+              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">
+                <span class="text-xs font-semibold uppercase tracking-wide text-violet-100 bg-violet-700 px-1">NW</span>
+                {{ formatSlotDate(slot.slots[0].booking_date) }}
+              </span>
               <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">📍{{ slot.shop_full_name }}</span>
             </div>
             <div class="bg-white p-4">
@@ -730,6 +814,12 @@ const lead = createResource({
       slot_1: data.suggested_slot_1 || [],
       slot_1_message: data.suggested_slot_message_1 || "",
       slot_2: data.suggested_slot_2 || [],
+      slot_3: data.suggested_slot_3 || [],
+      slot_3_message: data.suggested_slot_message_3 || "",
+      slot_4: data.suggested_slot_4 || [],
+      slot_5: data.suggested_slot_5 || [],
+      slot_5_message: data.suggested_slot_message_5 || "",
+      slot_6: data.suggested_slot_6 || [],
       member_mobile: data.member_mobile || "",
       pax: data.pax || "1",
       treatment: data.treatment || "Foot",
@@ -798,6 +888,12 @@ const suggestedSlots = ref({
   slot_1: [],
   slot_1_message: "",
   slot_2: [],
+  slot_3: [],
+  slot_3_message: "",
+  slot_4: [],
+  slot_5: [],
+  slot_5_message: "",
+  slot_6: [],
   member_mobile: "",
   pax: "1",
   treatment: "Foot",
@@ -1146,11 +1242,24 @@ async function submitBooking() {
         icon: 'x',
         iconClasses: 'text-red-600',
       })
-      if (response?.suggested_slot_1?.length > 0 || response?.suggested_slot_2?.length > 0) {
+      if (
+        response?.suggested_slot_1?.length > 0
+        || response?.suggested_slot_2?.length > 0
+        || response?.suggested_slot_3?.length > 0
+        || response?.suggested_slot_4?.length > 0
+        || response?.suggested_slot_5?.length > 0
+        || response?.suggested_slot_6?.length > 0
+      ) {
         suggestedSlots.value = {
           slot_1: response.suggested_slot_1 || [],
           slot_1_message: response.suggested_slot_message_1 || "",
           slot_2: response.suggested_slot_2 || [],
+          slot_3: response.suggested_slot_3 || [],
+          slot_3_message: response.suggested_slot_message_3 || "",
+          slot_4: response.suggested_slot_4 || [],
+          slot_5: response.suggested_slot_5 || [],
+          slot_5_message: response.suggested_slot_message_5 || "",
+          slot_6: response.suggested_slot_6 || [],
           member_mobile: response.member_mobile || "",
           pax: response.pax || "1",
           treatment: response.treatment || "Foot",

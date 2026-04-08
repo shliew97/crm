@@ -9,6 +9,12 @@
   "suggested_slot_1",
   "suggested_slot_message_1",
   "suggested_slot_2",
+  "suggested_slot_3",
+  "suggested_slot_message_3",
+  "suggested_slot_4",
+  "suggested_slot_5",
+  "suggested_slot_message_5",
+  "suggested_slot_6",
   "expires_at",
   "expired",
   "member_mobile",
@@ -102,12 +108,42 @@
    "fieldname": "package",
    "fieldtype": "Check",
    "label": "Package"
+  },
+  {
+   "fieldname": "suggested_slot_3",
+   "fieldtype": "JSON",
+   "label": "Suggested Slot 3"
+  },
+  {
+   "fieldname": "suggested_slot_message_3",
+   "fieldtype": "Long Text",
+   "label": "Suggested Slot Message 3"
+  },
+  {
+   "fieldname": "suggested_slot_4",
+   "fieldtype": "JSON",
+   "label": "Suggested Slot 4"
+  },
+  {
+   "fieldname": "suggested_slot_5",
+   "fieldtype": "JSON",
+   "label": "Suggested Slot 5"
+  },
+  {
+   "fieldname": "suggested_slot_message_5",
+   "fieldtype": "Long Text",
+   "label": "Suggested Slot Message 5"
+  },
+  {
+   "fieldname": "suggested_slot_6",
+   "fieldtype": "JSON",
+   "label": "Suggested Slot 6"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-18 15:17:22.008397",
+ "modified": "2026-04-06 13:05:31.130710",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "Slot Suggestions",
