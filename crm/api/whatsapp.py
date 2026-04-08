@@ -616,6 +616,12 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
                 json.dumps(response_json["suggested_slot_1"]),
                 response_json["suggested_slot_message_1"],
                 json.dumps(response_json["suggested_slot_2"]),
+                json.dumps(response_json["suggested_slot_3"]),
+                response_json["suggested_slot_message_3"],
+                json.dumps(response_json["suggested_slot_4"]),
+                json.dumps(response_json["suggested_slot_5"]),
+                response_json["suggested_slot_message_5"],
+                json.dumps(response_json["suggested_slot_6"]),
                 response_json["member_mobile"],
                 response_json["pax"],
                 response_json["treatment"],
@@ -753,6 +759,12 @@ def update_slot_suggestions(
     suggested_slot_1,
     suggested_slot_message_1,
     suggested_slot_2,
+    suggested_slot_3,
+    suggested_slot_message_3,
+    suggested_slot_4,
+    suggested_slot_5,
+    suggested_slot_message_5,
+    suggested_slot_6,
     member_mobile,
     pax,
     treatment,
@@ -777,6 +789,12 @@ def update_slot_suggestions(
     slot_suggestion_doc.suggested_slot_1 = suggested_slot_1
     slot_suggestion_doc.suggested_slot_message_1 = suggested_slot_message_1
     slot_suggestion_doc.suggested_slot_2 = suggested_slot_2
+    slot_suggestion_doc.suggested_slot_3 = suggested_slot_3
+    slot_suggestion_doc.suggested_slot_message_3 = suggested_slot_message_3
+    slot_suggestion_doc.suggested_slot_4 = suggested_slot_4
+    slot_suggestion_doc.suggested_slot_5 = suggested_slot_5
+    slot_suggestion_doc.suggested_slot_message_5 = suggested_slot_message_5
+    slot_suggestion_doc.suggested_slot_6 = suggested_slot_6
     slot_suggestion_doc.member_mobile = member_mobile
     slot_suggestion_doc.pax = pax
     slot_suggestion_doc.treatment = treatment

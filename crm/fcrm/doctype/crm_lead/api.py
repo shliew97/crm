@@ -28,13 +28,25 @@ def get_lead(name):
 	lead["suggested_slot_1"] = []
 	lead["suggested_slot_message_1"] = ""
 	lead["suggested_slot_2"] = []
+	lead["suggested_slot_3"] = []
+	lead["suggested_slot_message_3"] = ""
+	lead["suggested_slot_4"] = []
+	lead["suggested_slot_5"] = []
+	lead["suggested_slot_message_5"] = ""
+	lead["suggested_slot_6"] = []
 
 	slot_suggestions = frappe.db.get_all("Slot Suggestions", filters={"reference_name": name, "expired": 0}, pluck="name")
 	if slot_suggestions:
-		suggested_slot_1, suggested_slot_message_1, suggested_slot_2, member_mobile, pax, treatment, session, preferred_therapist, third_party_voucher, package = frappe.db.get_value("Slot Suggestions", slot_suggestions[0], [
+		slot_suggestion_data = frappe.db.get_value("Slot Suggestions", slot_suggestions[0], [
 			"suggested_slot_1",
 			"suggested_slot_message_1",
 			"suggested_slot_2",
+			"suggested_slot_3",
+			"suggested_slot_message_3",
+			"suggested_slot_4",
+			"suggested_slot_5",
+			"suggested_slot_message_5",
+			"suggested_slot_6",
 			"member_mobile",
 			"pax",
 			"treatment",
@@ -42,18 +54,24 @@ def get_lead(name):
 			"preferred_therapist",
 			"third_party_voucher",
 			"package",
-		])
+		], as_dict=1)
 
-		lead["suggested_slot_1"] = json.loads(suggested_slot_1)
-		lead["suggested_slot_message_1"] = suggested_slot_message_1
-		lead["suggested_slot_2"] = json.loads(suggested_slot_2)
-		lead["member_mobile"] = member_mobile
-		lead["pax"] = str(pax)
-		lead["treatment"] = treatment
-		lead["session"] = str(session)
-		lead["preferred_therapist"] = preferred_therapist
-		lead["third_party_voucher"] = True if third_party_voucher else False
-		lead["package"] = True if package else False
+		lead["suggested_slot_1"] = json.loads(slot_suggestion_data.suggested_slot_1)
+		lead["suggested_slot_message_1"] = slot_suggestion_data.suggested_slot_message_1
+		lead["suggested_slot_2"] = json.loads(slot_suggestion_data.suggested_slot_2)
+		lead["suggested_slot_3"] = json.loads(slot_suggestion_data.suggested_slot_3)
+		lead["suggested_slot_message_3"] = slot_suggestion_data.suggested_slot_message_3
+		lead["suggested_slot_4"] = json.loads(slot_suggestion_data.suggested_slot_4)
+		lead["suggested_slot_5"] = json.loads(slot_suggestion_data.suggested_slot_5)
+		lead["suggested_slot_message_5"] = slot_suggestion_data.suggested_slot_message_5
+		lead["suggested_slot_6"] = json.loads(slot_suggestion_data.suggested_slot_6)
+		lead["member_mobile"] = slot_suggestion_data.member_mobile
+		lead["pax"] = str(slot_suggestion_data.pax)
+		lead["treatment"] = slot_suggestion_data.treatment
+		lead["session"] = str(slot_suggestion_data.session)
+		lead["preferred_therapist"] = slot_suggestion_data.preferred_therapist
+		lead["third_party_voucher"] = True if slot_suggestion_data.third_party_voucher else False
+		lead["package"] = True if slot_suggestion_data.package else False
 
 	return lead
 
