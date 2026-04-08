@@ -122,13 +122,94 @@ def is_master_agent_and_booking_centre():
     response = {
         "is_master_agent": False,
         "is_booking_centre": False,
+        "is_booking_centre_master_ai": False,
     }
     user_roles = frappe.get_roles()
     if "Master Agent" in user_roles:
         response ["is_master_agent"] = True
     if "Booking Centre" in user_roles:
         response ["is_booking_centre"] = True
+    if "Booking Centre Master AI" in user_roles:
+        response ["is_booking_centre_master_ai"] = True
     return response
+
+@frappe.whitelist()
+def suggest_next_action(reference_doctype, reference_name):
+    """Call LLM to suggest next action for the agent based on conversation context."""
+    if "Booking Centre Master AI" not in frappe.get_roles():
+        frappe.throw("Not permitted", frappe.PermissionError)
+
+    from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.ai_utils import suggest_next_action as _suggest
+    result = _suggest(reference_doctype, reference_name)
+
+    # Attach the last incoming message for AI logging
+    last_incoming = frappe.db.get_value(
+        "WhatsApp Message",
+        filters={
+            "reference_doctype": reference_doctype,
+            "reference_name": reference_name,
+            "type": "Incoming",
+        },
+        fieldname="message",
+        order_by="timestamp desc",
+    )
+    if isinstance(result, dict):
+        result["last_incoming_message"] = last_incoming or ""
+    else:
+        result = {"suggestion": result, "last_incoming_message": last_incoming or ""}
+
+    return result
+
+@frappe.whitelist()
+def log_booking_centre_ai(message, ai_suggested_reply, final_reply):
+    """Log the AI suggestion and final reply to Booking Centre AI Log."""
+    frappe.get_doc({
+        "doctype": "Booking Centre AI Log",
+        "message": message,
+        "ai_generated_reply": ai_suggested_reply,
+        "final_reply": final_reply,
+    }).insert(ignore_permissions=True)
+    return {"ok": True}
+
+@frappe.whitelist()
+def cancel_pending_action(reference_doctype, reference_name):
+    """Clear awaiting flags from pending booking data when agent cancels a popup."""
+    if "Booking Centre Master AI" not in frappe.get_roles():
+        frappe.throw("Not permitted", frappe.PermissionError)
+
+    from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.agents.rag_chain import (
+        get_pending_booking_data, save_pending_booking_data
+    )
+
+    lead_doc = frappe.get_doc(reference_doctype, reference_name)
+    pending_data = get_pending_booking_data(lead_doc)
+    if not pending_data:
+        return {"ok": True}
+
+    # Clear all awaiting flags and related temp data
+    awaiting_keys = [k for k in pending_data if k.startswith("awaiting_")]
+    for k in awaiting_keys:
+        pending_data[k] = False
+
+    # Clean up temp fields from create booking flow
+    pending_data.pop('outlet_ambiguous', None)
+    pending_data.pop('outlet_possible_matches', None)
+    pending_data.pop('outlet_original_input', None)
+    pending_data.pop('outlet_matched_name', None)
+    pending_data.pop('outlet_matched_branch_code', None)
+    pending_data.pop('suggested_slot_1', None)
+    pending_data.pop('suggested_slot_2', None)
+    pending_data.pop('numbered_slots', None)
+    # Clean up temp fields from update flow
+    pending_data.pop('pending_update_fields', None)
+    pending_data.pop('fetched_bookings_map', None)
+    # Clean up temp fields from delete flow
+    pending_data.pop('delete_order_ids', None)
+    pending_data.pop('delete_booking_summary', None)
+    pending_data.pop('fetched_delete_bookings_map', None)
+
+    save_pending_booking_data(lead_doc, pending_data)
+    return {"ok": True}
 
 @frappe.whitelist()
 def get_users_with_crm_assignee_role():
@@ -657,12 +738,15 @@ def fetch_bookings(booking_mobile):
             "booking_mobile": booking_mobile
         }
 
-        response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
-        response.raise_for_status()
-        result = response.json()
-        message_data = result.get("message", result)
-
-        return message_data
+        try:
+            response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
+            response.raise_for_status()
+            result = response.json()
+            message_data = result.get("message", result)
+            return message_data
+        except Exception as e:
+            frappe.log_error("Fetch Bookings Error", f"Error fetching bookings for {booking_mobile}: {str(e)}\n{frappe.get_traceback()}")
+            return {"bookings": []}
 
 def update_slot_suggestions(
     crm_lead,

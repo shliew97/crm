@@ -5,6 +5,7 @@ export const whatsappEnabled = ref(true)
 export const isWhatsappInstalled = ref(true)
 export const isMasterAgent = ref(false)
 export const isBookingCentre = ref(false)
+export const isBookingCentreMasterAI = ref(false)
 export const username = ref("")
 
 // createResource({
@@ -30,6 +31,7 @@ createResource({
   onSuccess: (data) => {
     isMasterAgent.value = Boolean(data.is_master_agent)
     isBookingCentre.value = Boolean(data.is_booking_centre)
+    isBookingCentreMasterAI.value = Boolean(data.is_booking_centre_master_ai)
   },
 })
 createResource({
