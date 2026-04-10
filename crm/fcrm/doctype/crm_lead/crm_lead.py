@@ -34,7 +34,7 @@ class CRMLead(Document):
 		if self.lead_owner:
 			self.assign_agent(self.lead_owner)
 
-		integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
+		integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
 		for integration_setting in integration_settings:
 			_create_member(integration_setting, self.lead_name, self.mobile_no)
 

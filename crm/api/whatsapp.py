@@ -594,7 +594,7 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
         if len(timeslot) == 4:
             booking_details["timeslot"] = timeslot[:2] + ":" + timeslot[2:] + ":00"
 
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
+    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
         url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_make_bookings"
@@ -666,7 +666,7 @@ def edit_booking(order_ids, booking_details):
 
     booking_details["order_ids"] = json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
 
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
+    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
         url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_update_bookings"
@@ -686,7 +686,7 @@ def edit_booking(order_ids, booking_details):
 
 @frappe.whitelist()
 def delete_booking(order_ids):
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
+    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
         url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_delete_bookings"
@@ -707,7 +707,7 @@ def delete_booking(order_ids):
 
 @frappe.whitelist()
 def get_customer_membership_and_balance(outlet, member_mobile):
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
+    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
         url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_get_customer_membership_and_balance"
@@ -730,7 +730,7 @@ def get_customer_membership_and_balance(outlet, member_mobile):
 
 @frappe.whitelist()
 def fetch_bookings(booking_mobile):
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
+    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
         url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_fetch_bookings"
