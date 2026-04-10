@@ -729,7 +729,8 @@ def get_customer_membership_and_balance(outlet, member_mobile):
 
 @frappe.whitelist()
 def fetch_bookings(booking_mobile):
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
+    message_data = {"bookings": []}
+    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "Outlet Sync"}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
         url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_fetch_bookings"
@@ -747,11 +748,12 @@ def fetch_bookings(booking_mobile):
             response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
             response.raise_for_status()
             result = response.json()
-            message_data = result.get("message", result)
-            return message_data
+            message_data["bookings"] += result.get("bookings", [])
         except Exception as e:
             frappe.log_error("Fetch Bookings Error", f"Error fetching bookings for {booking_mobile}: {str(e)}\n{frappe.get_traceback()}")
             return {"bookings": []}
+
+    return message_data
 
 def update_slot_suggestions(
     crm_lead,
