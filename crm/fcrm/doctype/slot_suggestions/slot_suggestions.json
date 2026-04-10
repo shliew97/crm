@@ -110,6 +110,7 @@
    "label": "Package"
   },
   {
+   "default": "[]",
    "fieldname": "suggested_slot_3",
    "fieldtype": "JSON",
    "label": "Suggested Slot 3"
@@ -120,11 +121,13 @@
    "label": "Suggested Slot Message 3"
   },
   {
+   "default": "[]",
    "fieldname": "suggested_slot_4",
    "fieldtype": "JSON",
    "label": "Suggested Slot 4"
   },
   {
+   "default": "[]",
    "fieldname": "suggested_slot_5",
    "fieldtype": "JSON",
    "label": "Suggested Slot 5"
@@ -135,6 +138,7 @@
    "label": "Suggested Slot Message 5"
   },
   {
+   "default": "[]",
    "fieldname": "suggested_slot_6",
    "fieldtype": "JSON",
    "label": "Suggested Slot 6"
@@ -143,7 +147,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-06 13:05:31.130710",
+ "modified": "2026-04-10 10:16:25.175272",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "Slot Suggestions",
