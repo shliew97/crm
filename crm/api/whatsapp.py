@@ -580,13 +580,6 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
             "message": "Booking date and time was already overed.",
         }
 
-    # Convert outlet branch_code to Outlet ID (name)
-    outlet_branch_code = booking_details.get("outlet")
-    if outlet_branch_code:
-        outlet_id = frappe.db.get_value("Outlet", {"branch_code": outlet_branch_code}, "name")
-        if outlet_id:
-            booking_details["outlet"] = outlet_id
-
     # Format timeslot if needed (e.g. "1430" -> "14:30:00")
     timeslot = booking_details.get("timeslot", "")
     if timeslot and ":" not in str(timeslot):
@@ -594,44 +587,50 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
         if len(timeslot) == 4:
             booking_details["timeslot"] = timeslot[:2] + ":" + timeslot[2:] + ":00"
 
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
-    for integration_setting in integration_settings:
-        integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
-        url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_make_bookings"
+    outlets = frappe.db.get_all("Outlet", filters={"name": booking_details.get("outlet")}, fields=["name", "integration_settings"])
 
-        headers = {
-            "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
-            "Content-Type": "application/json"
+    if not outlets:
+        return {
+            "success": False,
+            "message": "Outlet not available for booking.",
         }
 
-        request_payload = json.dumps(booking_details, default=str)
-        response = requests.post(url, data=request_payload, headers=headers, timeout=30)
-        response.raise_for_status()
+    integration_settings_doc = frappe.get_doc("Integration Settings", outlets[0].integration_settings)
+    url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_make_bookings"
 
-        response_json = response.json()
+    headers = {
+        "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
+        "Content-Type": "application/json"
+    }
 
-        if response_json["success"] == False:
-            update_slot_suggestions(
-                crm_lead,
-                json.dumps(response_json["suggested_slot_1"]),
-                response_json["suggested_slot_message_1"],
-                json.dumps(response_json["suggested_slot_2"]),
-                json.dumps(response_json["suggested_slot_3"]),
-                response_json["suggested_slot_message_3"],
-                json.dumps(response_json["suggested_slot_4"]),
-                json.dumps(response_json["suggested_slot_5"]),
-                response_json["suggested_slot_message_5"],
-                json.dumps(response_json["suggested_slot_6"]),
-                response_json["member_mobile"],
-                response_json["pax"],
-                response_json["treatment"],
-                response_json["session"],
-                response_json["preferred_therapist"],
-                response_json["third_party_voucher"],
-                response_json["package"],
-            )
+    request_payload = json.dumps(booking_details, default=str)
+    response = requests.post(url, data=request_payload, headers=headers, timeout=30)
+    response.raise_for_status()
 
-        return response_json
+    response_json = response.json()
+
+    if response_json["success"] == False:
+        update_slot_suggestions(
+            crm_lead,
+            json.dumps(response_json["suggested_slot_1"]),
+            response_json["suggested_slot_message_1"],
+            json.dumps(response_json["suggested_slot_2"]),
+            json.dumps(response_json["suggested_slot_3"]),
+            response_json["suggested_slot_message_3"],
+            json.dumps(response_json["suggested_slot_4"]),
+            json.dumps(response_json["suggested_slot_5"]),
+            response_json["suggested_slot_message_5"],
+            json.dumps(response_json["suggested_slot_6"]),
+            response_json["member_mobile"],
+            response_json["pax"],
+            response_json["treatment"],
+            response_json["session"],
+            response_json["preferred_therapist"],
+            response_json["third_party_voucher"],
+            response_json["package"],
+        )
+
+    return response_json
 
 
 @frappe.whitelist()
