@@ -1554,10 +1554,20 @@ async function submitEditBooking() {
 
 function confirmDeleteBooking(booking) {
   const bookingIds = booking.order_ids || []
+  const integrationSettings = booking.integration_settings || undefined
   if (!bookingIds) {
     createToast({
       title: __('Error'),
       text: __('No booking ID found'),
+      icon: 'x',
+      iconClasses: 'text-red-600',
+    })
+    return
+  }
+  if (!integrationSettings) {
+    createToast({
+      title: __('Error'),
+      text: __('Failed to delete booking'),
       icon: 'x',
       iconClasses: 'text-red-600',
     })
@@ -1575,6 +1585,7 @@ function confirmDeleteBooking(booking) {
           try {
             const response = await call('crm.api.whatsapp.delete_booking', {
               order_ids: bookingIds,
+              integration_settings: integrationSettings,
             })
             if (response?.success) {
               createToast({
