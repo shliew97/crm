@@ -665,22 +665,20 @@ def edit_booking(order_ids, booking_details):
 
     booking_details["order_ids"] = json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
 
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
-    for integration_setting in integration_settings:
-        integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
-        url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_update_bookings"
+    integration_settings_doc = frappe.get_doc("Integration Settings", booking_details["integration_settings"])
+    url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_update_bookings"
 
-        headers = {
-            "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
-            "Content-Type": "application/json"
-        }
+    headers = {
+        "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
+        "Content-Type": "application/json"
+    }
 
-        payload = json.dumps(booking_details, default=str)
-        frappe.log_error("edit_booking Request", f"URL: {url}\nPayload: {payload}")
-        response = requests.post(url, data=payload, headers=headers, timeout=30)
-        frappe.log_error("edit_booking Response", f"Status: {response.status_code}\nBody: {response.text}")
-        response.raise_for_status()
-        return response.json()
+    payload = json.dumps(booking_details, default=str)
+    frappe.log_error("edit_booking Request", f"URL: {url}\nPayload: {payload}")
+    response = requests.post(url, data=payload, headers=headers, timeout=30)
+    frappe.log_error("edit_booking Response", f"Status: {response.status_code}\nBody: {response.text}")
+    response.raise_for_status()
+    return response.json()
 
 
 @frappe.whitelist()

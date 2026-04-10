@@ -1492,6 +1492,7 @@ const editingBookingIds = ref([])
 function openEditBooking(booking) {
   editingBookingIds.value = booking.order_ids || []
   editBookingForm.value = {
+    integration_settings: booking.integration_settings || '',
     customer_name: booking.customer_name || '',
     booking_mobile: booking.booking_mobile || '',
     outlet: booking.outlet || '',
@@ -1512,6 +1513,7 @@ async function submitEditBooking() {
     const response = await call('crm.api.whatsapp.edit_booking', {
       order_ids: editingBookingIds.value,
       booking_details: {
+        integration_settings: editBookingForm.value.integration_settings,
         booking_date: editBookingForm.value.booking_date,
         timeslot: editBookingForm.value.timeslot ? (editBookingForm.value.timeslot.length === 5 ? editBookingForm.value.timeslot + ':00' : editBookingForm.value.timeslot) : '',
         treatment: editBookingForm.value.treatment,
