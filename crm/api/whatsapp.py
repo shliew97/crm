@@ -748,7 +748,13 @@ def fetch_bookings(booking_mobile):
             response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
             response.raise_for_status()
             result = response.json()
-            message_data["bookings"] += result.get("bookings", [])
+
+            bookings = result.get("bookings", [])
+
+            for booking in bookings:
+                booking["integration_settings"] = integration_setting
+
+            message_data["bookings"] += bookings
         except Exception as e:
             frappe.log_error("Fetch Bookings Error", f"Error fetching bookings for {booking_mobile}: {str(e)}\n{frappe.get_traceback()}")
             return {"bookings": []}
