@@ -129,7 +129,8 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('👥Number of Pax') }}</label>
-              <FormControl type="select" v-model="bookingForm.pax" :options="paxOptions" />
+              <FormControl type="select" v-model="bookingForm.pax" :options="paxOptions"
+              :disabled="bookingForm.preferred_masseur && !['Any', 'Male', 'Female'].includes(bookingForm.preferred_masseur)" />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('💆Treatment') }}</label>
@@ -922,6 +923,15 @@ watch(
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
       bookingForm.value.preferred_masseur = 'Any'
+    }
+  }
+)
+
+watch(
+  () => bookingForm.value.preferred_masseur,
+  (newVal, oldVal) => {
+    if (newVal && !['Any', 'Male', 'Female'].includes(newVal)) {
+      bookingForm.value.pax = '1'
     }
   }
 )
