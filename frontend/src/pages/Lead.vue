@@ -197,7 +197,7 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🧑‍⚕️Preferred Therapist') }}</label>
-              <FormControl type="select" v-model="editBookingForm.preferred_therapist" disabled :options="therapistOptions" />
+              <FormControl type="select" v-model="editBookingForm.preferred_therapist" :options="therapistOptions" />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🎫3rd Party Voucher') }}</label>
@@ -241,7 +241,7 @@
             >
               <div class="flex items-center justify-between">
                 <div class="flex-1 text-sm">
-                  <span class="font-semibold">📍{{ booking.outlet }}</span>
+                  <span class="font-semibold">📍{{ booking.shop_full_name }}</span>
                 </div>
                 <div class="flex shrink-0 gap-1">
                   <Button variant="ghost" size="sm" @click="openEditBooking(booking)">
@@ -917,6 +917,15 @@ const bookingForm = ref({
   using_package: 'No',
 })
 
+watch(
+  () => bookingForm.value.outlet,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      bookingForm.value.preferred_masseur = 'Any'
+    }
+  }
+)
+
 const bookingMessage = ref('')
 const bookingInfoByRegex = ref('')
 
@@ -980,18 +989,64 @@ function searchMemberAccount() {
 const paxOptions = ['1', '2', '3', '4', '5']
 const treatmentOptions = ['Foot', 'Thai', 'Oil', 'Deep', 'Others']
 const sessionOptions = ['60', '90', '120']
-const therapistOptions = ['Male', 'Female', 'Any']
+const baseTherapistOptions = [
+  {
+    label: 'Any',
+    value: 'Any',
+  },
+  {
+    label: 'Male',
+    value: 'Male',
+  },
+  {
+    label: 'Female',
+    value: 'Female',
+  }
+]
 const yesNoOptions = ['Yes', 'No']
 
 const outletList = createResource({
   url: 'frappe.client.get_list',
   params: {
     doctype: 'Outlet',
-    order_by: "shop_full_name",
+    order_by: 'shop_full_name',
     fields: ['name', 'branch_code', 'shop_full_name'],
     limit_page_length: 0,
   },
   auto: true,
+})
+
+const masseurList = createResource({
+  url: 'frappe.client.get_list',
+  params: {
+    doctype: 'Staff',
+    order_by: 'staff_name',
+    fields: ['name', 'staff_name', 'working_outlet'],
+    limit_page_length: 0,
+  },
+  auto: true,
+})
+
+const therapistOptions = computed(() => {
+  if (leftPanelMode.value === 'create') {
+    if (!bookingForm.value.outlet) {
+      return baseTherapistOptions
+    }
+    else {
+      let filteredMasseurList = masseurList.data.filter(m => m.working_outlet === bookingForm.value.outlet);
+      return [...baseTherapistOptions, ...filteredMasseurList.map((m) => ({ label: `(${m.name}) ${m.staff_name}`, value: m.name }))]
+    }
+  }
+  else if (leftPanelMode.value === 'edit') {
+    if (!editBookingForm.value.outlet) {
+      return baseTherapistOptions
+    }
+    else {
+      let filteredMasseurList = masseurList.data.filter(m => m.working_outlet === editBookingForm.value.outlet);
+      console.log([...baseTherapistOptions, ...filteredMasseurList.map((m) => ({ label: `(${m.name}) ${m.staff_name}`, value: m.name }))])
+      return [...baseTherapistOptions, ...filteredMasseurList.map((m) => ({ label: `(${m.name}) ${m.staff_name}`, value: m.name }))]
+    }
+  }
 })
 
 const outletOptions = computed(() => {
@@ -1486,7 +1541,19 @@ function updateField(name, value, callback) {
 const fetchingBookings = ref(false)
 const fetchedBookings = ref([])
 const editBookingSubmitting = ref(false)
-const editBookingForm = ref({})
+const editBookingForm = ref({
+  integration_settings: '',
+  customer_name: '',
+  booking_mobile: '',
+  outlet: '',
+  booking_date: '',
+  timeslot: '',
+  treatment: 'Foot',
+  session: '60',
+  preferred_therapist: 'Any',
+  third_party_voucher_select: 'No',
+  package_select: 'No',
+})
 const editingBookingIds = ref([])
 
 function openEditBooking(booking) {
