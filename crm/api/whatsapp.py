@@ -580,13 +580,6 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
             "message": "Booking date and time was already overed.",
         }
 
-    # Convert outlet branch_code to Outlet ID (name)
-    outlet_branch_code = booking_details.get("outlet")
-    if outlet_branch_code:
-        outlet_id = frappe.db.get_value("Outlet", {"branch_code": outlet_branch_code}, "name")
-        if outlet_id:
-            booking_details["outlet"] = outlet_id
-
     # Format timeslot if needed (e.g. "1430" -> "14:30:00")
     timeslot = booking_details.get("timeslot", "")
     if timeslot and ":" not in str(timeslot):
@@ -594,44 +587,50 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
         if len(timeslot) == 4:
             booking_details["timeslot"] = timeslot[:2] + ":" + timeslot[2:] + ":00"
 
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
-    for integration_setting in integration_settings:
-        integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
-        url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_make_bookings"
+    outlets = frappe.db.get_all("Outlet", filters={"name": booking_details.get("outlet")}, fields=["name", "integration_settings"])
 
-        headers = {
-            "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
-            "Content-Type": "application/json"
+    if not outlets:
+        return {
+            "success": False,
+            "message": "Outlet not available for booking.",
         }
 
-        request_payload = json.dumps(booking_details, default=str)
-        response = requests.post(url, data=request_payload, headers=headers, timeout=30)
-        response.raise_for_status()
+    integration_settings_doc = frappe.get_doc("Integration Settings", outlets[0].integration_settings)
+    url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_make_bookings"
 
-        response_json = response.json()
+    headers = {
+        "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
+        "Content-Type": "application/json"
+    }
 
-        if response_json["success"] == False:
-            update_slot_suggestions(
-                crm_lead,
-                json.dumps(response_json["suggested_slot_1"]),
-                response_json["suggested_slot_message_1"],
-                json.dumps(response_json["suggested_slot_2"]),
-                json.dumps(response_json["suggested_slot_3"]),
-                response_json["suggested_slot_message_3"],
-                json.dumps(response_json["suggested_slot_4"]),
-                json.dumps(response_json["suggested_slot_5"]),
-                response_json["suggested_slot_message_5"],
-                json.dumps(response_json["suggested_slot_6"]),
-                response_json["member_mobile"],
-                response_json["pax"],
-                response_json["treatment"],
-                response_json["session"],
-                response_json["preferred_therapist"],
-                response_json["third_party_voucher"],
-                response_json["package"],
-            )
+    request_payload = json.dumps(booking_details, default=str)
+    response = requests.post(url, data=request_payload, headers=headers, timeout=30)
+    response.raise_for_status()
 
-        return response_json
+    response_json = response.json()
+
+    if response_json["success"] == False:
+        update_slot_suggestions(
+            crm_lead,
+            json.dumps(response_json["suggested_slot_1"]),
+            response_json["suggested_slot_message_1"],
+            json.dumps(response_json["suggested_slot_2"]),
+            json.dumps(response_json["suggested_slot_3"]),
+            response_json["suggested_slot_message_3"],
+            json.dumps(response_json["suggested_slot_4"]),
+            json.dumps(response_json["suggested_slot_5"]),
+            response_json["suggested_slot_message_5"],
+            json.dumps(response_json["suggested_slot_6"]),
+            response_json["member_mobile"],
+            response_json["pax"],
+            response_json["treatment"],
+            response_json["session"],
+            response_json["preferred_therapist"],
+            response_json["third_party_voucher"],
+            response_json["package"],
+        )
+
+    return response_json
 
 
 @frappe.whitelist()
@@ -650,7 +649,7 @@ def edit_booking(order_ids, booking_details):
         }
 
     # Only allow permitted fields
-    allowed_fields = {"booking_date", "timeslot", "treatment", "session", "preferred_therapist", "third_party_voucher", "package"}
+    allowed_fields = {"booking_date", "timeslot", "treatment", "session", "preferred_therapist", "third_party_voucher", "package", "integration_settings"}
     booking_details = {k: v for k, v in booking_details.items() if k in allowed_fields}
 
     # Format timeslot to HH:MM:SS
@@ -666,48 +665,44 @@ def edit_booking(order_ids, booking_details):
 
     booking_details["order_ids"] = json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
 
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
-    for integration_setting in integration_settings:
-        integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
-        url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_update_bookings"
+    integration_settings_doc = frappe.get_doc("Integration Settings", booking_details["integration_settings"])
+    url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_update_bookings"
 
-        headers = {
-            "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
-            "Content-Type": "application/json"
-        }
+    headers = {
+        "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
+        "Content-Type": "application/json"
+    }
 
-        payload = json.dumps(booking_details, default=str)
-        frappe.log_error("edit_booking Request", f"URL: {url}\nPayload: {payload}")
-        response = requests.post(url, data=payload, headers=headers, timeout=30)
-        frappe.log_error("edit_booking Response", f"Status: {response.status_code}\nBody: {response.text}")
-        response.raise_for_status()
-        return response.json()
+    payload = json.dumps(booking_details, default=str)
+    frappe.log_error("edit_booking Request", f"URL: {url}\nPayload: {payload}")
+    response = requests.post(url, data=payload, headers=headers, timeout=30)
+    frappe.log_error("edit_booking Response", f"Status: {response.status_code}\nBody: {response.text}")
+    response.raise_for_status()
+    return response.json()
 
 
 @frappe.whitelist()
-def delete_booking(order_ids):
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
-    for integration_setting in integration_settings:
-        integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
-        url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_delete_bookings"
+def delete_booking(order_ids, integration_settings):
+    integration_settings_doc = frappe.get_doc("Integration Settings", integration_settings)
+    url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_delete_bookings"
 
-        headers = {
-            "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
-            "Content-Type": "application/json"
-        }
+    headers = {
+        "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
+        "Content-Type": "application/json"
+    }
 
-        payload = {
-            "order_ids": json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
-        }
+    payload = {
+        "order_ids": json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
+    }
 
-        response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
-        response.raise_for_status()
-        return response.json()
+    response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
+    response.raise_for_status()
+    return response.json()
 
 
 @frappe.whitelist()
 def get_customer_membership_and_balance(outlet, member_mobile):
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
+    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
         url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_get_customer_membership_and_balance"
@@ -730,7 +725,8 @@ def get_customer_membership_and_balance(outlet, member_mobile):
 
 @frappe.whitelist()
 def fetch_bookings(booking_mobile):
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"active": 1}, pluck="name")
+    message_data = {"bookings": []}
+    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "Outlet Sync"}, pluck="name")
     for integration_setting in integration_settings:
         integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
         url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_fetch_bookings"
@@ -748,11 +744,18 @@ def fetch_bookings(booking_mobile):
             response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
             response.raise_for_status()
             result = response.json()
-            message_data = result.get("message", result)
-            return message_data
+
+            bookings = result.get("bookings", [])
+
+            for booking in bookings:
+                booking["integration_settings"] = integration_setting
+
+            message_data["bookings"] += bookings
         except Exception as e:
             frappe.log_error("Fetch Bookings Error", f"Error fetching bookings for {booking_mobile}: {str(e)}\n{frappe.get_traceback()}")
             return {"bookings": []}
+
+    return message_data
 
 def update_slot_suggestions(
     crm_lead,
