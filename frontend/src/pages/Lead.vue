@@ -1015,26 +1015,16 @@ const baseTherapistOptions = [
 ]
 const yesNoOptions = ['Yes', 'No']
 
-const outletList = createResource({
-  url: 'frappe.client.get_list',
-  params: {
-    doctype: 'Outlet',
-    order_by: 'shop_full_name',
-    fields: ['name', 'branch_code', 'shop_full_name'],
-    limit_page_length: 0,
-  },
-  auto: true,
-})
+const outletList = ref([])
+const masseurList = ref([])
 
-const masseurList = createResource({
-  url: 'frappe.client.get_list',
-  params: {
-    doctype: 'Staff',
-    order_by: 'staff_name',
-    fields: ['name', 'staff_name', 'working_outlet'],
-    limit_page_length: 0,
-  },
+createResource({
+  url: 'frappe_whatsapp.api.get_outlets_and_masseurs',
   auto: true,
+  onSuccess: (data) => {
+    outletList.value = data.outlets;
+    masseurList.value = data.masseurs;
+  },
 })
 
 const therapistOptions = computed(() => {
@@ -1043,7 +1033,7 @@ const therapistOptions = computed(() => {
       return baseTherapistOptions
     }
     else {
-      let filteredMasseurList = masseurList.data.filter(m => m.working_outlet === bookingForm.value.outlet);
+      let filteredMasseurList = masseurList.value.filter(m => m.working_outlet === bookingForm.value.outlet);
       return [...baseTherapistOptions, ...filteredMasseurList.map((m) => ({ label: `(${m.name}) ${m.staff_name}`, value: m.name }))]
     }
   }
@@ -1052,16 +1042,15 @@ const therapistOptions = computed(() => {
       return baseTherapistOptions
     }
     else {
-      let filteredMasseurList = masseurList.data.filter(m => m.working_outlet === editBookingForm.value.outlet);
-      console.log([...baseTherapistOptions, ...filteredMasseurList.map((m) => ({ label: `(${m.name}) ${m.staff_name}`, value: m.name }))])
+      let filteredMasseurList = masseurList.value.filter(m => m.working_outlet === editBookingForm.value.outlet);
       return [...baseTherapistOptions, ...filteredMasseurList.map((m) => ({ label: `(${m.name}) ${m.staff_name}`, value: m.name }))]
     }
   }
 })
 
 const outletOptions = computed(() => {
-  if (!outletList.data) return []
-  return outletList.data.map((o) => ({ label: o.shop_full_name, value: o.branch_code }))
+  if (!outletList.value) return []
+  return outletList.value.map((o) => ({ label: o.shop_full_name, value: o.branch_code }))
 })
 
 watch(() => lead.data, (data) => {
@@ -1166,11 +1155,11 @@ function extractBookingFromMessage(text) {
   if (/\b(female|lady)\b/i.test(msg)) data.preferred_masseur = 'Female'
   else if (/\b(male)\b/i.test(msg)) data.preferred_masseur = 'Male'
 
-  // --- Outlet matching: match against outletList.data ---
-  if (outletList.data) {
+  // --- Outlet matching: match against outletList.value ---
+  if (outletList.value) {
     let bestMatch = null
     let bestLen = 0
-    for (const o of outletList.data) {
+    for (const o of outletList.value) {
       // Try matching shop_full_name or parts of it (e.g. "Puchong", "Kota Damansara", "KLCC")
       const name = o.shop_full_name || ''
       // Extract the location part after "@" or last word
@@ -1364,8 +1353,8 @@ function selectSuggestedSlot(slot) {
 }
 
 function getOutletName(branchCode) {
-  if (!outletList.data) return branchCode
-  const outlet = outletList.data.find((o) => o.branch_code === branchCode)
+  if (!outletList.value) return branchCode
+  const outlet = outletList.value.find((o) => o.branch_code === branchCode)
   return outlet ? outlet.shop_full_name : branchCode
 }
 
