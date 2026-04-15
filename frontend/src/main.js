@@ -8,6 +8,8 @@ import router from './router'
 import translationPlugin from './translation'
 import { posthogPlugin } from './telemetry'
 import App from './App.vue'
+import VueSelect from 'vue-select'
+import 'vue-select/dist/vue-select.css'
 
 import {
   FrappeUI,
@@ -50,6 +52,7 @@ app.use(posthogPlugin)
 for (let key in globalComponents) {
   app.component(key, globalComponents[key])
 }
+app.component('v-select', VueSelect)
 
 app.config.globalProperties.$dialog = createDialog
 

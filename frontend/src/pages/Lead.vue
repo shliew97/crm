@@ -129,7 +129,8 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('👥Number of Pax') }}</label>
-              <FormControl type="select" v-model="bookingForm.pax" :options="paxOptions" />
+              <FormControl type="select" v-model="bookingForm.pax" :options="paxOptions"
+              :disabled="bookingForm.preferred_masseur && !['Any', 'Male', 'Female'].includes(bookingForm.preferred_masseur)" />
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('💆Treatment') }}</label>
@@ -141,7 +142,14 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🧑‍⚕️Preferred Therapist') }}</label>
-              <FormControl type="select" v-model="bookingForm.preferred_masseur" :options="therapistOptions" />
+              <v-select class="rounded h-7 text-base px-2 border border-[--surface-gray-2] bg-surface-gray-2 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors w-full py-0"
+                v-model="bookingForm.preferred_masseur" :options="therapistOptions"
+                :reduce="option => option.value" :clearable="false"
+              >
+                <template #no-options>
+                  No matching options.
+                </template>
+              </v-select>
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🎫3rd Party Voucher') }}</label>
@@ -197,7 +205,14 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🧑‍⚕️Preferred Therapist') }}</label>
-              <FormControl type="select" v-model="editBookingForm.preferred_therapist" disabled :options="therapistOptions" />
+              <v-select class="rounded h-7 text-base px-2 border border-[--surface-gray-2] bg-surface-gray-2 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors w-full py-0"
+                v-model="editBookingForm.preferred_therapist" :options="therapistOptions"
+                :reduce="option => option.value" :clearable="false"
+              >
+                <template #no-options>
+                  No matching options.
+                </template>
+              </v-select>
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🎫3rd Party Voucher') }}</label>
@@ -241,7 +256,7 @@
             >
               <div class="flex items-center justify-between">
                 <div class="flex-1 text-sm">
-                  <span class="font-semibold">📍{{ booking.outlet }}</span>
+                  <span class="font-semibold">📍{{ booking.shop_full_name }}</span>
                 </div>
                 <div class="flex shrink-0 gap-1">
                   <Button variant="ghost" size="sm" @click="openEditBooking(booking)">
@@ -917,6 +932,24 @@ const bookingForm = ref({
   using_package: 'No',
 })
 
+watch(
+  () => bookingForm.value.outlet,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      bookingForm.value.preferred_masseur = 'Any'
+    }
+  }
+)
+
+watch(
+  () => bookingForm.value.preferred_masseur,
+  (newVal, oldVal) => {
+    if (newVal && !['Any', 'Male', 'Female'].includes(newVal)) {
+      bookingForm.value.pax = '1'
+    }
+  }
+)
+
 const bookingMessage = ref('')
 const bookingInfoByRegex = ref('')
 
@@ -980,23 +1013,58 @@ function searchMemberAccount() {
 const paxOptions = ['1', '2', '3', '4', '5']
 const treatmentOptions = ['Foot', 'Thai', 'Oil', 'Deep', 'Others']
 const sessionOptions = ['60', '90', '120']
-const therapistOptions = ['Male', 'Female', 'Any']
+const baseTherapistOptions = [
+  {
+    label: 'Any',
+    value: 'Any',
+  },
+  {
+    label: 'Male',
+    value: 'Male',
+  },
+  {
+    label: 'Female',
+    value: 'Female',
+  }
+]
 const yesNoOptions = ['Yes', 'No']
 
-const outletList = createResource({
-  url: 'frappe.client.get_list',
-  params: {
-    doctype: 'Outlet',
-    order_by: "shop_full_name",
-    fields: ['name', 'branch_code', 'shop_full_name'],
-    limit_page_length: 0,
-  },
+const outletList = ref([])
+const masseurList = ref([])
+
+createResource({
+  url: 'frappe_whatsapp.api.get_outlets_and_masseurs',
   auto: true,
+  onSuccess: (data) => {
+    outletList.value = data.outlets;
+    masseurList.value = data.masseurs;
+  },
+})
+
+const therapistOptions = computed(() => {
+  if (leftPanelMode.value === 'create') {
+    if (!bookingForm.value.outlet) {
+      return baseTherapistOptions
+    }
+    else {
+      let filteredMasseurList = masseurList.value.filter(m => m.working_outlet === bookingForm.value.outlet);
+      return [...baseTherapistOptions, ...filteredMasseurList.map((m) => ({ label: `(${m.name}) ${m.staff_name}`, value: m.name }))]
+    }
+  }
+  else if (leftPanelMode.value === 'edit') {
+    if (!editBookingForm.value.outlet) {
+      return baseTherapistOptions
+    }
+    else {
+      let filteredMasseurList = masseurList.value.filter(m => m.working_outlet === editBookingForm.value.outlet);
+      return [...baseTherapistOptions, ...filteredMasseurList.map((m) => ({ label: `(${m.name}) ${m.staff_name}`, value: m.name }))]
+    }
+  }
 })
 
 const outletOptions = computed(() => {
-  if (!outletList.data) return []
-  return outletList.data.map((o) => ({ label: o.shop_full_name, value: o.branch_code }))
+  if (!outletList.value) return []
+  return outletList.value.map((o) => ({ label: o.shop_full_name, value: o.branch_code }))
 })
 
 watch(() => lead.data, (data) => {
@@ -1101,11 +1169,11 @@ function extractBookingFromMessage(text) {
   if (/\b(female|lady)\b/i.test(msg)) data.preferred_masseur = 'Female'
   else if (/\b(male)\b/i.test(msg)) data.preferred_masseur = 'Male'
 
-  // --- Outlet matching: match against outletList.data ---
-  if (outletList.data) {
+  // --- Outlet matching: match against outletList.value ---
+  if (outletList.value) {
     let bestMatch = null
     let bestLen = 0
-    for (const o of outletList.data) {
+    for (const o of outletList.value) {
       // Try matching shop_full_name or parts of it (e.g. "Puchong", "Kota Damansara", "KLCC")
       const name = o.shop_full_name || ''
       // Extract the location part after "@" or last word
@@ -1299,8 +1367,8 @@ function selectSuggestedSlot(slot) {
 }
 
 function getOutletName(branchCode) {
-  if (!outletList.data) return branchCode
-  const outlet = outletList.data.find((o) => o.branch_code === branchCode)
+  if (!outletList.value) return branchCode
+  const outlet = outletList.value.find((o) => o.branch_code === branchCode)
   return outlet ? outlet.shop_full_name : branchCode
 }
 
@@ -1486,7 +1554,19 @@ function updateField(name, value, callback) {
 const fetchingBookings = ref(false)
 const fetchedBookings = ref([])
 const editBookingSubmitting = ref(false)
-const editBookingForm = ref({})
+const editBookingForm = ref({
+  integration_settings: '',
+  customer_name: '',
+  booking_mobile: '',
+  outlet: '',
+  booking_date: '',
+  timeslot: '',
+  treatment: 'Foot',
+  session: '60',
+  preferred_therapist: 'Any',
+  third_party_voucher_select: 'No',
+  package_select: 'No',
+})
 const editingBookingIds = ref([])
 
 function openEditBooking(booking) {
