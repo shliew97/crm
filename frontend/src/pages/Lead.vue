@@ -142,7 +142,14 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🧑‍⚕️Preferred Therapist') }}</label>
-              <FormControl type="select" v-model="bookingForm.preferred_masseur" :options="therapistOptions" />
+              <v-select class="rounded h-7 text-base px-2 border border-[--surface-gray-2] bg-surface-gray-2 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors w-full py-0"
+                v-model="bookingForm.preferred_masseur" :options="therapistOptions"
+                :reduce="option => option.value" :clearable="false"
+              >
+                <template #no-options>
+                  No matching options.
+                </template>
+              </v-select>
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🎫3rd Party Voucher') }}</label>
@@ -198,7 +205,14 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🧑‍⚕️Preferred Therapist') }}</label>
-              <FormControl type="select" v-model="editBookingForm.preferred_therapist" :options="therapistOptions" />
+              <v-select class="rounded h-7 text-base px-2 border border-[--surface-gray-2] bg-surface-gray-2 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors w-full py-0"
+                v-model="editBookingForm.preferred_therapist" :options="therapistOptions"
+                :reduce="option => option.value" :clearable="false"
+              >
+                <template #no-options>
+                  No matching options.
+                </template>
+              </v-select>
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('🎫3rd Party Voucher') }}</label>

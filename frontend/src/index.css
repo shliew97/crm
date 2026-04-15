@@ -24,3 +24,25 @@
 		prose-th:relative
 	}
 }
+
+.vs__dropdown-toggle {
+	border: none !important;
+}
+
+.vs__selected-options {
+	padding: 0px !important;
+}
+
+.vs__selected {
+	margin: 1px 0px 0px 0px !important;
+	padding: 0px !important;
+}
+
+.vs__search {
+	margin: 1px 0px 0px 0px !important;
+	padding: 0px 7px 0px 0px !important;
+}
+
+.vs__actions {
+	padding: 0px !important;
+}
