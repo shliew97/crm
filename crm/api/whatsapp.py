@@ -701,7 +701,7 @@ def delete_booking(order_ids, integration_settings):
 
 
 @frappe.whitelist()
-def get_customer_membership_and_balance(outlet, member_mobile):
+def get_customer_membership_and_balance(outlet, member_mobile, booking_date):
     integration_settings = frappe.db.get_value("Outlet", outlet, "integration_settings")
     integration_settings_doc = frappe.get_doc("Integration Settings", integration_settings)
     url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_get_customer_membership_and_balance"
@@ -713,7 +713,8 @@ def get_customer_membership_and_balance(outlet, member_mobile):
 
     payload = {
         "outlet": outlet,
-        "member_mobile": member_mobile
+        "member_mobile": member_mobile,
+        "booking_date": booking_date,
     }
 
     response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
