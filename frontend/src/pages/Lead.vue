@@ -593,7 +593,7 @@
           <div v-if="suggestedSlots.slot_1.length > 0" class="overflow-hidden rounded-xl">
             <div class="flex items-center gap-1.5 bg-green-100 px-4 py-2.5">
               <span class="text-xs font-semibold uppercase tracking-wide text-green-700">📅{{ formatSlotDate(suggestedSlots.slot_1[0].booking_date) }}</span>
-              <span class="text-xs font-bold uppercase tracking-wide text-green-700">{{ suggestedSlots.slot_1[0].package_available ? '✅' : '❌' }}{{ suggestedSlots.slot_1[0].shop_full_name }}</span>
+              <span class="text-xs font-bold uppercase tracking-wide text-green-700">{{ suggestedSlots.slot_1[0].package_available ? '✅' : '❌' }}&nbsp;{{ suggestedSlots.slot_1[0].shop_full_name }}</span>
             </div>
             <div class="bg-white p-4">
               <div class="flex items-start gap-4">
@@ -611,7 +611,7 @@
           <div v-for="(slot, index) in suggestedSlots.slot_2" class="overflow-hidden rounded-xl">
             <div class="flex items-center gap-1.5 bg-violet-100 px-4 py-2.5">
               <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">📅{{ formatSlotDate(slot.slots[0].booking_date) }}</span>
-              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">{{ slot.package_available ? '✅' : '❌' }}{{ slot.shop_full_name }}</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">{{ slot.package_available ? '✅' : '❌' }}&nbsp;{{ slot.shop_full_name }}</span>
             </div>
             <div class="bg-white p-4">
               <div class="flex items-start gap-4">
@@ -632,7 +632,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wide text-green-100 bg-green-700 px-1">ND</span>
                 {{ formatSlotDate(suggestedSlots.slot_3[0].booking_date) }}
               </span>
-              <span class="text-xs font-bold uppercase tracking-wide text-green-700">{{ suggestedSlots.slot_3[0].package_available ? '✅' : '❌' }}{{ suggestedSlots.slot_3[0].shop_full_name }}</span>
+              <span class="text-xs font-bold uppercase tracking-wide text-green-700">{{ suggestedSlots.slot_3[0].package_available ? '✅' : '❌' }}&nbsp;{{ suggestedSlots.slot_3[0].shop_full_name }}</span>
             </div>
             <div class="bg-white p-4">
               <div class="flex items-start gap-4">
@@ -653,7 +653,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wide text-violet-100 bg-violet-700 px-1">ND</span>
                 {{ formatSlotDate(slot.slots[0].booking_date) }}
               </span>
-              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">{{ slot.package_available ? '✅' : '❌' }}{{ slot.shop_full_name }}</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">{{ slot.package_available ? '✅' : '❌' }}&nbsp;{{ slot.shop_full_name }}</span>
             </div>
             <div class="bg-white p-4">
               <div class="flex items-start gap-4">
@@ -674,7 +674,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wide text-green-100 bg-green-700 px-1">NW</span>
                 {{ formatSlotDate(suggestedSlots.slot_5[0].booking_date) }}
               </span>
-              <span class="text-xs font-bold uppercase tracking-wide text-green-700">{{ suggestedSlots.slot_5[0].package_available ? '✅' : '❌' }}{{ suggestedSlots.slot_5[0].shop_full_name }}</span>
+              <span class="text-xs font-bold uppercase tracking-wide text-green-700">{{ suggestedSlots.slot_5[0].package_available ? '✅' : '❌' }}&nbsp;{{ suggestedSlots.slot_5[0].shop_full_name }}</span>
             </div>
             <div class="bg-white p-4">
               <div class="flex items-start gap-4">
@@ -695,7 +695,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wide text-violet-100 bg-violet-700 px-1">NW</span>
                 {{ formatSlotDate(slot.slots[0].booking_date) }}
               </span>
-              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">{{ slot.package_available ? '✅' : '❌' }}{{ slot.shop_full_name }}</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-violet-700">{{ slot.package_available ? '✅' : '❌' }}&nbsp;{{ slot.shop_full_name }}</span>
             </div>
             <div class="bg-white p-4">
               <div class="flex items-start gap-4">
