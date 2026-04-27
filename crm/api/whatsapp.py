@@ -7,6 +7,9 @@ from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
 from frappe.utils.user import get_users_with_role
 from frappe.utils import get_datetime, add_to_date
 
+# Max days ahead a booking can be created for. Adjust here if the business rule changes.
+MAX_BOOKING_DAYS_AHEAD = 30
+
 def validate(doc, method):
     if doc.type == "Incoming" and doc.get("from"):
         name, doctype = get_lead_or_deal_from_number(doc.get("from"))
@@ -580,6 +583,14 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
             "message": "Booking date and time was already overed.",
         }
 
+    # only allow bookings within MAX_BOOKING_DAYS_AHEAD
+    max_allowed_datetime = add_to_date(get_datetime(), days=MAX_BOOKING_DAYS_AHEAD)
+    if booking_datetime > max_allowed_datetime:
+        return {
+            "success": False,
+            "message": f"Booking date must be within {MAX_BOOKING_DAYS_AHEAD} days from today.",
+        }
+
     # Format timeslot if needed (e.g. "1430" -> "14:30:00")
     timeslot = booking_details.get("timeslot", "")
     if timeslot and ":" not in str(timeslot):
@@ -649,7 +660,7 @@ def edit_booking(order_ids, booking_details):
         }
 
     # Only allow permitted fields
-    allowed_fields = {"booking_date", "timeslot", "treatment", "session", "preferred_therapist", "third_party_voucher", "package", "integration_settings"}
+    allowed_fields = {"booking_date", "timeslot", "pax", "treatment", "session", "preferred_therapist", "third_party_voucher", "package", "integration_settings"}
     booking_details = {k: v for k, v in booking_details.items() if k in allowed_fields}
 
     # Format timeslot to HH:MM:SS
