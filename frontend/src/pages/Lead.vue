@@ -196,6 +196,11 @@
               <FormControl type="time" v-model="editBookingForm.timeslot" />
             </div>
             <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('👥Number of Pax') }}</label>
+              <FormControl type="select" v-model="editBookingForm.pax" :options="paxOptions"
+              :disabled="editBookingForm.preferred_therapist && !['Any', 'Male', 'Female'].includes(editBookingForm.preferred_therapist)" />
+            </div>
+            <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('💆Treatment') }}</label>
               <FormControl type="select" v-model="editBookingForm.treatment" :options="treatmentOptions" />
             </div>
@@ -1571,6 +1576,7 @@ const editBookingForm = ref({
   outlet: '',
   booking_date: '',
   timeslot: '',
+  pax: '1',
   treatment: 'Foot',
   session: '60',
   preferred_therapist: 'Any',
@@ -1578,6 +1584,15 @@ const editBookingForm = ref({
   package_select: 'No',
 })
 const editingBookingIds = ref([])
+
+watch(
+  () => editBookingForm.value.preferred_masseur,
+  (newVal, oldVal) => {
+    if (newVal && !['Any', 'Male', 'Female'].includes(newVal)) {
+      editBookingForm.value.pax = '1'
+    }
+  }
+)
 
 function openEditBooking(booking) {
   editingBookingIds.value = booking.order_ids || []
@@ -1588,6 +1603,7 @@ function openEditBooking(booking) {
     outlet: booking.outlet || '',
     booking_date: booking.booking_date || '',
     timeslot: booking.timeslot || '',
+    pax: String(booking.pax || '1'),
     treatment: booking.treatment || '',
     session: String(booking.session || '60'),
     preferred_therapist: booking.preferred_therapist || 'Any',
@@ -1606,6 +1622,7 @@ async function submitEditBooking() {
         integration_settings: editBookingForm.value.integration_settings,
         booking_date: editBookingForm.value.booking_date,
         timeslot: editBookingForm.value.timeslot ? (editBookingForm.value.timeslot.length === 5 ? editBookingForm.value.timeslot + ':00' : editBookingForm.value.timeslot) : '',
+        pax: parseInt(editBookingForm.value.pax),
         treatment: editBookingForm.value.treatment,
         session: parseInt(editBookingForm.value.session),
         preferred_therapist: editBookingForm.value.preferred_therapist,
