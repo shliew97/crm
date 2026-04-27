@@ -1586,7 +1586,7 @@ const editBookingForm = ref({
 const editingBookingIds = ref([])
 
 watch(
-  () => editBookingForm.value.preferred_masseur,
+  () => editBookingForm.value.preferred_therapist,
   (newVal, oldVal) => {
     if (newVal && !['Any', 'Male', 'Female'].includes(newVal)) {
       editBookingForm.value.pax = '1'
