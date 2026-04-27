@@ -701,26 +701,25 @@ def delete_booking(order_ids, integration_settings):
 
 
 @frappe.whitelist()
-def get_customer_membership_and_balance(outlet, member_mobile):
-    integration_settings = frappe.db.get_all("Integration Settings", filters={"integration_type": "ERP"}, pluck="name")
-    for integration_setting in integration_settings:
-        integration_settings_doc = frappe.get_doc("Integration Settings", integration_setting)
-        url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_get_customer_membership_and_balance"
+def get_customer_membership_and_balance(outlet, member_mobile, booking_date):
+    integration_settings = frappe.db.get_value("Outlet", outlet, "integration_settings")
+    integration_settings_doc = frappe.get_doc("Integration Settings", integration_settings)
+    url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_get_customer_membership_and_balance"
 
-        headers = {
-            "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
-            "Content-Type": "application/json"
-        }
+    headers = {
+        "Authorization": "Basic {0}".format(integration_settings_doc.get_password("access_token")),
+        "Content-Type": "application/json"
+    }
 
-        payload = {
-            "outlet": outlet,
-            "member_mobile": member_mobile
-        }
+    payload = {
+        "outlet": outlet,
+        "member_mobile": member_mobile,
+        "booking_date": booking_date,
+    }
 
-        response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
-        response.raise_for_status()
-        return response.json()
-    return {}
+    response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
+    response.raise_for_status()
+    return response.json()
 
 
 @frappe.whitelist()
