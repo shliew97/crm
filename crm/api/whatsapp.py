@@ -660,7 +660,7 @@ def edit_booking(order_ids, booking_details):
         }
 
     # Only allow permitted fields
-    allowed_fields = {"booking_date", "timeslot", "pax", "treatment", "session", "preferred_therapist", "third_party_voucher", "package"}
+    allowed_fields = {"booking_date", "timeslot", "pax", "treatment", "session", "preferred_therapist", "third_party_voucher", "package", "integration_settings"}
     booking_details = {k: v for k, v in booking_details.items() if k in allowed_fields}
 
     # Format timeslot to HH:MM:SS
