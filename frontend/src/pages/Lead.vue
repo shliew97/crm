@@ -159,6 +159,10 @@
               <label class="mb-1 block text-xs text-gray-600">{{ __('🎟️Package') }}</label>
               <FormControl type="select" v-model="bookingForm.using_package" :options="yesNoOptions" />
             </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📝Memo') }}</label>
+              <FormControl type="textarea" v-model="bookingForm.memo" :placeholder="__('Enter memo')" :rows="3" />
+            </div>
           </div>
           <div class="mt-3">
             <Button variant="solid" class="w-full" :loading="bookingSubmitting" :disabled="!isBookingFormValid" @click="submitBooking">
@@ -227,6 +231,10 @@
               <label class="mb-1 block text-xs text-gray-600">{{ __('🎟️Package') }}</label>
               <FormControl type="select" v-model="editBookingForm.package_select" :options="yesNoOptions" />
             </div>
+            <div>
+              <label class="mb-1 block text-xs text-gray-600">{{ __('📝Memo') }}</label>
+              <FormControl type="textarea" v-model="editBookingForm.memo" :placeholder="__('Enter memo')" :rows="3" />
+            </div>
           </div>
           <div class="mt-3">
             <Button variant="solid" class="w-full" :loading="editBookingSubmitting" @click="submitEditBooking">
@@ -283,6 +291,7 @@
                 <div class="mt-1"><span class="text-gray-600">{{ __('📱Member') }}:</span> {{ booking.member_mobile }}</div>
                 <div class="mt-1"><span class="text-gray-600">{{ __('🎫3rd Party') }}:</span> {{ booking.third_party_voucher ? __('Yes') : __('No') }}</div>
                 <div class="mt-1"><span class="text-gray-600">{{ __('🎟️Package') }}:</span> {{ booking.package ? __('Yes') : __('No') }}</div>
+                <div v-if="booking.memo" class="mt-1"><span class="text-gray-600">{{ __('📝Memo') }}:</span> <span class="whitespace-pre-wrap">{{ booking.memo }}</span></div>
               </div>
             </div>
           </div>
@@ -935,6 +944,7 @@ const bookingForm = ref({
   preferred_masseur: 'Any',
   third_party_voucher: 'No',
   using_package: 'No',
+  memo: '',
 })
 
 watch(
@@ -1283,6 +1293,7 @@ async function submitBooking() {
         preferred_therapist: form.preferred_masseur,
         third_party_voucher: form.third_party_voucher === 'Yes',
         package: form.using_package === 'Yes',
+        memo: form.memo,
       },
     }, null, 4)
 
@@ -1301,6 +1312,7 @@ async function submitBooking() {
         preferred_therapist: form.preferred_masseur,
         third_party_voucher: form.third_party_voucher === 'Yes',
         package: form.using_package === 'Yes',
+        memo: form.memo,
       },
       message: bookingMessage.value,
       booking_info_with_regex: bookingInfoByRegex.value,
@@ -1582,6 +1594,7 @@ const editBookingForm = ref({
   preferred_therapist: 'Any',
   third_party_voucher_select: 'No',
   package_select: 'No',
+  memo: '',
 })
 const editingBookingIds = ref([])
 
@@ -1609,6 +1622,7 @@ function openEditBooking(booking) {
     preferred_therapist: booking.preferred_therapist || 'Any',
     third_party_voucher_select: booking.third_party_voucher ? 'Yes' : 'No',
     package_select: booking.package ? 'Yes' : 'No',
+    memo: booking.memo || '',
   }
   leftPanelMode.value = 'edit'
 }
@@ -1628,6 +1642,7 @@ async function submitEditBooking() {
         preferred_therapist: editBookingForm.value.preferred_therapist,
         third_party_voucher: editBookingForm.value.third_party_voucher_select === 'Yes',
         package: editBookingForm.value.package_select === 'Yes',
+        memo: editBookingForm.value.memo,
       },
     })
     if (response?.success) {
@@ -1661,20 +1676,10 @@ async function submitEditBooking() {
 
 function confirmDeleteBooking(booking) {
   const bookingIds = booking.order_ids || []
-  const integrationSettings = booking.integration_settings || undefined
   if (!bookingIds) {
     createToast({
       title: __('Error'),
       text: __('No booking ID found'),
-      icon: 'x',
-      iconClasses: 'text-red-600',
-    })
-    return
-  }
-  if (!integrationSettings) {
-    createToast({
-      title: __('Error'),
-      text: __('Failed to delete booking'),
       icon: 'x',
       iconClasses: 'text-red-600',
     })
@@ -1692,7 +1697,6 @@ function confirmDeleteBooking(booking) {
           try {
             const response = await call('crm.api.whatsapp.delete_booking', {
               order_ids: bookingIds,
-              integration_settings: integrationSettings,
             })
             if (response?.success) {
               createToast({

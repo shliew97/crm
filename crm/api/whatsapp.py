@@ -598,7 +598,7 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
         if len(timeslot) == 4:
             booking_details["timeslot"] = timeslot[:2] + ":" + timeslot[2:] + ":00"
 
-    outlets = frappe.db.get_all("Outlet", filters={"name": booking_details.get("outlet")}, fields=["name", "integration_settings"])
+    outlets = frappe.db.get_all("Outlet", filters={"name": booking_details.get("outlet")}, fields=["name"])
 
     if not outlets:
         return {
@@ -606,7 +606,7 @@ def create_booking(crm_lead, booking_details, message, booking_info_with_regex, 
             "message": "Outlet not available for booking.",
         }
 
-    integration_settings_doc = frappe.get_doc("Integration Settings", outlets[0].integration_settings)
+    integration_settings_doc = frappe.get_doc("Integration Settings", "HL ERP")
     url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_make_bookings"
 
     headers = {
@@ -660,7 +660,7 @@ def edit_booking(order_ids, booking_details):
         }
 
     # Only allow permitted fields
-    allowed_fields = {"booking_date", "timeslot", "pax", "treatment", "session", "preferred_therapist", "third_party_voucher", "package", "integration_settings"}
+    allowed_fields = {"booking_date", "timeslot", "pax", "treatment", "session", "preferred_therapist", "third_party_voucher", "package", "integration_settings", "memo"}
     booking_details = {k: v for k, v in booking_details.items() if k in allowed_fields}
 
     # Format timeslot to HH:MM:SS
@@ -676,7 +676,7 @@ def edit_booking(order_ids, booking_details):
 
     booking_details["order_ids"] = json.dumps(order_ids) if isinstance(order_ids, list) else order_ids
 
-    integration_settings_doc = frappe.get_doc("Integration Settings", booking_details["integration_settings"])
+    integration_settings_doc = frappe.get_doc("Integration Settings", "HL ERP")
     url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_update_bookings"
 
     headers = {
@@ -693,8 +693,8 @@ def edit_booking(order_ids, booking_details):
 
 
 @frappe.whitelist()
-def delete_booking(order_ids, integration_settings):
-    integration_settings_doc = frappe.get_doc("Integration Settings", integration_settings)
+def delete_booking(order_ids):
+    integration_settings_doc = frappe.get_doc("Integration Settings", "HL ERP")
     url = integration_settings_doc.site_url + "/api/method/healthland_pos.booking.crm_delete_bookings"
 
     headers = {
@@ -756,9 +756,6 @@ def fetch_bookings(booking_mobile):
             result = response.json()
 
             bookings = result.get("bookings", [])
-
-            for booking in bookings:
-                booking["integration_settings"] = integration_setting
 
             message_data["bookings"] += bookings
         except Exception as e:
