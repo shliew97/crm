@@ -161,7 +161,7 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('📝Memo') }}</label>
-              <FormControl type="textarea" v-model="bookingForm.memo" :placeholder="__('Enter memo')" :rows="3" />
+              <FormControl type="textarea" v-model="bookingForm.memo" :placeholder="__('Enter memo')" :rows="5" />
             </div>
           </div>
           <div class="mt-3">
@@ -233,7 +233,7 @@
             </div>
             <div>
               <label class="mb-1 block text-xs text-gray-600">{{ __('📝Memo') }}</label>
-              <FormControl type="textarea" v-model="editBookingForm.memo" :placeholder="__('Enter memo')" :rows="3" />
+              <FormControl type="textarea" v-model="editBookingForm.memo" :placeholder="__('Enter memo')" :rows="5" />
             </div>
           </div>
           <div class="mt-3">
