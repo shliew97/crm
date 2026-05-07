@@ -198,6 +198,7 @@ import { capture } from '@/telemetry'
 import { isBookingCentreMasterAI } from '@/composables/settings'
 import { createResource, Textarea, FileUploader, Dropdown, Dialog } from 'frappe-ui'
 import { ref, computed, nextTick, watch } from 'vue'
+import { createToast } from '@/utils'
 
 const props = defineProps({
   doc: Object,
@@ -261,21 +262,28 @@ async function onGenerateClick() {
       aiSuggestedReplies.value.push(res.suggestion)
     }
 
-    if (res?.type === 'booking_confirmation' && res?.booking_data) {
+    if (res?.type === 'booking_confirmation' && res?.booking_data && res?.suggestion) {
       bookingData.value = res.booking_data
-      bookingSuggestion.value = res.suggestion || ''
+      bookingSuggestion.value = res.suggestion
       content.value = ''
       showBookingConfirmation.value = true
-    } else if (res?.type === 'delete_confirmation' && res?.booking_data) {
+    } else if (res?.type === 'delete_confirmation' && res?.booking_data && res?.suggestion) {
       deleteBookingData.value = res.booking_data
-      deleteSuggestion.value = res.suggestion || ''
+      deleteSuggestion.value = res.suggestion
       content.value = ''
       showDeleteConfirmation.value = true
-    } else if (res?.type === 'edit_confirmation' && res?.booking_data) {
+    } else if (res?.type === 'edit_confirmation' && res?.booking_data && res?.suggestion) {
       editBookingData.value = res.booking_data
-      editSuggestion.value = res.suggestion || ''
+      editSuggestion.value = res.suggestion
       content.value = ''
       showEditConfirmation.value = true
+    } else if (res?.type && ['booking_confirmation', 'delete_confirmation', 'edit_confirmation'].includes(res.type)) {
+      createToast({
+        title: __('Nothing to send'),
+        text: __('The AI returned booking details but no message to send. Please try Regenerate.'),
+        icon: 'alert-triangle',
+        iconClasses: 'text-orange-600',
+      })
     } else if (res?.suggestion) {
       content.value = res.suggestion
       rows.value = 6
@@ -307,11 +315,22 @@ function onBookingCancel() {
 }
 
 function onBookingProceed() {
-  content.value = bookingSuggestion.value
-  rows.value = 6
+  const suggestion = bookingSuggestion.value
   showBookingConfirmation.value = false
   bookingData.value = null
   bookingSuggestion.value = ''
+  if (!suggestion || !suggestion.trim()) {
+    createToast({
+      title: __('Nothing to send'),
+      text: __('No message text was generated. Please try Regenerate.'),
+      icon: 'alert-triangle',
+      iconClasses: 'text-orange-600',
+    })
+    return
+  }
+  whatsapp.value.content_type = 'text'
+  content.value = suggestion
+  rows.value = 6
   sendWhatsAppMessage()
 }
 
@@ -323,11 +342,22 @@ function onDeleteCancel() {
 }
 
 function onDeleteProceed() {
-  content.value = deleteSuggestion.value
-  rows.value = 6
+  const suggestion = deleteSuggestion.value
   showDeleteConfirmation.value = false
   deleteBookingData.value = null
   deleteSuggestion.value = ''
+  if (!suggestion || !suggestion.trim()) {
+    createToast({
+      title: __('Nothing to send'),
+      text: __('No message text was generated. Please try Regenerate.'),
+      icon: 'alert-triangle',
+      iconClasses: 'text-orange-600',
+    })
+    return
+  }
+  whatsapp.value.content_type = 'text'
+  content.value = suggestion
+  rows.value = 6
   sendWhatsAppMessage()
 }
 
@@ -339,11 +369,22 @@ function onEditCancel() {
 }
 
 function onEditProceed() {
-  content.value = editSuggestion.value
-  rows.value = 6
+  const suggestion = editSuggestion.value
   showEditConfirmation.value = false
   editBookingData.value = null
   editSuggestion.value = ''
+  if (!suggestion || !suggestion.trim()) {
+    createToast({
+      title: __('Nothing to send'),
+      text: __('No message text was generated. Please try Regenerate.'),
+      icon: 'alert-triangle',
+      iconClasses: 'text-orange-600',
+    })
+    return
+  }
+  whatsapp.value.content_type = 'text'
+  content.value = suggestion
+  rows.value = 6
   sendWhatsAppMessage()
 }
 
