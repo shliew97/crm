@@ -685,9 +685,7 @@ def edit_booking(order_ids, booking_details):
     }
 
     payload = json.dumps(booking_details, default=str)
-    frappe.log_error("edit_booking Request", f"URL: {url}\nPayload: {payload}")
     response = requests.post(url, data=payload, headers=headers, timeout=30)
-    frappe.log_error("edit_booking Response", f"Status: {response.status_code}\nBody: {response.text}")
     response.raise_for_status()
     return response.json()
 

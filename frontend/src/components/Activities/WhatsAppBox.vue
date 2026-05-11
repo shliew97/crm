@@ -462,15 +462,15 @@ async function sendWhatsAppMessage() {
 
   failedMessages.value = [...(failedMessages.value || []), tempMsg]
 
-  createResource({
-    url: 'crm.api.whatsapp.log_booking_centre_ai',
-    params: {
-      message: lastIncomingMessage.value || '',
-      ai_suggested_reply: aiSuggestedReplies.value.join('\n---\n') || '',
-      final_reply: args.message,
-    },
-    auto: true,
-  })
+  // createResource({
+  //   url: 'crm.api.whatsapp.log_booking_centre_ai',
+  //   params: {
+  //     message: lastIncomingMessage.value || '',
+  //     ai_suggested_reply: aiSuggestedReplies.value.join('\n---\n') || '',
+  //     final_reply: args.message,
+  //   },
+  //   auto: true,
+  // })
   aiSuggestedReplies.value = []
   lastIncomingMessage.value = ''
 
