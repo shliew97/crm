@@ -1379,6 +1379,13 @@ async function submitBooking() {
 }
 
 function selectSuggestedSlot(slot) {
+  if (leftPanelMode.value === 'edit') {
+    if (slot.outlet) editBookingForm.value.outlet = slot.outlet
+    if (slot.booking_date) editBookingForm.value.booking_date = slot.booking_date
+    if (slot.timeslot) editBookingForm.value.timeslot = slot.timeslot
+    showSuggestedSlots.value = false
+    return
+  }
   if (slot.outlet) bookingForm.value.outlet = slot.outlet
   if (slot.booking_date) bookingForm.value.booking_date = slot.booking_date
   if (slot.timeslot) bookingForm.value.timeslot = slot.timeslot
@@ -1661,6 +1668,31 @@ async function submitEditBooking() {
         icon: 'x',
         iconClasses: 'text-red-600',
       })
+      if (
+        response?.suggested_slot_1?.length > 0
+        || response?.suggested_slot_3?.length > 0
+        || response?.suggested_slot_5?.length > 0
+      ) {
+        suggestedSlots.value = {
+          slot_1: response.suggested_slot_1 || [],
+          slot_1_message: response.suggested_slot_message_1 || "",
+          slot_2: [],
+          slot_3: response.suggested_slot_3 || [],
+          slot_3_message: response.suggested_slot_message_3 || "",
+          slot_4: [],
+          slot_5: response.suggested_slot_5 || [],
+          slot_5_message: response.suggested_slot_message_5 || "",
+          slot_6: [],
+          member_mobile: response.member_mobile || "",
+          pax: response.pax || "1",
+          treatment: response.treatment || "Foot",
+          session: response.session || "60",
+          preferred_therapist: response.preferred_therapist || "Any",
+          third_party_voucher: response.third_party_voucher ? "Yes" : "No",
+          package: response.package ? "Yes" : "No",
+        }
+        showSuggestedSlots.value = true
+      }
     }
   } catch (err) {
     createToast({
