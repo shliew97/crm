@@ -1673,7 +1673,7 @@ async function submitEditBooking() {
         || response?.suggested_slot_3?.length > 0
         || response?.suggested_slot_5?.length > 0
       ) {
-        suggestedSlots.value = {
+        const slotsData = {
           slot_1: response.suggested_slot_1 || [],
           slot_1_message: response.suggested_slot_message_1 || "",
           slot_2: [],
@@ -1691,6 +1691,7 @@ async function submitEditBooking() {
           third_party_voucher: response.third_party_voucher ? "Yes" : "No",
           package: response.package ? "Yes" : "No",
         }
+        suggestedSlots.value = slotsData
         showSuggestedSlots.value = true
       }
     }
