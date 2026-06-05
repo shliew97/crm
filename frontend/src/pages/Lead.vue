@@ -931,6 +931,24 @@ const suggestedSlots = ref({
   third_party_voucher: "No",
   package: "No",
 })
+const editSuggestedSlots = ref({
+  slot_1: [],
+  slot_1_message: "",
+  slot_2: [],
+  slot_3: [],
+  slot_3_message: "",
+  slot_4: [],
+  slot_5: [],
+  slot_5_message: "",
+  slot_6: [],
+  member_mobile: "",
+  pax: "1",
+  treatment: "Foot",
+  session: "60",
+  preferred_therapist: "Any",
+  third_party_voucher: "No",
+  package: "No",
+})
 const bookingForm = ref({
   customer_name: '',
   phone: '',
@@ -1673,7 +1691,7 @@ async function submitEditBooking() {
         || response?.suggested_slot_3?.length > 0
         || response?.suggested_slot_5?.length > 0
       ) {
-        const slotsData = {
+        editSuggestedSlots.value = {
           slot_1: response.suggested_slot_1 || [],
           slot_1_message: response.suggested_slot_message_1 || "",
           slot_2: [],
@@ -1691,7 +1709,6 @@ async function submitEditBooking() {
           third_party_voucher: response.third_party_voucher ? "Yes" : "No",
           package: response.package ? "Yes" : "No",
         }
-        suggestedSlots.value = slotsData
         showSuggestedSlots.value = true
       }
     }
