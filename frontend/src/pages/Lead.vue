@@ -934,10 +934,13 @@ const suggestedSlots = ref({
 const editSuggestedSlots = ref({
   slot_1: [],
   slot_1_message: "",
+  slot_2: [],
   slot_3: [],
   slot_3_message: "",
+  slot_4: [],
   slot_5: [],
   slot_5_message: "",
+  slot_6: [],
 })
 const activeSuggestedSlots = computed(() =>
   leftPanelMode.value === 'edit' ? editSuggestedSlots.value : suggestedSlots.value
@@ -1687,10 +1690,13 @@ async function submitEditBooking() {
         editSuggestedSlots.value = {
           slot_1: response.suggested_slot_1 || [],
           slot_1_message: response.suggested_slot_message_1 || "",
+          slot_2: [],
           slot_3: response.suggested_slot_3 || [],
           slot_3_message: response.suggested_slot_message_3 || "",
+          slot_4: [],
           slot_5: response.suggested_slot_5 || [],
           slot_5_message: response.suggested_slot_message_5 || "",
+          slot_6: [],
         }
         showSuggestedSlots.value = true
       }
