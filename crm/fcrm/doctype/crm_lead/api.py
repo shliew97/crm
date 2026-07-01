@@ -291,16 +291,10 @@ def acceptConversation(crm_lead_name):
 
 @frappe.whitelist()
 def completeConversation(crm_lead_name, mark_as_close=False):
-	if mark_as_close:
-		frappe.get_doc({
-			"doctype": "WhatsApp Close Log",
-			"close_by": frappe.session.user,
-			"crm_lead": crm_lead_name,
-		}).insert(ignore_permissions=True)
-	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name, "whatsapp_message_templates": ["!=", "AI Reply"]}, pluck="name")
+	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
 	for crm_lead_assignment in crm_lead_assignments:
 		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, {
-			"status": "Case Closed" if mark_as_close else "Completed",
+			"status": "Completed",
 			"accepted_by": None
 		})
 	frappe.db.set_value("CRM Lead", crm_lead_name, {
@@ -308,13 +302,6 @@ def completeConversation(crm_lead_name, mark_as_close=False):
 		"alert_by": None
 	})
 	frappe.db.commit()
-	crm_lead_assignments = frappe.db.get_all("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, fields=["name", "status"])
-	unclosed_crm_lead_assignments = [crm_lead_assignment for crm_lead_assignment in crm_lead_assignments if crm_lead_assignment.status != "Case Closed"]
-	if not unclosed_crm_lead_assignments:
-		frappe.db.set_value("CRM Lead", crm_lead_name, {
-			"closed": 1
-		})
-		frappe.db.commit()
 	frappe.publish_realtime("new_leads", {})
 
 @frappe.whitelist()
@@ -351,6 +338,9 @@ def assignConversation(args=None, *, ignore_permissions=False):
 			assigned_templates = frappe.db.get_all("User Permission", filters={"user": assignee, "allow": "WhatsApp Message Templates"}, pluck="for_value", limit=1)
 			if assigned_templates:
 				create_crm_lead_assignment(args["name"], assigned_templates[0], "New")
+
+	if not assignees:
+		create_crm_lead_assignment(args["name"], "BookingHL", "Completed")
 
 	frappe.publish_realtime("new_leads", {})
 

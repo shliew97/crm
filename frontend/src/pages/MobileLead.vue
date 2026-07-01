@@ -8,7 +8,7 @@
           <Icon v-if="item.icon" :icon="item.icon" class="mr-2 h-4" />
         </template>
       </Breadcrumbs>
-      <div class="absolute right-0">
+      <!-- <div class="absolute right-0">
         <Dropdown :options="statusOptions('lead', updateField, customStatuses)">
           <template #default="{ open }">
             <Button
@@ -27,10 +27,10 @@
             </Button>
           </template>
         </Dropdown>
-      </div>
+      </div> -->
     </header>
   </LayoutHeader>
-  <div
+  <!-- <div
     v-if="lead.data"
     class="flex h-12 items-center justify-between gap-2 border-b px-3 py-2.5"
   >
@@ -48,7 +48,7 @@
         @click="showConvertToDealModal = true"
       />
     </div>
-  </div>
+  </div> -->
   <div v-if="lead?.data" class="flex h-full overflow-hidden">
     <Tabs
       v-model="tabIndex"
