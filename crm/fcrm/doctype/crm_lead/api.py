@@ -280,7 +280,7 @@ def get_new_leads(search_text=None, off_work_mode=False):
 
 @frappe.whitelist()
 def acceptConversation(crm_lead_name):
-	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
+	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name, "whatsapp_message_templates": ["!=", "AI Reply"]}, pluck="name")
 	for crm_lead_assignment in crm_lead_assignments:
 		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, {
 			"status": "Accepted",
@@ -297,7 +297,7 @@ def completeConversation(crm_lead_name, mark_as_close=False):
 			"close_by": frappe.session.user,
 			"crm_lead": crm_lead_name,
 		}).insert(ignore_permissions=True)
-	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
+	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name, "whatsapp_message_templates": ["!=", "AI Reply"]}, pluck="name")
 	for crm_lead_assignment in crm_lead_assignments:
 		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, {
 			"status": "Case Closed" if mark_as_close else "Completed",
