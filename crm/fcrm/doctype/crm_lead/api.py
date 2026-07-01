@@ -280,7 +280,7 @@ def get_new_leads(search_text=None, off_work_mode=False):
 
 @frappe.whitelist()
 def acceptConversation(crm_lead_name):
-	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name}, pluck="name")
+	crm_lead_assignments = frappe.db.get_list("CRM Lead Assignment", filters={"crm_lead": crm_lead_name, "whatsapp_message_templates": ["!=", "AI Reply"]}, pluck="name")
 	for crm_lead_assignment in crm_lead_assignments:
 		frappe.db.set_value("CRM Lead Assignment", crm_lead_assignment, {
 			"status": "Accepted",
@@ -333,7 +333,7 @@ def assignConversation(args=None, *, ignore_permissions=False):
 
 	for assignee in assignees:
 		if assignee == "Booking Centre":
-			create_crm_lead_assignment(args["name"], "BookingHL", "New")
+			create_crm_lead_assignment(args["name"], "Booking Center Reply", "New")
 		else:
 			assigned_templates = frappe.db.get_all("User Permission", filters={"user": assignee, "allow": "WhatsApp Message Templates"}, pluck="for_value", limit=1)
 			if assigned_templates:
