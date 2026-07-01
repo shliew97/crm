@@ -333,14 +333,14 @@ def assignConversation(args=None, *, ignore_permissions=False):
 
 	for assignee in assignees:
 		if assignee == "Booking Centre":
-			create_crm_lead_assignment(args["name"], "BookingHL", "New")
+			create_crm_lead_assignment(args["name"], "Booking Center Reply", "New")
 		else:
 			assigned_templates = frappe.db.get_all("User Permission", filters={"user": assignee, "allow": "WhatsApp Message Templates"}, pluck="for_value", limit=1)
 			if assigned_templates:
 				create_crm_lead_assignment(args["name"], assigned_templates[0], "New")
 
 	if not assignees:
-		create_crm_lead_assignment(args["name"], "BookingHL", "Completed")
+		create_crm_lead_assignment(args["name"], "Booking Center Reply", "Completed")
 
 	frappe.publish_realtime("new_leads", {})
 
