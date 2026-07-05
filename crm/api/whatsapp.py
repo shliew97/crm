@@ -18,8 +18,10 @@ def validate(doc, method):
             crm_lead_doc.first_name = doc.from_name or ""
             crm_lead_doc.last_name = ""
             crm_lead_doc.mobile_no = doc.get("from")
+            crm_lead_doc.bsuid = doc.bsuid
             crm_lead_doc.insert(ignore_permissions=True)
             name = crm_lead_doc.name
+        doc.bsuid = None
         doc.reference_doctype = doctype
         doc.reference_name = name
 

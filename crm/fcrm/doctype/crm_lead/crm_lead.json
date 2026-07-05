@@ -40,6 +40,7 @@
   "last_name",
   "email",
   "mobile_no",
+  "bsuid",
   "organization_tab",
   "section_break_uixv",
   "naming_series",
@@ -427,12 +428,18 @@
    "fieldname": "notified_for_pending_message",
    "fieldtype": "Check",
    "label": "Notified for Pending Message"
+  },
+  {
+   "fieldname": "bsuid",
+   "fieldtype": "Data",
+   "label": "BSUID",
+   "search_index": 1
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-11 21:03:58.488813",
+ "modified": "2026-07-02 18:29:59.209317",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
