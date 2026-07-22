@@ -6,6 +6,7 @@ from crm.api.doc import get_assigned_users
 from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
 from frappe.utils.user import get_users_with_role
 from frappe.utils import get_datetime, add_to_date
+from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message import send_interactive_cta_message
 
 # Max days ahead a booking can be created for. Adjust here if the business rule changes.
 MAX_BOOKING_DAYS_AHEAD = 30
@@ -464,6 +465,9 @@ def create_whatsapp_message(
     attach,
     reply_to,
     content_type="text",
+    cta_url=None,
+    cta_label=None,
+    cta_message=None,
 ):
     doc = frappe.new_doc("WhatsApp Message")
 
@@ -487,6 +491,19 @@ def create_whatsapp_message(
         }
     )
     doc.insert(ignore_permissions=True)
+
+    # CTA fields are only populated from a successful booking create/update response,
+    # so their presence alone is the trigger.
+    if message and "Booking Confirmation" in message and cta_url and cta_label and cta_message:
+        crm_lead_doc = frappe.get_doc(reference_doctype, reference_name)
+        send_interactive_cta_message(
+            crm_lead_doc,
+            to,
+            cta_message,
+            cta_label,
+            cta_url
+        )
+
     return doc.name
 
 

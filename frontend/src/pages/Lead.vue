@@ -1342,6 +1342,13 @@ async function submitBooking() {
       if (response?.confirmation_message) {
         activities.value.content = response.confirmation_message
       }
+      if (response?.cta_url && response?.cta_label && response?.cta_message) {
+        activities.value.ctaData = {
+          cta_url: response.cta_url,
+          cta_label: response.cta_label,
+          cta_message: response.cta_message,
+        }
+      }
       leftPanelMode.value = 'view'
       fetchBookingsForPanel()
     } else {
@@ -1673,6 +1680,16 @@ async function submitEditBooking() {
         icon: 'check',
         iconClasses: 'text-green-600',
       })
+      if (response?.confirmation_message) {
+        activities.value.content = response.confirmation_message
+      }
+      if (response?.cta_url && response?.cta_label && response?.cta_message) {
+        activities.value.ctaData = {
+          cta_url: response.cta_url,
+          cta_label: response.cta_label,
+          cta_message: response.cta_message,
+        }
+      }
       leftPanelMode.value = 'view'
       fetchBookingsForPanel()
     } else {
