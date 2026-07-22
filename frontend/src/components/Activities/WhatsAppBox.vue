@@ -213,6 +213,7 @@ const textareaRef = ref(null)
 const emoji = ref('')
 
 const content = defineModel('content')
+const ctaData = defineModel('ctaData')
 const failedMessages = defineModel('failedMessages')
 const placeholder = computed(() => {
   if (isTextareaLocked.value) {
@@ -286,6 +287,13 @@ async function onGenerateClick() {
       })
     } else if (res?.suggestion) {
       content.value = res.suggestion
+      if (res?.cta_url && res?.cta_label && res?.cta_message) {
+        ctaData.value = {
+          cta_url: res.cta_url,
+          cta_label: res.cta_label,
+          cta_message: res.cta_message,
+        }
+      }
       rows.value = 6
     }
   } catch (e) {
@@ -437,6 +445,9 @@ async function sendWhatsAppMessage() {
     attach: whatsapp.value.attach || '',
     reply_to: reply.value?.name || '',
     content_type: whatsapp.value.content_type,
+    cta_url: ctaData.value?.cta_url || '',
+    cta_label: ctaData.value?.cta_label || '',
+    cta_message: ctaData.value?.cta_message || '',
   }
   const tempMsg = {
     name: 'failed_' + Date.now(),
@@ -475,6 +486,7 @@ async function sendWhatsAppMessage() {
   lastIncomingMessage.value = ''
 
   content.value = ''
+  ctaData.value = null
   fileType.value = ''
   whatsapp.value.attach = ''
   whatsapp.value.content_type = 'text'

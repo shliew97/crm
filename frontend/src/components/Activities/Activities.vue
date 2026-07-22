@@ -428,6 +428,7 @@
       v-model:reply="replyMessage"
       v-model:whatsapp="whatsappMessages"
       v-model:content="content"
+      v-model:ctaData="ctaData"
       v-model:failedMessages="failedMessages"
       :doctype="doctype"
       :doc="doc"
@@ -546,6 +547,7 @@ const modalRef = ref(null)
 const showFilesUploader = ref(false)
 const markAsClose = ref(false)
 const content = ref("")
+const ctaData = ref(null)
 
 const title = computed(() => props.tabs?.[tabIndex.value]?.name || 'Activity')
 
@@ -903,5 +905,5 @@ function scroll(hash) {
   }, 500)
 }
 
-defineExpose({ emailBox, all_activities, content })
+defineExpose({ emailBox, all_activities, content, ctaData })
 </script>
